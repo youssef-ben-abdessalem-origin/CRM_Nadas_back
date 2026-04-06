@@ -62,6 +62,22 @@ _ts_decorate([
 ], ProductVariant.prototype, "attributes", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
+        name: 'default_price_id',
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], ProductVariant.prototype, "defaultPriceId", void 0);
+_ts_decorate([
+    (0, _typeorm.ManyToOne)('PriceBookItem', {
+        nullable: true
+    }),
+    (0, _typeorm.JoinColumn)({
+        name: 'default_price_id'
+    }),
+    _ts_metadata("design:type", Object)
+], ProductVariant.prototype, "defaultPrice", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
         default: false
     }),
     _ts_metadata("design:type", Boolean)

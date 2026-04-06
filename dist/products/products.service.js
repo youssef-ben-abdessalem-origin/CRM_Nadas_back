@@ -127,7 +127,22 @@ let ProductsService = class ProductsService {
             }
         });
     }
-    // Unit & Pricing Model management
+    async createPriceBook(data) {
+        const pb = this.priceBookRepository.create(data);
+        return this.priceBookRepository.save(pb);
+    }
+    async updatePriceBook(id, data) {
+        await this.priceBookRepository.update(id, data);
+        return this.priceBookRepository.findOne({
+            where: {
+                id
+            }
+        });
+    }
+    async deletePriceBook(id) {
+        await this.priceBookRepository.delete(id);
+    }
+    // Unit management
     async getUnits() {
         return this.unitRepository.find({
             order: {
@@ -135,12 +150,47 @@ let ProductsService = class ProductsService {
             }
         });
     }
+    async createUnit(name) {
+        const unit = this.unitRepository.create({
+            name
+        });
+        return this.unitRepository.save(unit);
+    }
+    async updateUnit(id, data) {
+        await this.unitRepository.update(id, data);
+        return this.unitRepository.findOne({
+            where: {
+                id
+            }
+        });
+    }
+    async deleteUnit(id) {
+        await this.unitRepository.delete(id);
+    }
+    // Pricing Model management
     async getPricingModels() {
         return this.pricingModelRepository.find({
             order: {
                 name: 'ASC'
             }
         });
+    }
+    async createPricingModel(name) {
+        const model = this.pricingModelRepository.create({
+            name
+        });
+        return this.pricingModelRepository.save(model);
+    }
+    async updatePricingModel(id, data) {
+        await this.pricingModelRepository.update(id, data);
+        return this.pricingModelRepository.findOne({
+            where: {
+                id
+            }
+        });
+    }
+    async deletePricingModel(id) {
+        await this.pricingModelRepository.delete(id);
     }
     // Category CRUD
     async getCategories() {
@@ -181,8 +231,24 @@ let ProductsService = class ProductsService {
             ]
         });
     }
+    async setPrimaryPrice(variantId, priceId) {
+        await this.variantRepository.update(variantId, {
+            defaultPriceId: priceId
+        });
+        return this.variantRepository.findOne({
+            where: {
+                id: variantId
+            },
+            relations: [
+                'prices',
+                'prices.priceBook',
+                'defaultPrice',
+                'defaultPrice.priceBook'
+            ]
+        });
+    }
     async findAllPaginated(page = 1, limit = 5, search, categoryId) {
-        const queryBuilder = this.productRepository.createQueryBuilder('product').leftJoinAndSelect('product.category', 'category').leftJoinAndSelect('product.brand', 'brand').leftJoinAndSelect('product.variants', 'variants');
+        const queryBuilder = this.productRepository.createQueryBuilder('product').leftJoinAndSelect('product.category', 'category').leftJoinAndSelect('product.brand', 'brand').leftJoinAndSelect('product.variants', 'variants').leftJoinAndSelect('variants.prices', 'prices').leftJoinAndSelect('prices.priceBook', 'priceBook').leftJoinAndSelect('variants.defaultPrice', 'defaultPrice').leftJoinAndSelect('defaultPrice.priceBook', 'dpBook');
         if (search) {
             queryBuilder.andWhere('(product.name ILIKE :search OR product.code ILIKE :search OR product.description ILIKE :search)', {
                 search: `%${search}%`
@@ -204,6 +270,41 @@ let ProductsService = class ProductsService {
             limit,
             totalPages: Math.ceil(total / limit)
         };
+    }
+    // Variant Management
+    async createVariant(data) {
+        const variant = this.variantRepository.create(data);
+        return this.variantRepository.save(variant);
+    }
+    async updateVariant(id, data) {
+        await this.variantRepository.update(id, data);
+        return this.variantRepository.findOne({
+            where: {
+                id
+            }
+        });
+    }
+    async deleteVariant(id) {
+        await this.variantRepository.delete(id);
+    }
+    // Price Book Item (Pricing) management
+    async upsertPrice(variantId, priceBookId, price) {
+        let priceItem = await this.priceBookItemRepository.findOne({
+            where: {
+                productVariantId: variantId,
+                priceBookId: priceBookId
+            }
+        });
+        if (priceItem) {
+            priceItem.price = price;
+        } else {
+            priceItem = this.priceBookItemRepository.create({
+                productVariantId: variantId,
+                priceBookId: priceBookId,
+                price: price
+            });
+        }
+        return this.priceBookItemRepository.save(priceItem);
     }
     async findOne(id) {
         const product = await this.productRepository.findOne({

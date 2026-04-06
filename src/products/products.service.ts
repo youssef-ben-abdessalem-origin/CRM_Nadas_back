@@ -92,13 +92,56 @@ export class ProductsService implements OnModuleInit {
     return this.priceBookRepository.find({ order: { name: 'ASC' } });
   }
 
-  // Unit & Pricing Model management
+  async createPriceBook(data: any) {
+    const pb = this.priceBookRepository.create(data as Partial<PriceBook>);
+    return this.priceBookRepository.save(pb);
+  }
+
+  async updatePriceBook(id: string, data: any) {
+    await this.priceBookRepository.update(id, data);
+    return this.priceBookRepository.findOne({ where: { id } });
+  }
+
+  async deletePriceBook(id: string) {
+    await this.priceBookRepository.delete(id);
+  }
+
+  // Unit management
   async getUnits() {
     return this.unitRepository.find({ order: { name: 'ASC' } });
   }
 
+  async createUnit(name: string) {
+    const unit = this.unitRepository.create({ name });
+    return this.unitRepository.save(unit);
+  }
+
+  async updateUnit(id: string, data: any) {
+    await this.unitRepository.update(id, data);
+    return this.unitRepository.findOne({ where: { id } });
+  }
+
+  async deleteUnit(id: string) {
+    await this.unitRepository.delete(id);
+  }
+
+  // Pricing Model management
   async getPricingModels() {
     return this.pricingModelRepository.find({ order: { name: 'ASC' } });
+  }
+
+  async createPricingModel(name: string) {
+    const model = this.pricingModelRepository.create({ name });
+    return this.pricingModelRepository.save(model);
+  }
+
+  async updatePricingModel(id: string, data: any) {
+    await this.pricingModelRepository.update(id, data);
+    return this.pricingModelRepository.findOne({ where: { id } });
+  }
+
+  async deletePricingModel(id: string) {
+    await this.pricingModelRepository.delete(id);
   }
 
   // Category CRUD
@@ -127,11 +170,23 @@ export class ProductsService implements OnModuleInit {
     });
   }
 
+  async setPrimaryPrice(variantId: string, priceId: string) {
+    await this.variantRepository.update(variantId, { defaultPriceId: priceId });
+    return this.variantRepository.findOne({
+      where: { id: variantId },
+      relations: ['prices', 'prices.priceBook', 'defaultPrice', 'defaultPrice.priceBook']
+    });
+  }
+
   async findAllPaginated(page = 1, limit = 5, search?: string, categoryId?: string): Promise<{ data: Product[]; total: number; page: number; limit: number; totalPages: number }> {
     const queryBuilder = this.productRepository.createQueryBuilder('product')
       .leftJoinAndSelect('product.category', 'category')
       .leftJoinAndSelect('product.brand', 'brand')
-      .leftJoinAndSelect('product.variants', 'variants');
+      .leftJoinAndSelect('product.variants', 'variants')
+      .leftJoinAndSelect('variants.prices', 'prices')
+      .leftJoinAndSelect('prices.priceBook', 'priceBook')
+      .leftJoinAndSelect('variants.defaultPrice', 'defaultPrice')
+      .leftJoinAndSelect('defaultPrice.priceBook', 'dpBook');
 
     if (search) {
       queryBuilder.andWhere(
@@ -160,6 +215,40 @@ export class ProductsService implements OnModuleInit {
       limit,
       totalPages: Math.ceil(total / limit),
     };
+  }
+
+  // Variant Management
+  async createVariant(data: any) {
+    const variant = this.variantRepository.create(data as Partial<ProductVariant>);
+    return this.variantRepository.save(variant);
+  }
+
+  async updateVariant(id: string, data: any) {
+    await this.variantRepository.update(id, data);
+    return this.variantRepository.findOne({ where: { id } });
+  }
+
+  async deleteVariant(id: string) {
+    await this.variantRepository.delete(id);
+  }
+
+  // Price Book Item (Pricing) management
+  async upsertPrice(variantId: string, priceBookId: string, price: number) {
+    let priceItem = await this.priceBookItemRepository.findOne({
+      where: { productVariantId: variantId, priceBookId: priceBookId }
+    });
+
+    if (priceItem) {
+      priceItem.price = price;
+    } else {
+      priceItem = this.priceBookItemRepository.create({
+        productVariantId: variantId,
+        priceBookId: priceBookId,
+        price: price
+      });
+    }
+
+    return this.priceBookItemRepository.save(priceItem);
   }
 
   async findOne(id: string): Promise<Product> {

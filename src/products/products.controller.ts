@@ -38,16 +38,61 @@ export class ProductsController {
     return this.productsService.getUnits();
   }
 
+  @Post('units')
+  createUnit(@Body('name') name: string) {
+    return this.productsService.createUnit(name);
+  }
+
+  @Put('units/:id')
+  updateUnit(@Param('id', ParseUUIDPipe) id: string, @Body() data: any) {
+    return this.productsService.updateUnit(id, data);
+  }
+
+  @Delete('units/:id')
+  deleteUnit(@Param('id', ParseUUIDPipe) id: string) {
+    return this.productsService.deleteUnit(id);
+  }
+
   // Pricing Models
   @Get('pricing-models')
   getPricingModels() {
     return this.productsService.getPricingModels();
   }
 
+  @Post('pricing-models')
+  createPricingModel(@Body('name') name: string) {
+    return this.productsService.createPricingModel(name);
+  }
+
+  @Put('pricing-models/:id')
+  updatePricingModel(@Param('id', ParseUUIDPipe) id: string, @Body() data: any) {
+    return this.productsService.updatePricingModel(id, data);
+  }
+
+  @Delete('pricing-models/:id')
+  deletePricingModel(@Param('id', ParseUUIDPipe) id: string) {
+    return this.productsService.deletePricingModel(id);
+  }
+
   // Price Books
   @Get('price-books')
   getPriceBooks() {
     return this.productsService.getPriceBooks();
+  }
+
+  @Post('price-books')
+  createPriceBook(@Body() data: any) {
+    return this.productsService.createPriceBook(data);
+  }
+
+  @Put('price-books/:id')
+  updatePriceBook(@Param('id', ParseUUIDPipe) id: string, @Body() data: any) {
+    return this.productsService.updatePriceBook(id, data);
+  }
+
+  @Delete('price-books/:id')
+  deletePriceBook(@Param('id', ParseUUIDPipe) id: string) {
+    return this.productsService.deletePriceBook(id);
   }
 
   // Categories
@@ -69,6 +114,40 @@ export class ProductsController {
   @Delete('categories/:id')
   deleteCategory(@Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.deleteCategory(id);
+  }
+
+  // Variants
+  @Post('variants')
+  createVariant(@Body() data: any) {
+    return this.productsService.createVariant(data);
+  }
+
+  @Put('variants/:id')
+  updateVariant(@Param('id', ParseUUIDPipe) id: string, @Body() data: any) {
+    return this.productsService.updateVariant(id, data);
+  }
+
+  @Delete('variants/:id')
+  deleteVariant(@Param('id', ParseUUIDPipe) id: string) {
+    return this.productsService.deleteVariant(id);
+  }
+
+  // Set individual variant pricing
+  @Post('variants/:id/pricing')
+  upsertPrice(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body('priceBookId', ParseUUIDPipe) pbId: string,
+    @Body('price') price: number
+  ) {
+    return this.productsService.upsertPrice(id, pbId, price);
+  }
+
+  @Post('variants/:variantId/primary/:priceId')
+  setPrimaryPrice(
+    @Param('variantId', ParseUUIDPipe) vId: string,
+    @Param('priceId', ParseUUIDPipe) pId: string
+  ) {
+    return this.productsService.setPrimaryPrice(vId, pId);
   }
 
   @Get(':id')

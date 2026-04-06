@@ -24,6 +24,13 @@ export class ProductVariant {
   @Column({ type: 'jsonb', nullable: true })
   attributes: any;
 
+  @Column({ name: 'default_price_id', nullable: true })
+  defaultPriceId: string;
+
+  @ManyToOne('PriceBookItem', { nullable: true })
+  @JoinColumn({ name: 'default_price_id' })
+  defaultPrice: any;
+
   @Column({ default: false })
   isDefault: boolean;
 

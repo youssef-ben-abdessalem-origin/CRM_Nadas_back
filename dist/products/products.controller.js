@@ -39,13 +39,40 @@ let ProductsController = class ProductsController {
     getUnits() {
         return this.productsService.getUnits();
     }
+    createUnit(name) {
+        return this.productsService.createUnit(name);
+    }
+    updateUnit(id, data) {
+        return this.productsService.updateUnit(id, data);
+    }
+    deleteUnit(id) {
+        return this.productsService.deleteUnit(id);
+    }
     // Pricing Models
     getPricingModels() {
         return this.productsService.getPricingModels();
     }
+    createPricingModel(name) {
+        return this.productsService.createPricingModel(name);
+    }
+    updatePricingModel(id, data) {
+        return this.productsService.updatePricingModel(id, data);
+    }
+    deletePricingModel(id) {
+        return this.productsService.deletePricingModel(id);
+    }
     // Price Books
     getPriceBooks() {
         return this.productsService.getPriceBooks();
+    }
+    createPriceBook(data) {
+        return this.productsService.createPriceBook(data);
+    }
+    updatePriceBook(id, data) {
+        return this.productsService.updatePriceBook(id, data);
+    }
+    deletePriceBook(id) {
+        return this.productsService.deletePriceBook(id);
     }
     // Categories
     getCategories() {
@@ -59,6 +86,23 @@ let ProductsController = class ProductsController {
     }
     deleteCategory(id) {
         return this.productsService.deleteCategory(id);
+    }
+    // Variants
+    createVariant(data) {
+        return this.productsService.createVariant(data);
+    }
+    updateVariant(id, data) {
+        return this.productsService.updateVariant(id, data);
+    }
+    deleteVariant(id) {
+        return this.productsService.deleteVariant(id);
+    }
+    // Set individual variant pricing
+    upsertPrice(id, pbId, price) {
+        return this.productsService.upsertPrice(id, pbId, price);
+    }
+    setPrimaryPrice(vId, pId) {
+        return this.productsService.setPrimaryPrice(vId, pId);
     }
     findOne(id) {
         return this.productsService.findOne(id);
@@ -110,17 +154,104 @@ _ts_decorate([
     _ts_metadata("design:returntype", void 0)
 ], ProductsController.prototype, "getUnits", null);
 _ts_decorate([
+    (0, _common.Post)('units'),
+    _ts_param(0, (0, _common.Body)('name')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "createUnit", null);
+_ts_decorate([
+    (0, _common.Put)('units/:id'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
+    _ts_param(1, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String,
+        Object
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "updateUnit", null);
+_ts_decorate([
+    (0, _common.Delete)('units/:id'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "deleteUnit", null);
+_ts_decorate([
     (0, _common.Get)('pricing-models'),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", []),
     _ts_metadata("design:returntype", void 0)
 ], ProductsController.prototype, "getPricingModels", null);
 _ts_decorate([
+    (0, _common.Post)('pricing-models'),
+    _ts_param(0, (0, _common.Body)('name')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "createPricingModel", null);
+_ts_decorate([
+    (0, _common.Put)('pricing-models/:id'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
+    _ts_param(1, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String,
+        Object
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "updatePricingModel", null);
+_ts_decorate([
+    (0, _common.Delete)('pricing-models/:id'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "deletePricingModel", null);
+_ts_decorate([
     (0, _common.Get)('price-books'),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", []),
     _ts_metadata("design:returntype", void 0)
 ], ProductsController.prototype, "getPriceBooks", null);
+_ts_decorate([
+    (0, _common.Post)('price-books'),
+    _ts_param(0, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Object
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "createPriceBook", null);
+_ts_decorate([
+    (0, _common.Put)('price-books/:id'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
+    _ts_param(1, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String,
+        Object
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "updatePriceBook", null);
+_ts_decorate([
+    (0, _common.Delete)('price-books/:id'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "deletePriceBook", null);
 _ts_decorate([
     (0, _common.Get)('categories'),
     _ts_metadata("design:type", Function),
@@ -158,6 +289,59 @@ _ts_decorate([
     ]),
     _ts_metadata("design:returntype", void 0)
 ], ProductsController.prototype, "deleteCategory", null);
+_ts_decorate([
+    (0, _common.Post)('variants'),
+    _ts_param(0, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Object
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "createVariant", null);
+_ts_decorate([
+    (0, _common.Put)('variants/:id'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
+    _ts_param(1, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String,
+        Object
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "updateVariant", null);
+_ts_decorate([
+    (0, _common.Delete)('variants/:id'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "deleteVariant", null);
+_ts_decorate([
+    (0, _common.Post)('variants/:id/pricing'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
+    _ts_param(1, (0, _common.Body)('priceBookId', _common.ParseUUIDPipe)),
+    _ts_param(2, (0, _common.Body)('price')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String,
+        String,
+        Number
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "upsertPrice", null);
+_ts_decorate([
+    (0, _common.Post)('variants/:variantId/primary/:priceId'),
+    _ts_param(0, (0, _common.Param)('variantId', _common.ParseUUIDPipe)),
+    _ts_param(1, (0, _common.Param)('priceId', _common.ParseUUIDPipe)),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String,
+        String
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "setPrimaryPrice", null);
 _ts_decorate([
     (0, _common.Get)(':id'),
     _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
