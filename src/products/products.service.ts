@@ -1,20 +1,86 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
+import { ProductCategory } from './entities/product-category.entity';
+import { ProductUnit } from './entities/product-unit.entity';
 
 @Injectable()
-export class ProductsService {
+export class ProductsService implements OnModuleInit {
   constructor(
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
+    @InjectRepository(ProductCategory)
+    private categoryRepository: Repository<ProductCategory>,
+    @InjectRepository(ProductUnit)
+    private unitRepository: Repository<ProductUnit>,
   ) {}
+
+  async onModuleInit() {
+    await this.seedDefaultData();
+  }
+
+  private async seedDefaultData() {
+    const categoryCount = await this.categoryRepository.count();
+    if (categoryCount === 0) {
+      const defaultCategories = ['Software', 'Hardware', 'Service', 'Subscription', 'Support', 'Training', 'Other'];
+      for (const name of defaultCategories) {
+        await this.categoryRepository.save({ name });
+      }
+    }
+
+    const unitCount = await this.unitRepository.count();
+    if (unitCount === 0) {
+      const defaultUnits = ['unit', 'license', 'hour', 'day', 'month', 'year', 'user', 'project'];
+      for (const name of defaultUnits) {
+        await this.unitRepository.save({ name });
+      }
+    }
+  }
+
+  // Category CRUD
+  async getCategories() {
+    return this.categoryRepository.find({ where: { isActive: true }, order: { name: 'ASC' } });
+  }
+
+  async createCategory(name: string) {
+    const category = this.categoryRepository.create({ name });
+    return this.categoryRepository.save(category);
+  }
+
+  async updateCategory(id: number, data: Partial<ProductCategory>) {
+    await this.categoryRepository.update(id, data);
+    return this.categoryRepository.findOne({ where: { id } });
+  }
+
+  async deleteCategory(id: number) {
+    await this.categoryRepository.delete(id);
+  }
+
+  // Unit CRUD
+  async getUnits() {
+    return this.unitRepository.find({ where: { isActive: true }, order: { name: 'ASC' } });
+  }
+
+  async createUnit(name: string) {
+    const unit = this.unitRepository.create({ name });
+    return this.unitRepository.save(unit);
+  }
+
+  async updateUnit(id: number, data: Partial<ProductUnit>) {
+    await this.unitRepository.update(id, data);
+    return this.unitRepository.findOne({ where: { id } });
+  }
+
+  async deleteUnit(id: number) {
+    await this.unitRepository.delete(id);
+  }
 
   async findAll(): Promise<Product[]> {
     return this.productRepository.find();
   }
 
-  async findAllPaginated(page = 1, limit = 5, search?: string, category?: string, status?: string): Promise<{ data: Product[]; total: number; page: number; limit: number; totalPages: number }> {
+  async findAllPaginated(page = 1, limit = 5, search?: string, categoryId?: number): Promise<{ data: Product[]; total: number; page: number; limit: number; totalPages: number }> {
     const queryBuilder = this.productRepository.createQueryBuilder('product');
 
     if (search) {
@@ -24,12 +90,8 @@ export class ProductsService {
       );
     }
 
-    if (category && category !== 'all') {
-      queryBuilder.andWhere('product.category = :category', { category });
-    }
-
-    if (status && status !== 'all') {
-      queryBuilder.andWhere('product.status = :status', { status });
+    if (categoryId) {
+      queryBuilder.andWhere('product.categoryId = :categoryId', { categoryId });
     }
 
     const [data, total] = await Promise.all([

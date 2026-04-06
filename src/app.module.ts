@@ -40,6 +40,8 @@ import { GmailModule } from "./gmail/gmail.module";
 import { ActivitiesModule } from "./activities/activities.module";
 import { Activity } from "./activities/entities/activity.entity";
 import { Product } from "./products/entities/product.entity";
+import { ProductCategory } from "./products/entities/product-category.entity";
+import { ProductUnit } from "./products/entities/product-unit.entity";
 import { ProductsModule } from "./products/products.module";
 import { BillingModule } from "./billing/billing.module";
 import { Quote, Invoice } from "./billing/entities/billing.entity";
@@ -54,7 +56,39 @@ import { Quote, Invoice } from "./billing/entities/billing.entity";
       password: "admin",
       database: "nexus_crm_new",
       synchronize: true,
-      entities: [User, Lead, LeadSource, PipelineStage, LeadScoreCategory, LeadPriority, QualificationStage, Deal, DealStage, DealReason, Account, AccountType, AccountStatus, AccountTier, Contact, ContactStatus, ContactTier, Currency, Country, Industry, Tag, ActivityType, EmailTemplate, Notification, AuditLog, Activity, Product, Quote, Invoice],
+      entities: [
+        User,
+        Lead,
+        LeadSource,
+        PipelineStage,
+        LeadScoreCategory,
+        LeadPriority,
+        QualificationStage,
+        Deal,
+        DealStage,
+        DealReason,
+        Account,
+        AccountType,
+        AccountStatus,
+        AccountTier,
+        Contact,
+        ContactStatus,
+        ContactTier,
+        Currency,
+        Country,
+        Industry,
+        Tag,
+        ActivityType,
+        EmailTemplate,
+        Notification,
+        AuditLog,
+        Activity,
+        Product,
+        ProductCategory,
+        ProductUnit,
+        Quote,
+        Invoice,
+      ],
     }),
     JwtModule.register({
       global: true,

@@ -14,8 +14,11 @@ export class Product {
   @Column({ type: 'text', nullable: true })
   description: string;
 
+  @Column({ nullable: true })
+  categoryId: number;
+
   @Column({ default: 'Software' })
-  category: string;
+  categoryName: string;
 
   @Column({ default: 'active' })
   status: string;
@@ -41,8 +44,11 @@ export class Product {
   @Column({ type: 'int', default: 0 })
   reorderLevel: number;
 
+  @Column({ nullable: true })
+  unitId: number;
+
   @Column({ default: 'unit' })
-  unit: string;
+  unitName: string;
 
   @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })
   taxRate: number;

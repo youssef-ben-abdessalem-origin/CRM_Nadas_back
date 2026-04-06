@@ -17,16 +17,56 @@ export class ProductsController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('search') search?: string,
-    @Query('category') category?: string,
-    @Query('status') status?: string,
+    @Query('categoryId') categoryId?: string,
   ) {
     return this.productsService.findAllPaginated(
       page ? parseInt(page) : 1,
       limit ? parseInt(limit) : 5,
       search,
-      category,
-      status,
+      categoryId ? parseInt(categoryId) : undefined,
     );
+  }
+
+  // Categories
+  @Get('categories')
+  getCategories() {
+    return this.productsService.getCategories();
+  }
+
+  @Post('categories')
+  createCategory(@Body('name') name: string) {
+    return this.productsService.createCategory(name);
+  }
+
+  @Put('categories/:id')
+  updateCategory(@Param('id') id: string, @Body() data: any) {
+    return this.productsService.updateCategory(parseInt(id), data);
+  }
+
+  @Delete('categories/:id')
+  deleteCategory(@Param('id') id: string) {
+    return this.productsService.deleteCategory(parseInt(id));
+  }
+
+  // Units
+  @Get('units')
+  getUnits() {
+    return this.productsService.getUnits();
+  }
+
+  @Post('units')
+  createUnit(@Body('name') name: string) {
+    return this.productsService.createUnit(name);
+  }
+
+  @Put('units/:id')
+  updateUnit(@Param('id') id: string, @Body() data: any) {
+    return this.productsService.updateUnit(parseInt(id), data);
+  }
+
+  @Delete('units/:id')
+  deleteUnit(@Param('id') id: string) {
+    return this.productsService.deleteUnit(parseInt(id));
   }
 
   @Get(':id')

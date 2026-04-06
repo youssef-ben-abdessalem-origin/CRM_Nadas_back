@@ -43,10 +43,16 @@ _ts_decorate([
 ], Product.prototype, "description", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Product.prototype, "categoryId", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
         default: 'Software'
     }),
     _ts_metadata("design:type", String)
-], Product.prototype, "category", void 0);
+], Product.prototype, "categoryName", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
         default: 'active'
@@ -106,10 +112,16 @@ _ts_decorate([
 ], Product.prototype, "reorderLevel", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Product.prototype, "unitId", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
         default: 'unit'
     }),
     _ts_metadata("design:type", String)
-], Product.prototype, "unit", void 0);
+], Product.prototype, "unitName", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
         type: 'decimal',

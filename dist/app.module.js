@@ -50,6 +50,8 @@ const _gmailmodule = require("./gmail/gmail.module");
 const _activitiesmodule = require("./activities/activities.module");
 const _activityentity = require("./activities/entities/activity.entity");
 const _productentity = require("./products/entities/product.entity");
+const _productcategoryentity = require("./products/entities/product-category.entity");
+const _productunitentity = require("./products/entities/product-unit.entity");
 const _productsmodule = require("./products/products.module");
 const _billingmodule = require("./billing/billing.module");
 const _billingentity = require("./billing/entities/billing.entity");
@@ -100,6 +102,8 @@ AppModule = _ts_decorate([
                     _auditlogentity.AuditLog,
                     _activityentity.Activity,
                     _productentity.Product,
+                    _productcategoryentity.ProductCategory,
+                    _productunitentity.ProductUnit,
                     _billingentity.Quote,
                     _billingentity.Invoice
                 ]

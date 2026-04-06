@@ -13,6 +13,8 @@ const _typeorm = require("@nestjs/typeorm");
 const _productsservice = require("./products.service");
 const _productscontroller = require("./products.controller");
 const _productentity = require("./entities/product.entity");
+const _productcategoryentity = require("./entities/product-category.entity");
+const _productunitentity = require("./entities/product-unit.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -25,7 +27,9 @@ ProductsModule = _ts_decorate([
     (0, _common.Module)({
         imports: [
             _typeorm.TypeOrmModule.forFeature([
-                _productentity.Product
+                _productentity.Product,
+                _productcategoryentity.ProductCategory,
+                _productunitentity.ProductUnit
             ])
         ],
         providers: [
