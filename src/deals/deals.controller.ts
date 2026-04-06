@@ -97,6 +97,30 @@ export class DealsController {
     return this.dealsService.findAll();
   }
 
+  @Get('contact/:contactId')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get deals by contact ID' })
+  findByContact(@Param('contactId') contactId: string): Promise<Deal[]> {
+    return this.dealsService.findByContact(+contactId);
+  }
+
+  @Get('account/:accountId')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get deals by account ID' })
+  findByAccount(@Param('accountId') accountId: string): Promise<Deal[]> {
+    return this.dealsService.findByAccount(+accountId);
+  }
+
+  @Get('lead/:leadId')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get deals by lead ID' })
+  findByLead(@Param('leadId') leadId: string): Promise<Deal[]> {
+    return this.dealsService.findByLead(+leadId);
+  }
+
   @Get(':id')
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()

@@ -19,6 +19,8 @@ const _leadpriorityentity = require("./entities/lead-priority.entity");
 const _qualificationstageentity = require("./entities/qualification-stage.entity");
 const _accountsservice = require("../accounts/accounts.service");
 const _contactsservice = require("../contacts/contacts.service");
+const _dealsservice = require("../deals/deals.service");
+const _dealstageentity = require("../deals/entities/deal-stage.entity");
 const _contactstatusentity = require("../contacts/entities/contact-status.entity");
 const _contacttierentity = require("../contacts/entities/contact-tier.entity");
 function _ts_decorate(decorators, target, key, desc) {
@@ -209,6 +211,16 @@ let LeadsService = class LeadsService {
         return lead;
     }
     async create(data) {
+        if (data.email) {
+            const existing = await this.leadRepository.findOne({
+                where: {
+                    email: data.email
+                }
+            });
+            if (existing) {
+                throw new Error(`A lead with email "${data.email}" already exists (ID: ${existing.id})`);
+            }
+        }
         const leadData = {
             ...data
         };
@@ -256,15 +268,45 @@ let LeadsService = class LeadsService {
         return await this.leadRepository.save(lead);
     }
     async update(id, data) {
+        const lead = await this.findOne(id);
+        const wasWon = lead.stage?.name?.toLowerCase().includes('won');
+        const isNowWon = data.stageId && (await this.pipelineStageRepository.findOne({
+            where: {
+                id: data.stageId
+            }
+        }))?.name?.toLowerCase().includes('won');
         await this.leadRepository.update(id, {
             ...data,
             lastActivity: 'Just now'
         });
+        if (!wasWon && isNowWon) {
+            const wonStage = await this.pipelineStageRepository.findOne({
+                where: {
+                    name: 'Closed Won'
+                }
+            });
+            await this.dealsService.create({
+                name: `${lead.name} - Deal`,
+                company: lead.company,
+                value: lead.value,
+                contact: lead.email,
+                leadId: lead.id,
+                dealStageId: wonStage?.id,
+                notes: `Created from lead: ${lead.name}. ${lead.notes || ''}`
+            });
+        }
         return this.findOne(id);
     }
     async delete(id) {
         const lead = await this.findOne(id);
         await this.leadRepository.remove(lead);
+    }
+    async bulkDelete(ids) {
+        await this.leadRepository.delete(ids);
+    }
+    async bulkUpdate(ids, updates) {
+        await this.leadRepository.update(ids, updates);
+        return this.leadRepository.findByIds(ids);
     }
     async getSources() {
         return this.leadSourceRepository.find({
@@ -567,7 +609,36 @@ let LeadsService = class LeadsService {
             contactId: contactId
         };
     }
-    constructor(leadRepository, leadSourceRepository, pipelineStageRepository, scoreCategoryRepository, priorityRepository, qualificationStageRepository, contactStatusRepository, contactTierRepository, accountsService, contactsService){
+    async convertToDeal(id) {
+        const lead = await this.findOne(id);
+        if (lead.isConverted) {
+            throw new Error('Lead is already converted');
+        }
+        // Get default deal stage
+        const defaultStage = await this.dealStageRepository.findOne({
+            where: {
+                isDefault: true
+            }
+        });
+        // Create a deal from the lead
+        const deal = await this.dealsService.create({
+            name: `${lead.name} - Deal`,
+            company: lead.company,
+            value: lead.value || 0,
+            contact: lead.email,
+            leadId: lead.id,
+            dealStageId: defaultStage?.id,
+            notes: `Created from lead: ${lead.name}. ${lead.notes || ''}`
+        });
+        // Mark lead as converted
+        lead.isConverted = true;
+        lead.convertedAt = new Date();
+        await this.leadRepository.save(lead);
+        return {
+            dealId: deal.id
+        };
+    }
+    constructor(leadRepository, leadSourceRepository, pipelineStageRepository, scoreCategoryRepository, priorityRepository, qualificationStageRepository, contactStatusRepository, contactTierRepository, dealStageRepository, accountsService, contactsService, dealsService){
         this.leadRepository = leadRepository;
         this.leadSourceRepository = leadSourceRepository;
         this.pipelineStageRepository = pipelineStageRepository;
@@ -576,8 +647,10 @@ let LeadsService = class LeadsService {
         this.qualificationStageRepository = qualificationStageRepository;
         this.contactStatusRepository = contactStatusRepository;
         this.contactTierRepository = contactTierRepository;
+        this.dealStageRepository = dealStageRepository;
         this.accountsService = accountsService;
         this.contactsService = contactsService;
+        this.dealsService = dealsService;
     }
 };
 LeadsService = _ts_decorate([
@@ -590,8 +663,10 @@ LeadsService = _ts_decorate([
     _ts_param(5, (0, _typeorm.InjectRepository)(_qualificationstageentity.QualificationStage)),
     _ts_param(6, (0, _typeorm.InjectRepository)(_contactstatusentity.ContactStatus)),
     _ts_param(7, (0, _typeorm.InjectRepository)(_contacttierentity.ContactTier)),
-    _ts_param(8, (0, _common.Inject)((0, _common.forwardRef)(()=>_accountsservice.AccountsService))),
-    _ts_param(9, (0, _common.Inject)((0, _common.forwardRef)(()=>_contactsservice.ContactsService))),
+    _ts_param(8, (0, _typeorm.InjectRepository)(_dealstageentity.DealStage)),
+    _ts_param(9, (0, _common.Inject)((0, _common.forwardRef)(()=>_accountsservice.AccountsService))),
+    _ts_param(10, (0, _common.Inject)((0, _common.forwardRef)(()=>_contactsservice.ContactsService))),
+    _ts_param(11, (0, _common.Inject)((0, _common.forwardRef)(()=>_dealsservice.DealsService))),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
@@ -602,8 +677,10 @@ LeadsService = _ts_decorate([
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _accountsservice.AccountsService === "undefined" ? Object : _accountsservice.AccountsService,
-        typeof _contactsservice.ContactsService === "undefined" ? Object : _contactsservice.ContactsService
+        typeof _contactsservice.ContactsService === "undefined" ? Object : _contactsservice.ContactsService,
+        typeof _dealsservice.DealsService === "undefined" ? Object : _dealsservice.DealsService
     ])
 ], LeadsService);
 

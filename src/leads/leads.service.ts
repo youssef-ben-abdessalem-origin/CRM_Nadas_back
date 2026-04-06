@@ -9,6 +9,8 @@ import { LeadPriority } from './entities/lead-priority.entity';
 import { QualificationStage } from './entities/qualification-stage.entity';
 import { AccountsService } from '../accounts/accounts.service';
 import { ContactsService } from '../contacts/contacts.service';
+import { DealsService } from '../deals/deals.service';
+import { DealStage } from '../deals/entities/deal-stage.entity';
 import { ContactStatus } from '../contacts/entities/contact-status.entity';
 import { ContactTier } from '../contacts/entities/contact-tier.entity';
 
@@ -31,10 +33,14 @@ export class LeadsService implements OnModuleInit {
     private contactStatusRepository: Repository<ContactStatus>,
     @InjectRepository(ContactTier)
     private contactTierRepository: Repository<ContactTier>,
+    @InjectRepository(DealStage)
+    private dealStageRepository: Repository<DealStage>,
     @Inject(forwardRef(() => AccountsService))
     private accountsService: AccountsService,
     @Inject(forwardRef(() => ContactsService))
     private contactsService: ContactsService,
+    @Inject(forwardRef(() => DealsService))
+    private dealsService: DealsService,
   ) {}
 
   async onModuleInit() {
@@ -153,6 +159,12 @@ export class LeadsService implements OnModuleInit {
   }
 
   async create(data: Partial<Lead>): Promise<Lead> {
+    if (data.email) {
+      const existing = await this.leadRepository.findOne({ where: { email: data.email } });
+      if (existing) {
+        throw new Error(`A lead with email "${data.email}" already exists (ID: ${existing.id})`);
+      }
+    }
     const leadData: Partial<Lead> = { ...data };
     leadData.created = new Date();
     leadData.lastActivity = 'Just now';
@@ -196,10 +208,27 @@ export class LeadsService implements OnModuleInit {
   }
 
   async update(id: number, data: Partial<Lead>): Promise<Lead> {
+    const lead = await this.findOne(id);
+    const wasWon = lead.stage?.name?.toLowerCase().includes('won');
+    const isNowWon = data.stageId && (await this.pipelineStageRepository.findOne({ where: { id: data.stageId } }))?.name?.toLowerCase().includes('won');
+    
     await this.leadRepository.update(id, {
       ...data,
       lastActivity: 'Just now',
     });
+
+    if (!wasWon && isNowWon) {
+      const wonStage = await this.pipelineStageRepository.findOne({ where: { name: 'Closed Won' } });
+      await this.dealsService.create({
+        name: `${lead.name} - Deal`,
+        company: lead.company,
+        value: lead.value,
+        contact: lead.email,
+        leadId: lead.id,
+        dealStageId: wonStage?.id,
+        notes: `Created from lead: ${lead.name}. ${lead.notes || ''}`,
+      });
+    }
     
     return this.findOne(id);
   }
@@ -207,6 +236,15 @@ export class LeadsService implements OnModuleInit {
   async delete(id: number): Promise<void> {
     const lead = await this.findOne(id);
     await this.leadRepository.remove(lead);
+  }
+
+  async bulkDelete(ids: number[]): Promise<void> {
+    await this.leadRepository.delete(ids);
+  }
+
+  async bulkUpdate(ids: number[], updates: Partial<Lead>): Promise<Lead[]> {
+    await this.leadRepository.update(ids, updates);
+    return this.leadRepository.findByIds(ids);
   }
 
   async getSources(): Promise<LeadSource[]> {
@@ -418,6 +456,37 @@ export class LeadsService implements OnModuleInit {
       lead: lead,
       accountId: accountId,
       contactId: contactId,
+    };
+  }
+
+  async convertToDeal(id: number): Promise<{ dealId: number }> {
+    const lead = await this.findOne(id);
+    
+    if (lead.isConverted) {
+      throw new Error('Lead is already converted');
+    }
+
+    // Get default deal stage
+    const defaultStage = await this.dealStageRepository.findOne({ where: { isDefault: true } });
+
+    // Create a deal from the lead
+    const deal = await this.dealsService.create({
+      name: `${lead.name} - Deal`,
+      company: lead.company,
+      value: lead.value || 0,
+      contact: lead.email,
+      leadId: lead.id,
+      dealStageId: defaultStage?.id,
+      notes: `Created from lead: ${lead.name}. ${lead.notes || ''}`,
+    });
+
+    // Mark lead as converted
+    lead.isConverted = true;
+    lead.convertedAt = new Date();
+    await this.leadRepository.save(lead);
+
+    return {
+      dealId: deal.id,
     };
   }
 }

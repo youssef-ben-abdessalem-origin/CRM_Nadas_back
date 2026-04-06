@@ -170,6 +170,15 @@ export class AccountsService implements OnModuleInit {
     await this.accountRepository.remove(account);
   }
 
+  async bulkDelete(ids: number[]): Promise<void> {
+    await this.accountRepository.delete(ids);
+  }
+
+  async bulkUpdate(ids: number[], updates: Partial<Account>): Promise<Account[]> {
+    await this.accountRepository.update(ids, updates);
+    return this.accountRepository.findByIds(ids);
+  }
+
   // AccountType CRUD
   async getTypes(): Promise<AccountType[]> {
     return this.accountTypeRepository.find({ where: { isActive: true }, order: { order: 'ASC' } });

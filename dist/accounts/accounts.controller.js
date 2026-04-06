@@ -104,6 +104,12 @@ let AccountsController = class AccountsController {
     delete(id) {
         return this.accountsService.delete(+id);
     }
+    bulkDelete(ids) {
+        return this.accountsService.bulkDelete(ids);
+    }
+    bulkUpdate(data) {
+        return this.accountsService.bulkUpdate(data.ids, data.updates);
+    }
     constructor(accountsService){
         this.accountsService = accountsService;
     }
@@ -336,6 +342,34 @@ _ts_decorate([
     ]),
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], AccountsController.prototype, "delete", null);
+_ts_decorate([
+    (0, _common.Post)('bulk-delete'),
+    (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
+    (0, _swagger.ApiBearerAuth)(),
+    (0, _swagger.ApiOperation)({
+        summary: 'Bulk delete accounts'
+    }),
+    _ts_param(0, (0, _common.Body)('ids')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Array
+    ]),
+    _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
+], AccountsController.prototype, "bulkDelete", null);
+_ts_decorate([
+    (0, _common.Put)('bulk-update'),
+    (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
+    (0, _swagger.ApiBearerAuth)(),
+    (0, _swagger.ApiOperation)({
+        summary: 'Bulk update accounts'
+    }),
+    _ts_param(0, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Object
+    ]),
+    _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
+], AccountsController.prototype, "bulkUpdate", null);
 AccountsController = _ts_decorate([
     (0, _swagger.ApiTags)('Accounts'),
     (0, _common.Controller)('accounts'),

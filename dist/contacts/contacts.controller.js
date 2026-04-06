@@ -81,6 +81,12 @@ let ContactsController = class ContactsController {
     delete(id) {
         return this.contactsService.delete(+id);
     }
+    bulkDelete(ids) {
+        return this.contactsService.bulkDelete(ids);
+    }
+    bulkUpdate(data) {
+        return this.contactsService.bulkUpdate(data.ids, data.updates);
+    }
     constructor(contactsService){
         this.contactsService = contactsService;
     }
@@ -258,6 +264,34 @@ _ts_decorate([
     ]),
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], ContactsController.prototype, "delete", null);
+_ts_decorate([
+    (0, _common.Post)('bulk-delete'),
+    (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
+    (0, _swagger.ApiBearerAuth)(),
+    (0, _swagger.ApiOperation)({
+        summary: 'Bulk delete contacts'
+    }),
+    _ts_param(0, (0, _common.Body)('ids')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Array
+    ]),
+    _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
+], ContactsController.prototype, "bulkDelete", null);
+_ts_decorate([
+    (0, _common.Put)('bulk-update'),
+    (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
+    (0, _swagger.ApiBearerAuth)(),
+    (0, _swagger.ApiOperation)({
+        summary: 'Bulk update contacts'
+    }),
+    _ts_param(0, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Object
+    ]),
+    _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
+], ContactsController.prototype, "bulkUpdate", null);
 ContactsController = _ts_decorate([
     (0, _swagger.ApiTags)('Contacts'),
     (0, _common.Controller)('contacts'),

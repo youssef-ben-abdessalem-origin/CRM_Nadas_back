@@ -45,7 +45,14 @@ const _emailtemplateentity = require("./settings/entities/email-template.entity"
 const _notificationentity = require("./settings/entities/notification.entity");
 const _auditlogentity = require("./settings/entities/audit-log.entity");
 const _uploadsmodule = require("./uploads/uploads.module");
+const _profilemodule = require("./profile/profile.module");
 const _gmailmodule = require("./gmail/gmail.module");
+const _activitiesmodule = require("./activities/activities.module");
+const _activityentity = require("./activities/entities/activity.entity");
+const _productentity = require("./products/entities/product.entity");
+const _productsmodule = require("./products/products.module");
+const _billingmodule = require("./billing/billing.module");
+const _billingentity = require("./billing/entities/billing.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -90,7 +97,11 @@ AppModule = _ts_decorate([
                     _activitytypeentity.ActivityType,
                     _emailtemplateentity.EmailTemplate,
                     _notificationentity.Notification,
-                    _auditlogentity.AuditLog
+                    _auditlogentity.AuditLog,
+                    _activityentity.Activity,
+                    _productentity.Product,
+                    _billingentity.Quote,
+                    _billingentity.Invoice
                 ]
             }),
             _jwt.JwtModule.register({
@@ -111,7 +122,11 @@ AppModule = _ts_decorate([
             _contactsmodule.ContactsModule,
             _settingsmodule.SettingsModule,
             _uploadsmodule.UploadsModule,
-            _gmailmodule.GmailModule
+            _gmailmodule.GmailModule,
+            _activitiesmodule.ActivitiesModule,
+            _profilemodule.ProfileModule,
+            _productsmodule.ProductsModule,
+            _billingmodule.BillingModule
         ]
     })
 ], AppModule);

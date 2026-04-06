@@ -75,7 +75,7 @@ let GmailService = class GmailService {
         const credentialsPath = _path.join(process.cwd(), 'client_secret.json');
         const credentials = JSON.parse(_fs.readFileSync(credentialsPath, 'utf8'));
         const { client_id, client_secret, redirect_uris } = credentials.web;
-        this.oauth2Client = new _googleapis.google.auth.OAuth2(client_id, client_secret, 'http://localhost:3000/api/v1/auth/gmail/callback');
+        this.oauth2Client = new _googleapis.google.auth.OAuth2(client_id, client_secret, 'http://localhost:3000/api/v1/gmail/callback');
     }
     getAuthUrl(userId) {
         const scopes = [
@@ -90,10 +90,13 @@ let GmailService = class GmailService {
         });
     }
     async setTokens(userId, code) {
+        console.log('setTokens called with userId:', userId, 'code length:', code.length);
         const { tokens } = await this.oauth2Client.getToken(code);
+        console.log('Tokens received:', tokens ? 'yes' : 'no', 'refresh_token:', !!tokens?.refresh_token);
         await this.userRepository.update(userId, {
             gmailTokens: tokens
         });
+        console.log('Tokens saved to user:', userId);
         return {
             success: true
         };
@@ -104,6 +107,7 @@ let GmailService = class GmailService {
                 id: userId
             }
         });
+        console.log('getTokens for userId:', userId, 'user found:', !!user, 'tokens:', !!user?.gmailTokens);
         return user?.gmailTokens || null;
     }
     async getAuth(userId) {
@@ -176,6 +180,30 @@ let GmailService = class GmailService {
         await this.userRepository.update(userId, {
             gmailTokens: null
         });
+    }
+    async sendEmail(userId, to, subject, body, threadId) {
+        const auth = await this.getAuth(userId);
+        const gmail = _googleapis.google.gmail({
+            version: 'v1',
+            auth
+        });
+        const message = [
+            `To: ${to}`,
+            `Subject: ${subject}`,
+            '',
+            body
+        ].join('\n');
+        const encodedMessage = Buffer.from(message).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');
+        const response = await gmail.users.messages.send({
+            userId: 'me',
+            requestBody: {
+                raw: encodedMessage,
+                threadId
+            }
+        });
+        return {
+            messageId: response.data.id
+        };
     }
     constructor(userRepository){
         this.userRepository = userRepository;

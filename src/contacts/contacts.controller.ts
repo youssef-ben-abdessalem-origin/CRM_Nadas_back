@@ -126,4 +126,20 @@ export class ContactsController {
   delete(@Param('id') id: string): Promise<void> {
     return this.contactsService.delete(+id);
   }
+
+  @Post('bulk-delete')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Bulk delete contacts' })
+  bulkDelete(@Body('ids') ids: number[]): Promise<void> {
+    return this.contactsService.bulkDelete(ids);
+  }
+
+  @Put('bulk-update')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Bulk update contacts' })
+  bulkUpdate(@Body() data: { ids: number[]; updates: Partial<Contact> }): Promise<Contact[]> {
+    return this.contactsService.bulkUpdate(data.ids, data.updates);
+  }
 }

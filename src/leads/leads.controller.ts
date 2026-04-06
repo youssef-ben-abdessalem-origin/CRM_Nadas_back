@@ -263,4 +263,28 @@ export class LeadsController {
   convert(@Param('id') id: string): Promise<{ lead: Lead; accountId: number; contactId: number }> {
     return this.leadsService.convert(+id);
   }
+
+  @Post(':id/convert-to-deal')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Convert lead to Deal only' })
+  convertToDeal(@Param('id') id: string): Promise<{ dealId: number }> {
+    return this.leadsService.convertToDeal(+id);
+  }
+
+  @Post('bulk-delete')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Bulk delete leads' })
+  bulkDelete(@Body('ids') ids: number[]): Promise<void> {
+    return this.leadsService.bulkDelete(ids);
+  }
+
+  @Put('bulk-update')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Bulk update leads' })
+  bulkUpdate(@Body() data: { ids: number[]; updates: Partial<Lead> }): Promise<Lead[]> {
+    return this.leadsService.bulkUpdate(data.ids, data.updates);
+  }
 }

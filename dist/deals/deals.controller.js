@@ -68,6 +68,15 @@ let DealsController = class DealsController {
     findAll() {
         return this.dealsService.findAll();
     }
+    findByContact(contactId) {
+        return this.dealsService.findByContact(+contactId);
+    }
+    findByAccount(accountId) {
+        return this.dealsService.findByAccount(+accountId);
+    }
+    findByLead(leadId) {
+        return this.dealsService.findByLead(+leadId);
+    }
     findOne(id) {
         return this.dealsService.findOne(+id);
     }
@@ -205,6 +214,48 @@ _ts_decorate([
     _ts_metadata("design:paramtypes", []),
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], DealsController.prototype, "findAll", null);
+_ts_decorate([
+    (0, _common.Get)('contact/:contactId'),
+    (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
+    (0, _swagger.ApiBearerAuth)(),
+    (0, _swagger.ApiOperation)({
+        summary: 'Get deals by contact ID'
+    }),
+    _ts_param(0, (0, _common.Param)('contactId')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String
+    ]),
+    _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
+], DealsController.prototype, "findByContact", null);
+_ts_decorate([
+    (0, _common.Get)('account/:accountId'),
+    (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
+    (0, _swagger.ApiBearerAuth)(),
+    (0, _swagger.ApiOperation)({
+        summary: 'Get deals by account ID'
+    }),
+    _ts_param(0, (0, _common.Param)('accountId')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String
+    ]),
+    _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
+], DealsController.prototype, "findByAccount", null);
+_ts_decorate([
+    (0, _common.Get)('lead/:leadId'),
+    (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
+    (0, _swagger.ApiBearerAuth)(),
+    (0, _swagger.ApiOperation)({
+        summary: 'Get deals by lead ID'
+    }),
+    _ts_param(0, (0, _common.Param)('leadId')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String
+    ]),
+    _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
+], DealsController.prototype, "findByLead", null);
 _ts_decorate([
     (0, _common.Get)(':id'),
     (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),

@@ -220,6 +220,13 @@ let AccountsService = class AccountsService {
         const account = await this.findOne(id);
         await this.accountRepository.remove(account);
     }
+    async bulkDelete(ids) {
+        await this.accountRepository.delete(ids);
+    }
+    async bulkUpdate(ids, updates) {
+        await this.accountRepository.update(ids, updates);
+        return this.accountRepository.findByIds(ids);
+    }
     // AccountType CRUD
     async getTypes() {
         return this.accountTypeRepository.find({

@@ -126,6 +126,15 @@ let LeadsController = class LeadsController {
     convert(id) {
         return this.leadsService.convert(+id);
     }
+    convertToDeal(id) {
+        return this.leadsService.convertToDeal(+id);
+    }
+    bulkDelete(ids) {
+        return this.leadsService.bulkDelete(ids);
+    }
+    bulkUpdate(data) {
+        return this.leadsService.bulkUpdate(data.ids, data.updates);
+    }
     constructor(leadsService){
         this.leadsService = leadsService;
     }
@@ -539,6 +548,48 @@ _ts_decorate([
     ]),
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], LeadsController.prototype, "convert", null);
+_ts_decorate([
+    (0, _common.Post)(':id/convert-to-deal'),
+    (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
+    (0, _swagger.ApiBearerAuth)(),
+    (0, _swagger.ApiOperation)({
+        summary: 'Convert lead to Deal only'
+    }),
+    _ts_param(0, (0, _common.Param)('id')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String
+    ]),
+    _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
+], LeadsController.prototype, "convertToDeal", null);
+_ts_decorate([
+    (0, _common.Post)('bulk-delete'),
+    (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
+    (0, _swagger.ApiBearerAuth)(),
+    (0, _swagger.ApiOperation)({
+        summary: 'Bulk delete leads'
+    }),
+    _ts_param(0, (0, _common.Body)('ids')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Array
+    ]),
+    _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
+], LeadsController.prototype, "bulkDelete", null);
+_ts_decorate([
+    (0, _common.Put)('bulk-update'),
+    (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
+    (0, _swagger.ApiBearerAuth)(),
+    (0, _swagger.ApiOperation)({
+        summary: 'Bulk update leads'
+    }),
+    _ts_param(0, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Object
+    ]),
+    _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
+], LeadsController.prototype, "bulkUpdate", null);
 LeadsController = _ts_decorate([
     (0, _swagger.ApiTags)('Leads'),
     (0, _common.Controller)('leads'),

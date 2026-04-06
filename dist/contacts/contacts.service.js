@@ -94,6 +94,16 @@ let ContactsService = class ContactsService {
         return contact;
     }
     async create(data) {
+        if (data.email) {
+            const existing = await this.contactRepository.findOne({
+                where: {
+                    email: data.email
+                }
+            });
+            if (existing) {
+                throw new Error(`A contact with email "${data.email}" already exists (ID: ${existing.id})`);
+            }
+        }
         const initials = data.name?.split(' ').map((n)=>n[0]).join('').toUpperCase() || 'XX';
         const contact = this.contactRepository.create({
             ...data,
@@ -111,6 +121,13 @@ let ContactsService = class ContactsService {
     async delete(id) {
         const contact = await this.findOne(id);
         await this.contactRepository.remove(contact);
+    }
+    async bulkDelete(ids) {
+        await this.contactRepository.delete(ids);
+    }
+    async bulkUpdate(ids, updates) {
+        await this.contactRepository.update(ids, updates);
+        return this.contactRepository.findByIds(ids);
     }
     // ContactStatus CRUD
     async getStatuses() {

@@ -35,9 +35,16 @@ let GmailController = class GmailController {
         };
     }
     async callback(code, state, res) {
-        const userId = parseInt(state);
-        await this.gmailService.setTokens(userId, code);
-        res.redirect('http://localhost:5173/emails?gmail_connected=true');
+        console.log('Gmail callback received, state:', state, 'code exists:', !!code);
+        try {
+            const userId = parseInt(state);
+            console.log('Setting tokens for userId:', userId);
+            await this.gmailService.setTokens(userId, code);
+            res.redirect('http://localhost:8080/emails?gmail_connected=true');
+        } catch (error) {
+            console.error('Gmail callback error:', error);
+            res.redirect('http://localhost:8080/emails?gmail_error=callback_failed');
+        }
     }
     async connect(req, code) {
         return this.gmailService.setTokens(req.user.id, code);
@@ -62,6 +69,9 @@ let GmailController = class GmailController {
     }
     async getMessage(req, id) {
         return this.gmailService.getMessage(req.user.id, id);
+    }
+    async sendEmail(req, to, subject, body, threadId) {
+        return this.gmailService.sendEmail(req.user.id, to, subject, body, threadId);
     }
     constructor(gmailService){
         this.gmailService = gmailService;
@@ -189,6 +199,28 @@ _ts_decorate([
     ]),
     _ts_metadata("design:returntype", Promise)
 ], GmailController.prototype, "getMessage", null);
+_ts_decorate([
+    (0, _common.Post)('send'),
+    (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
+    (0, _swagger.ApiBearerAuth)(),
+    (0, _swagger.ApiOperation)({
+        summary: 'Send Gmail message'
+    }),
+    _ts_param(0, (0, _common.Request)()),
+    _ts_param(1, (0, _common.Query)('to')),
+    _ts_param(2, (0, _common.Query)('subject')),
+    _ts_param(3, (0, _common.Query)('body')),
+    _ts_param(4, (0, _common.Query)('threadId')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Object,
+        String,
+        String,
+        String,
+        String
+    ]),
+    _ts_metadata("design:returntype", Promise)
+], GmailController.prototype, "sendEmail", null);
 GmailController = _ts_decorate([
     (0, _swagger.ApiTags)('Gmail'),
     (0, _common.Controller)('gmail'),

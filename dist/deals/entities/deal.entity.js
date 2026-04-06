@@ -11,6 +11,8 @@ Object.defineProperty(exports, "Deal", {
 const _typeorm = require("typeorm");
 const _userentity = require("../../users/entities/user.entity");
 const _leadentity = require("../../leads/entities/lead.entity");
+const _accountentity = require("../../accounts/entities/account.entity");
+const _contactentity = require("../../contacts/entities/contact.entity");
 const _dealstageentity = require("./deal-stage.entity");
 const _dealreasonentity = require("./deal-reason.entity");
 function _ts_decorate(decorators, target, key, desc) {
@@ -68,6 +70,13 @@ _ts_decorate([
     _ts_metadata("design:type", Number)
 ], Deal.prototype, "daysInStage", void 0);
 _ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'date',
+        nullable: true
+    }),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], Deal.prototype, "expectedCloseDate", void 0);
+_ts_decorate([
     (0, _typeorm.ManyToOne)(()=>_dealstageentity.DealStage, {
         nullable: true,
         eager: true
@@ -109,6 +118,42 @@ _ts_decorate([
     _ts_metadata("design:type", typeof _leadentity.Lead === "undefined" ? Object : _leadentity.Lead)
 ], Deal.prototype, "lead", void 0);
 _ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Deal.prototype, "leadId", void 0);
+_ts_decorate([
+    (0, _typeorm.ManyToOne)(()=>_accountentity.Account, {
+        nullable: true
+    }),
+    (0, _typeorm.JoinColumn)({
+        name: 'accountId'
+    }),
+    _ts_metadata("design:type", typeof _accountentity.Account === "undefined" ? Object : _accountentity.Account)
+], Deal.prototype, "account", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Deal.prototype, "accountId", void 0);
+_ts_decorate([
+    (0, _typeorm.ManyToOne)(()=>_contactentity.Contact, {
+        nullable: true
+    }),
+    (0, _typeorm.JoinColumn)({
+        name: 'contactId'
+    }),
+    _ts_metadata("design:type", typeof _contactentity.Contact === "undefined" ? Object : _contactentity.Contact)
+], Deal.prototype, "contactEntity", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Deal.prototype, "contactId", void 0);
+_ts_decorate([
     (0, _typeorm.ManyToOne)(()=>_userentity.User, {
         nullable: true
     }),
@@ -117,6 +162,23 @@ _ts_decorate([
     }),
     _ts_metadata("design:type", typeof _userentity.User === "undefined" ? Object : _userentity.User)
 ], Deal.prototype, "owner", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Deal.prototype, "ownerId", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'text',
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Deal.prototype, "notes", void 0);
+_ts_decorate([
+    (0, _typeorm.CreateDateColumn)(),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], Deal.prototype, "createdAt", void 0);
 Deal = _ts_decorate([
     (0, _typeorm.Entity)('deals')
 ], Deal);

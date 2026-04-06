@@ -150,6 +150,48 @@ let DealsService = class DealsService {
             ]
         });
     }
+    async findByContact(contactId) {
+        return this.dealRepository.find({
+            where: {
+                contactId
+            },
+            relations: [
+                'stage',
+                'reason'
+            ],
+            order: {
+                createdAt: 'DESC'
+            }
+        });
+    }
+    async findByAccount(accountId) {
+        return this.dealRepository.find({
+            where: {
+                accountId
+            },
+            relations: [
+                'stage',
+                'reason'
+            ],
+            order: {
+                createdAt: 'DESC'
+            }
+        });
+    }
+    async findByLead(leadId) {
+        return this.dealRepository.find({
+            where: {
+                leadId
+            },
+            relations: [
+                'stage',
+                'reason'
+            ],
+            order: {
+                createdAt: 'DESC'
+            }
+        });
+    }
     async findOne(id) {
         const deal = await this.dealRepository.findOne({
             where: {

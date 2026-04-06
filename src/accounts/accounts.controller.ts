@@ -170,4 +170,20 @@ export class AccountsController {
   delete(@Param('id') id: string): Promise<void> {
     return this.accountsService.delete(+id);
   }
+
+  @Post('bulk-delete')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Bulk delete accounts' })
+  bulkDelete(@Body('ids') ids: number[]): Promise<void> {
+    return this.accountsService.bulkDelete(ids);
+  }
+
+  @Put('bulk-update')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Bulk update accounts' })
+  bulkUpdate(@Body() data: { ids: number[]; updates: Partial<Account> }): Promise<Account[]> {
+    return this.accountsService.bulkUpdate(data.ids, data.updates);
+  }
 }

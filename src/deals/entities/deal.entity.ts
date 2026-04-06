@@ -1,6 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Lead } from '../../leads/entities/lead.entity';
+import { Account } from '../../accounts/entities/account.entity';
+import { Contact } from '../../contacts/entities/contact.entity';
 import { DealStage } from './deal-stage.entity';
 import { DealReason } from './deal-reason.entity';
 
@@ -27,6 +29,9 @@ export class Deal {
   @Column({ type: 'int', nullable: true })
   daysInStage: number;
 
+  @Column({ type: 'date', nullable: true })
+  expectedCloseDate: Date;
+
   @ManyToOne(() => DealStage, { nullable: true, eager: true })
   @JoinColumn({ name: 'dealStageId' })
   stage: DealStage;
@@ -45,7 +50,33 @@ export class Deal {
   @JoinColumn({ name: 'leadId' })
   lead: Lead;
 
+  @Column({ nullable: true })
+  leadId: number;
+
+  @ManyToOne(() => Account, { nullable: true })
+  @JoinColumn({ name: 'accountId' })
+  account: Account;
+
+  @Column({ nullable: true })
+  accountId: number;
+
+  @ManyToOne(() => Contact, { nullable: true })
+  @JoinColumn({ name: 'contactId' })
+  contactEntity: Contact;
+
+  @Column({ nullable: true })
+  contactId: number;
+
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'ownerId' })
   owner: User;
+
+  @Column({ nullable: true })
+  ownerId: number;
+
+  @Column({ type: 'text', nullable: true })
+  notes: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
 }

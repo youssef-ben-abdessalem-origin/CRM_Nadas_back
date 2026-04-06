@@ -31,7 +31,7 @@ export class GmailService {
     this.oauth2Client = new google.auth.OAuth2(
       client_id,
       client_secret,
-      'http://localhost:3000/api/v1/auth/gmail/callback',
+      'http://localhost:3000/api/v1/gmail/callback',
     );
   }
 
@@ -50,13 +50,17 @@ export class GmailService {
   }
 
   async setTokens(userId: number, code: string): Promise<{ success: boolean }> {
+    console.log('setTokens called with userId:', userId, 'code length:', code.length);
     const { tokens } = await this.oauth2Client.getToken(code);
+    console.log('Tokens received:', tokens ? 'yes' : 'no', 'refresh_token:', !!tokens?.refresh_token);
     await this.userRepository.update(userId, { gmailTokens: tokens as any });
+    console.log('Tokens saved to user:', userId);
     return { success: true };
   }
 
   private async getTokens(userId: number): Promise<GmailTokens | null> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
+    console.log('getTokens for userId:', userId, 'user found:', !!user, 'tokens:', !!user?.gmailTokens);
     return user?.gmailTokens || null;
   }
 
@@ -133,5 +137,29 @@ export class GmailService {
 
   async disconnect(userId: number): Promise<void> {
     await this.userRepository.update(userId, { gmailTokens: null });
+  }
+
+  async sendEmail(userId: number, to: string, subject: string, body: string, threadId?: string): Promise<{ messageId: string }> {
+    const auth = await this.getAuth(userId);
+    const gmail = google.gmail({ version: 'v1', auth });
+
+    const message = [
+      `To: ${to}`,
+      `Subject: ${subject}`,
+      '',
+      body,
+    ].join('\n');
+
+    const encodedMessage = Buffer.from(message).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');
+
+    const response = await gmail.users.messages.send({
+      userId: 'me',
+      requestBody: {
+        raw: encodedMessage,
+        threadId,
+      },
+    });
+
+    return { messageId: response.data.id! };
   }
 }

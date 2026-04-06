@@ -35,7 +35,14 @@ import { EmailTemplate } from "./settings/entities/email-template.entity";
 import { Notification } from "./settings/entities/notification.entity";
 import { AuditLog } from "./settings/entities/audit-log.entity";
 import { UploadsModule } from "./uploads/uploads.module";
+import { ProfileModule } from "./profile/profile.module";
 import { GmailModule } from "./gmail/gmail.module";
+import { ActivitiesModule } from "./activities/activities.module";
+import { Activity } from "./activities/entities/activity.entity";
+import { Product } from "./products/entities/product.entity";
+import { ProductsModule } from "./products/products.module";
+import { BillingModule } from "./billing/billing.module";
+import { Quote, Invoice } from "./billing/entities/billing.entity";
 
 @Module({
   imports: [
@@ -47,7 +54,7 @@ import { GmailModule } from "./gmail/gmail.module";
       password: "admin",
       database: "nexus_crm_new",
       synchronize: true,
-      entities: [User, Lead, LeadSource, PipelineStage, LeadScoreCategory, LeadPriority, QualificationStage, Deal, DealStage, DealReason, Account, AccountType, AccountStatus, AccountTier, Contact, ContactStatus, ContactTier, Currency, Country, Industry, Tag, ActivityType, EmailTemplate, Notification, AuditLog],
+      entities: [User, Lead, LeadSource, PipelineStage, LeadScoreCategory, LeadPriority, QualificationStage, Deal, DealStage, DealReason, Account, AccountType, AccountStatus, AccountTier, Contact, ContactStatus, ContactTier, Currency, Country, Industry, Tag, ActivityType, EmailTemplate, Notification, AuditLog, Activity, Product, Quote, Invoice],
     }),
     JwtModule.register({
       global: true,
@@ -65,6 +72,10 @@ import { GmailModule } from "./gmail/gmail.module";
     SettingsModule,
     UploadsModule,
     GmailModule,
+    ActivitiesModule,
+    ProfileModule,
+    ProductsModule,
+    BillingModule,
   ],
 })
 export class AppModule {}

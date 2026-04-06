@@ -20,8 +20,10 @@ const _leadpriorityentity = require("./entities/lead-priority.entity");
 const _qualificationstageentity = require("./entities/qualification-stage.entity");
 const _contactstatusentity = require("../contacts/entities/contact-status.entity");
 const _contacttierentity = require("../contacts/entities/contact-tier.entity");
+const _dealstageentity = require("../deals/entities/deal-stage.entity");
 const _accountsmodule = require("../accounts/accounts.module");
 const _contactsmodule = require("../contacts/contacts.module");
+const _dealsmodule = require("../deals/deals.module");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -41,10 +43,12 @@ LeadsModule = _ts_decorate([
                 _leadpriorityentity.LeadPriority,
                 _qualificationstageentity.QualificationStage,
                 _contactstatusentity.ContactStatus,
-                _contacttierentity.ContactTier
+                _contacttierentity.ContactTier,
+                _dealstageentity.DealStage
             ]),
             (0, _common.forwardRef)(()=>_accountsmodule.AccountsModule),
-            (0, _common.forwardRef)(()=>_contactsmodule.ContactsModule)
+            (0, _common.forwardRef)(()=>_contactsmodule.ContactsModule),
+            (0, _common.forwardRef)(()=>_dealsmodule.DealsModule)
         ],
         controllers: [
             _leadscontroller.LeadsController

@@ -60,6 +60,30 @@ export class DealsService implements OnModuleInit {
     return this.dealRepository.find({ relations: ['stage', 'reason'] });
   }
 
+  async findByContact(contactId: number): Promise<Deal[]> {
+    return this.dealRepository.find({
+      where: { contactId },
+      relations: ['stage', 'reason'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async findByAccount(accountId: number): Promise<Deal[]> {
+    return this.dealRepository.find({
+      where: { accountId },
+      relations: ['stage', 'reason'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async findByLead(leadId: number): Promise<Deal[]> {
+    return this.dealRepository.find({
+      where: { leadId },
+      relations: ['stage', 'reason'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
   async findOne(id: number): Promise<Deal> {
     const deal = await this.dealRepository.findOne({ where: { id }, relations: ['stage', 'reason'] });
     if (!deal) throw new NotFoundException('Deal not found');

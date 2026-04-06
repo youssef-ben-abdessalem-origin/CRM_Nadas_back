@@ -21,9 +21,16 @@ export class GmailController {
   @Get('callback')
   @ApiOperation({ summary: 'Gmail OAuth callback' })
   async callback(@Query('code') code: string, @Query('state') state: string, @Res() res: Response) {
-    const userId = parseInt(state);
-    await this.gmailService.setTokens(userId, code);
-    res.redirect('http://localhost:5173/emails?gmail_connected=true');
+    console.log('Gmail callback received, state:', state, 'code exists:', !!code);
+    try {
+      const userId = parseInt(state);
+      console.log('Setting tokens for userId:', userId);
+      await this.gmailService.setTokens(userId, code);
+      res.redirect('http://localhost:8080/emails?gmail_connected=true');
+    } catch (error) {
+      console.error('Gmail callback error:', error);
+      res.redirect('http://localhost:8080/emails?gmail_error=callback_failed');
+    }
   }
 
   @Post('connect')
@@ -82,5 +89,19 @@ export class GmailController {
   @ApiOperation({ summary: 'Get Gmail message by ID' })
   async getMessage(@Request() req: any, @Param('id') id: string) {
     return this.gmailService.getMessage(req.user.id, id);
+  }
+
+  @Post('send')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Send Gmail message' })
+  async sendEmail(
+    @Request() req: any,
+    @Query('to') to: string,
+    @Query('subject') subject: string,
+    @Query('body') body: string,
+    @Query('threadId') threadId?: string,
+  ) {
+    return this.gmailService.sendEmail(req.user.id, to, subject, body, threadId);
   }
 }

@@ -10,8 +10,10 @@ import { LeadPriority } from './entities/lead-priority.entity';
 import { QualificationStage } from './entities/qualification-stage.entity';
 import { ContactStatus } from '../contacts/entities/contact-status.entity';
 import { ContactTier } from '../contacts/entities/contact-tier.entity';
+import { DealStage } from '../deals/entities/deal-stage.entity';
 import { AccountsModule } from '../accounts/accounts.module';
 import { ContactsModule } from '../contacts/contacts.module';
+import { DealsModule } from '../deals/deals.module';
 
 @Module({
   imports: [
@@ -24,9 +26,11 @@ import { ContactsModule } from '../contacts/contacts.module';
       QualificationStage,
       ContactStatus,
       ContactTier,
+      DealStage,
     ]),
     forwardRef(() => AccountsModule),
     forwardRef(() => ContactsModule),
+    forwardRef(() => DealsModule),
   ],
   controllers: [LeadsController],
   providers: [LeadsService],

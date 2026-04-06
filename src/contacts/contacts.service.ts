@@ -57,6 +57,12 @@ export class ContactsService implements OnModuleInit {
   }
 
   async create(data: Partial<Contact>): Promise<Contact> {
+    if (data.email) {
+      const existing = await this.contactRepository.findOne({ where: { email: data.email } });
+      if (existing) {
+        throw new Error(`A contact with email "${data.email}" already exists (ID: ${existing.id})`);
+      }
+    }
     const initials = data.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'XX';
     const contact = this.contactRepository.create({
       ...data,
@@ -76,6 +82,15 @@ export class ContactsService implements OnModuleInit {
   async delete(id: number): Promise<void> {
     const contact = await this.findOne(id);
     await this.contactRepository.remove(contact);
+  }
+
+  async bulkDelete(ids: number[]): Promise<void> {
+    await this.contactRepository.delete(ids);
+  }
+
+  async bulkUpdate(ids: number[], updates: Partial<Contact>): Promise<Contact[]> {
+    await this.contactRepository.update(ids, updates);
+    return this.contactRepository.findByIds(ids);
   }
 
   // ContactStatus CRUD
