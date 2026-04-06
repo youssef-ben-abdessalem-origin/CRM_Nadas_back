@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Req, Query, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, ParseUUIDPipe } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Product } from './entities/product.entity';
 
@@ -19,8 +19,8 @@ export class ProductsController {
     @Query('categoryId') categoryId?: string,
   ) {
     return this.productsService.findAllPaginated(
-      page ? parseInt(page) : 1,
-      limit ? parseInt(limit) : 5,
+      page ? Number.parseInt(page) : 1,
+      limit ? Number.parseInt(limit) : 5,
       search,
       categoryId,
     );
@@ -30,6 +30,18 @@ export class ProductsController {
   @Get('brands')
   getBrands() {
     return this.productsService.getBrands();
+  }
+
+  // Units
+  @Get('units')
+  getUnits() {
+    return this.productsService.getUnits();
+  }
+
+  // Pricing Models
+  @Get('pricing-models')
+  getPricingModels() {
+    return this.productsService.getPricingModels();
   }
 
   // Price Books

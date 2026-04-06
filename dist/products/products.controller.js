@@ -29,11 +29,19 @@ let ProductsController = class ProductsController {
         return this.productsService.findAll();
     }
     findAllPaginated(page, limit, search, categoryId) {
-        return this.productsService.findAllPaginated(page ? parseInt(page) : 1, limit ? parseInt(limit) : 5, search, categoryId);
+        return this.productsService.findAllPaginated(page ? Number.parseInt(page) : 1, limit ? Number.parseInt(limit) : 5, search, categoryId);
     }
     // Brands
     getBrands() {
         return this.productsService.getBrands();
+    }
+    // Units
+    getUnits() {
+        return this.productsService.getUnits();
+    }
+    // Pricing Models
+    getPricingModels() {
+        return this.productsService.getPricingModels();
     }
     // Price Books
     getPriceBooks() {
@@ -95,6 +103,18 @@ _ts_decorate([
     _ts_metadata("design:paramtypes", []),
     _ts_metadata("design:returntype", void 0)
 ], ProductsController.prototype, "getBrands", null);
+_ts_decorate([
+    (0, _common.Get)('units'),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", []),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "getUnits", null);
+_ts_decorate([
+    (0, _common.Get)('pricing-models'),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", []),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "getPricingModels", null);
 _ts_decorate([
     (0, _common.Get)('price-books'),
     _ts_metadata("design:type", Function),

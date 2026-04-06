@@ -62,6 +62,24 @@ export class ProductsService implements OnModuleInit {
         await this.brandRepository.save({ name });
       }
     }
+
+    // Seed Units
+    const unitCount = await this.unitRepository.count();
+    if (unitCount === 0) {
+      const defaultUnits = ['Unidad', 'Caja', 'Litro', 'Kilogramo', 'Mes', 'Hora'];
+      for (const name of defaultUnits) {
+        await this.unitRepository.save({ name });
+      }
+    }
+
+    // Seed Pricing Models
+    const modelCount = await this.pricingModelRepository.count();
+    if (modelCount === 0) {
+      const defaultModels = ['One-Time', 'Recurring', 'Usage-Based', 'Tiered'];
+      for (const name of defaultModels) {
+        await this.pricingModelRepository.save({ name });
+      }
+    }
   }
 
   // Brand Management
@@ -72,6 +90,15 @@ export class ProductsService implements OnModuleInit {
   // PriceBook Management
   async getPriceBooks() {
     return this.priceBookRepository.find({ order: { name: 'ASC' } });
+  }
+
+  // Unit & Pricing Model management
+  async getUnits() {
+    return this.unitRepository.find({ order: { name: 'ASC' } });
+  }
+
+  async getPricingModels() {
+    return this.pricingModelRepository.find({ order: { name: 'ASC' } });
   }
 
   // Category CRUD
