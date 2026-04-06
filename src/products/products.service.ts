@@ -4,16 +4,19 @@ import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { ProductCategory } from './entities/product-category.entity';
 import { ProductUnit } from './entities/product-unit.entity';
+import { ProductPricingModel } from './entities/product-pricing-model.entity';
 
 @Injectable()
 export class ProductsService implements OnModuleInit {
   constructor(
     @InjectRepository(Product)
-    private productRepository: Repository<Product>,
+    private readonly productRepository: Repository<Product>,
     @InjectRepository(ProductCategory)
-    private categoryRepository: Repository<ProductCategory>,
+    private readonly categoryRepository: Repository<ProductCategory>,
     @InjectRepository(ProductUnit)
-    private unitRepository: Repository<ProductUnit>,
+    private readonly unitRepository: Repository<ProductUnit>,
+    @InjectRepository(ProductPricingModel)
+    private readonly pricingModelRepository: Repository<ProductPricingModel>,
   ) {}
 
   async onModuleInit() {
@@ -34,6 +37,14 @@ export class ProductsService implements OnModuleInit {
       const defaultUnits = ['unit', 'license', 'hour', 'day', 'month', 'year', 'user', 'project'];
       for (const name of defaultUnits) {
         await this.unitRepository.save({ name });
+      }
+    }
+
+    const pricingModelCount = await this.pricingModelRepository.count();
+    if (pricingModelCount === 0) {
+      const defaultPricingModels = ['one-time', 'subscription', 'usage-based', 'tiered'];
+      for (const name of defaultPricingModels) {
+        await this.pricingModelRepository.save({ name });
       }
     }
   }
@@ -74,6 +85,25 @@ export class ProductsService implements OnModuleInit {
 
   async deleteUnit(id: number) {
     await this.unitRepository.delete(id);
+  }
+
+  // Pricing Model CRUD
+  async getPricingModels() {
+    return this.pricingModelRepository.find({ where: { isActive: true }, order: { name: 'ASC' } });
+  }
+
+  async createPricingModel(name: string) {
+    const model = this.pricingModelRepository.create({ name });
+    return this.pricingModelRepository.save(model);
+  }
+
+  async updatePricingModel(id: number, data: Partial<ProductPricingModel>) {
+    await this.pricingModelRepository.update(id, data);
+    return this.pricingModelRepository.findOne({ where: { id } });
+  }
+
+  async deletePricingModel(id: number) {
+    await this.pricingModelRepository.delete(id);
   }
 
   async findAll(): Promise<Product[]> {

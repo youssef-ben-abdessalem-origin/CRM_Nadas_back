@@ -40,10 +40,10 @@ let ProductsController = class ProductsController {
         return this.productsService.createCategory(name);
     }
     updateCategory(id, data) {
-        return this.productsService.updateCategory(parseInt(id), data);
+        return this.productsService.updateCategory(Number.parseInt(id), data);
     }
     deleteCategory(id) {
-        return this.productsService.deleteCategory(parseInt(id));
+        return this.productsService.deleteCategory(Number.parseInt(id));
     }
     // Units
     getUnits() {
@@ -53,10 +53,23 @@ let ProductsController = class ProductsController {
         return this.productsService.createUnit(name);
     }
     updateUnit(id, data) {
-        return this.productsService.updateUnit(parseInt(id), data);
+        return this.productsService.updateUnit(Number.parseInt(id), data);
     }
     deleteUnit(id) {
-        return this.productsService.deleteUnit(parseInt(id));
+        return this.productsService.deleteUnit(Number.parseInt(id));
+    }
+    // Pricing Models
+    getPricingModels() {
+        return this.productsService.getPricingModels();
+    }
+    createPricingModel(name) {
+        return this.productsService.createPricingModel(name);
+    }
+    updatePricingModel(id, data) {
+        return this.productsService.updatePricingModel(Number.parseInt(id), data);
+    }
+    deletePricingModel(id) {
+        return this.productsService.deletePricingModel(Number.parseInt(id));
     }
     findOne(id) {
         return this.productsService.findOne(id);
@@ -172,6 +185,42 @@ _ts_decorate([
     ]),
     _ts_metadata("design:returntype", void 0)
 ], ProductsController.prototype, "deleteUnit", null);
+_ts_decorate([
+    (0, _common.Get)('pricing-models'),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", []),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "getPricingModels", null);
+_ts_decorate([
+    (0, _common.Post)('pricing-models'),
+    _ts_param(0, (0, _common.Body)('name')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "createPricingModel", null);
+_ts_decorate([
+    Reflect.metadata('design:type', Function),
+    (0, _common.Put)('pricing-models/:id'),
+    _ts_param(0, (0, _common.Param)('id')),
+    _ts_param(1, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String,
+        Object
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "updatePricingModel", null);
+_ts_decorate([
+    (0, _common.Delete)('pricing-models/:id'),
+    _ts_param(0, (0, _common.Param)('id')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "deletePricingModel", null);
 _ts_decorate([
     (0, _common.Get)(':id'),
     _ts_param(0, (0, _common.Param)('id', _common.ParseIntPipe)),

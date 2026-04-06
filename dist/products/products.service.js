@@ -14,6 +14,7 @@ const _typeorm1 = require("typeorm");
 const _productentity = require("./entities/product.entity");
 const _productcategoryentity = require("./entities/product-category.entity");
 const _productunitentity = require("./entities/product-unit.entity");
+const _productpricingmodelentity = require("./entities/product-pricing-model.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -64,6 +65,20 @@ let ProductsService = class ProductsService {
             ];
             for (const name of defaultUnits){
                 await this.unitRepository.save({
+                    name
+                });
+            }
+        }
+        const pricingModelCount = await this.pricingModelRepository.count();
+        if (pricingModelCount === 0) {
+            const defaultPricingModels = [
+                'one-time',
+                'subscription',
+                'usage-based',
+                'tiered'
+            ];
+            for (const name of defaultPricingModels){
+                await this.pricingModelRepository.save({
                     name
                 });
             }
@@ -125,6 +140,34 @@ let ProductsService = class ProductsService {
     async deleteUnit(id) {
         await this.unitRepository.delete(id);
     }
+    // Pricing Model CRUD
+    async getPricingModels() {
+        return this.pricingModelRepository.find({
+            where: {
+                isActive: true
+            },
+            order: {
+                name: 'ASC'
+            }
+        });
+    }
+    async createPricingModel(name) {
+        const model = this.pricingModelRepository.create({
+            name
+        });
+        return this.pricingModelRepository.save(model);
+    }
+    async updatePricingModel(id, data) {
+        await this.pricingModelRepository.update(id, data);
+        return this.pricingModelRepository.findOne({
+            where: {
+                id
+            }
+        });
+    }
+    async deletePricingModel(id) {
+        await this.pricingModelRepository.delete(id);
+    }
     async findAll() {
         return this.productRepository.find();
     }
@@ -174,10 +217,11 @@ let ProductsService = class ProductsService {
         const product = await this.findOne(id);
         await this.productRepository.remove(product);
     }
-    constructor(productRepository, categoryRepository, unitRepository){
+    constructor(productRepository, categoryRepository, unitRepository, pricingModelRepository){
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.unitRepository = unitRepository;
+        this.pricingModelRepository = pricingModelRepository;
     }
 };
 ProductsService = _ts_decorate([
@@ -185,8 +229,10 @@ ProductsService = _ts_decorate([
     _ts_param(0, (0, _typeorm.InjectRepository)(_productentity.Product)),
     _ts_param(1, (0, _typeorm.InjectRepository)(_productcategoryentity.ProductCategory)),
     _ts_param(2, (0, _typeorm.InjectRepository)(_productunitentity.ProductUnit)),
+    _ts_param(3, (0, _typeorm.InjectRepository)(_productpricingmodelentity.ProductPricingModel)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository

@@ -61,10 +61,16 @@ _ts_decorate([
 ], Product.prototype, "status", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Product.prototype, "pricingModelId", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
         default: 'one-time'
     }),
     _ts_metadata("design:type", String)
-], Product.prototype, "pricingModel", void 0);
+], Product.prototype, "pricingModelName", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
         type: 'decimal',

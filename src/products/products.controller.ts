@@ -40,12 +40,12 @@ export class ProductsController {
 
   @Put('categories/:id')
   updateCategory(@Param('id') id: string, @Body() data: any) {
-    return this.productsService.updateCategory(parseInt(id), data);
+    return this.productsService.updateCategory(Number.parseInt(id), data);
   }
 
   @Delete('categories/:id')
   deleteCategory(@Param('id') id: string) {
-    return this.productsService.deleteCategory(parseInt(id));
+    return this.productsService.deleteCategory(Number.parseInt(id));
   }
 
   // Units
@@ -61,12 +61,34 @@ export class ProductsController {
 
   @Put('units/:id')
   updateUnit(@Param('id') id: string, @Body() data: any) {
-    return this.productsService.updateUnit(parseInt(id), data);
+    return this.productsService.updateUnit(Number.parseInt(id), data);
   }
 
   @Delete('units/:id')
   deleteUnit(@Param('id') id: string) {
-    return this.productsService.deleteUnit(parseInt(id));
+    return this.productsService.deleteUnit(Number.parseInt(id));
+  }
+
+  // Pricing Models
+  @Get('pricing-models')
+  getPricingModels() {
+    return this.productsService.getPricingModels();
+  }
+
+  @Post('pricing-models')
+  createPricingModel(@Body('name') name: string) {
+    return this.productsService.createPricingModel(name);
+  }
+
+  @Reflect.metadata('design:type', Function)
+  @Put('pricing-models/:id')
+  updatePricingModel(@Param('id') id: string, @Body() data: any) {
+    return this.productsService.updatePricingModel(Number.parseInt(id), data);
+  }
+
+  @Delete('pricing-models/:id')
+  deletePricingModel(@Param('id') id: string) {
+    return this.productsService.deletePricingModel(Number.parseInt(id));
   }
 
   @Get(':id')

@@ -23,8 +23,11 @@ export class Product {
   @Column({ default: 'active' })
   status: string;
 
+  @Column({ nullable: true })
+  pricingModelId: number;
+
   @Column({ default: 'one-time' })
-  pricingModel: string;
+  pricingModelName: string;
 
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
   unitPrice: number;

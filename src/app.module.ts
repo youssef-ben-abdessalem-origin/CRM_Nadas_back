@@ -42,6 +42,7 @@ import { Activity } from "./activities/entities/activity.entity";
 import { Product } from "./products/entities/product.entity";
 import { ProductCategory } from "./products/entities/product-category.entity";
 import { ProductUnit } from "./products/entities/product-unit.entity";
+import { ProductPricingModel } from "./products/entities/product-pricing-model.entity";
 import { ProductsModule } from "./products/products.module";
 import { BillingModule } from "./billing/billing.module";
 import { Quote, Invoice } from "./billing/entities/billing.entity";
@@ -86,6 +87,7 @@ import { Quote, Invoice } from "./billing/entities/billing.entity";
         Product,
         ProductCategory,
         ProductUnit,
+        ProductPricingModel,
         Quote,
         Invoice,
       ],
