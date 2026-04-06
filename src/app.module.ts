@@ -43,6 +43,10 @@ import { Product } from "./products/entities/product.entity";
 import { ProductCategory } from "./products/entities/product-category.entity";
 import { ProductUnit } from "./products/entities/product-unit.entity";
 import { ProductPricingModel } from "./products/entities/product-pricing-model.entity";
+import { ProductVariant } from "./products/entities/product-variant.entity";
+import { PriceBook } from "./products/entities/price-book.entity";
+import { PriceBookItem } from "./products/entities/price-book-item.entity";
+import { Brand } from "./products/entities/brand.entity";
 import { ProductsModule } from "./products/products.module";
 import { BillingModule } from "./billing/billing.module";
 import { Quote, Invoice } from "./billing/entities/billing.entity";
@@ -88,6 +92,10 @@ import { Quote, Invoice } from "./billing/entities/billing.entity";
         ProductCategory,
         ProductUnit,
         ProductPricingModel,
+        ProductVariant,
+        PriceBook,
+        PriceBookItem,
+        Brand,
         Quote,
         Invoice,
       ],

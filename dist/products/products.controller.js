@@ -9,7 +9,6 @@ Object.defineProperty(exports, "ProductsController", {
     }
 });
 const _common = require("@nestjs/common");
-const _express = require("express");
 const _productsservice = require("./products.service");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -30,46 +29,28 @@ let ProductsController = class ProductsController {
         return this.productsService.findAll();
     }
     findAllPaginated(page, limit, search, categoryId) {
-        return this.productsService.findAllPaginated(page ? parseInt(page) : 1, limit ? parseInt(limit) : 5, search, categoryId ? parseInt(categoryId) : undefined);
+        return this.productsService.findAllPaginated(page ? parseInt(page) : 1, limit ? parseInt(limit) : 5, search, categoryId);
+    }
+    // Brands
+    getBrands() {
+        return this.productsService.getBrands();
+    }
+    // Price Books
+    getPriceBooks() {
+        return this.productsService.getPriceBooks();
     }
     // Categories
     getCategories() {
         return this.productsService.getCategories();
     }
-    createCategory(name) {
-        return this.productsService.createCategory(name);
+    createCategory(name, parentId) {
+        return this.productsService.createCategory(name, parentId);
     }
     updateCategory(id, data) {
-        return this.productsService.updateCategory(Number.parseInt(id), data);
+        return this.productsService.updateCategory(id, data);
     }
     deleteCategory(id) {
-        return this.productsService.deleteCategory(Number.parseInt(id));
-    }
-    // Units
-    getUnits() {
-        return this.productsService.getUnits();
-    }
-    createUnit(name) {
-        return this.productsService.createUnit(name);
-    }
-    updateUnit(id, data) {
-        return this.productsService.updateUnit(Number.parseInt(id), data);
-    }
-    deleteUnit(id) {
-        return this.productsService.deleteUnit(Number.parseInt(id));
-    }
-    // Pricing Models
-    getPricingModels() {
-        return this.productsService.getPricingModels();
-    }
-    createPricingModel(name) {
-        return this.productsService.createPricingModel(name);
-    }
-    updatePricingModel(id, data) {
-        return this.productsService.updatePricingModel(Number.parseInt(id), data);
-    }
-    deletePricingModel(id) {
-        return this.productsService.deletePricingModel(Number.parseInt(id));
+        return this.productsService.deleteCategory(id);
     }
     findOne(id) {
         return this.productsService.findOne(id);
@@ -77,14 +58,7 @@ let ProductsController = class ProductsController {
     create(data) {
         return this.productsService.create(data);
     }
-    update(id, data, req) {
-        const user = req.user;
-        if (data.status !== undefined) {
-            // Only ADMIN or MANAGER can set status
-            if (!user || !user.role || user.role === 'USER') {
-                throw new _common.ForbiddenException('Not allowed to change product status');
-            }
-        }
+    update(id, data) {
         return this.productsService.update(id, data);
     }
     delete(id) {
@@ -116,6 +90,18 @@ _ts_decorate([
     _ts_metadata("design:returntype", void 0)
 ], ProductsController.prototype, "findAllPaginated", null);
 _ts_decorate([
+    (0, _common.Get)('brands'),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", []),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "getBrands", null);
+_ts_decorate([
+    (0, _common.Get)('price-books'),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", []),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "getPriceBooks", null);
+_ts_decorate([
     (0, _common.Get)('categories'),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", []),
@@ -124,15 +110,17 @@ _ts_decorate([
 _ts_decorate([
     (0, _common.Post)('categories'),
     _ts_param(0, (0, _common.Body)('name')),
+    _ts_param(1, (0, _common.Body)('parentId')),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
+        String,
         String
     ]),
     _ts_metadata("design:returntype", void 0)
 ], ProductsController.prototype, "createCategory", null);
 _ts_decorate([
     (0, _common.Put)('categories/:id'),
-    _ts_param(0, (0, _common.Param)('id')),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
     _ts_param(1, (0, _common.Body)()),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
@@ -143,7 +131,7 @@ _ts_decorate([
 ], ProductsController.prototype, "updateCategory", null);
 _ts_decorate([
     (0, _common.Delete)('categories/:id'),
-    _ts_param(0, (0, _common.Param)('id')),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
         String
@@ -151,82 +139,11 @@ _ts_decorate([
     _ts_metadata("design:returntype", void 0)
 ], ProductsController.prototype, "deleteCategory", null);
 _ts_decorate([
-    (0, _common.Get)('units'),
-    _ts_metadata("design:type", Function),
-    _ts_metadata("design:paramtypes", []),
-    _ts_metadata("design:returntype", void 0)
-], ProductsController.prototype, "getUnits", null);
-_ts_decorate([
-    (0, _common.Post)('units'),
-    _ts_param(0, (0, _common.Body)('name')),
-    _ts_metadata("design:type", Function),
-    _ts_metadata("design:paramtypes", [
-        String
-    ]),
-    _ts_metadata("design:returntype", void 0)
-], ProductsController.prototype, "createUnit", null);
-_ts_decorate([
-    (0, _common.Put)('units/:id'),
-    _ts_param(0, (0, _common.Param)('id')),
-    _ts_param(1, (0, _common.Body)()),
-    _ts_metadata("design:type", Function),
-    _ts_metadata("design:paramtypes", [
-        String,
-        Object
-    ]),
-    _ts_metadata("design:returntype", void 0)
-], ProductsController.prototype, "updateUnit", null);
-_ts_decorate([
-    (0, _common.Delete)('units/:id'),
-    _ts_param(0, (0, _common.Param)('id')),
-    _ts_metadata("design:type", Function),
-    _ts_metadata("design:paramtypes", [
-        String
-    ]),
-    _ts_metadata("design:returntype", void 0)
-], ProductsController.prototype, "deleteUnit", null);
-_ts_decorate([
-    (0, _common.Get)('pricing-models'),
-    _ts_metadata("design:type", Function),
-    _ts_metadata("design:paramtypes", []),
-    _ts_metadata("design:returntype", void 0)
-], ProductsController.prototype, "getPricingModels", null);
-_ts_decorate([
-    (0, _common.Post)('pricing-models'),
-    _ts_param(0, (0, _common.Body)('name')),
-    _ts_metadata("design:type", Function),
-    _ts_metadata("design:paramtypes", [
-        String
-    ]),
-    _ts_metadata("design:returntype", void 0)
-], ProductsController.prototype, "createPricingModel", null);
-_ts_decorate([
-    Reflect.metadata('design:type', Function),
-    (0, _common.Put)('pricing-models/:id'),
-    _ts_param(0, (0, _common.Param)('id')),
-    _ts_param(1, (0, _common.Body)()),
-    _ts_metadata("design:type", Function),
-    _ts_metadata("design:paramtypes", [
-        String,
-        Object
-    ]),
-    _ts_metadata("design:returntype", void 0)
-], ProductsController.prototype, "updatePricingModel", null);
-_ts_decorate([
-    (0, _common.Delete)('pricing-models/:id'),
-    _ts_param(0, (0, _common.Param)('id')),
-    _ts_metadata("design:type", Function),
-    _ts_metadata("design:paramtypes", [
-        String
-    ]),
-    _ts_metadata("design:returntype", void 0)
-], ProductsController.prototype, "deletePricingModel", null);
-_ts_decorate([
     (0, _common.Get)(':id'),
-    _ts_param(0, (0, _common.Param)('id', _common.ParseIntPipe)),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        Number
+        String
     ]),
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], ProductsController.prototype, "findOne", null);
@@ -235,29 +152,27 @@ _ts_decorate([
     _ts_param(0, (0, _common.Body)()),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        typeof Partial === "undefined" ? Object : Partial
+        Object
     ]),
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], ProductsController.prototype, "create", null);
 _ts_decorate([
     (0, _common.Put)(':id'),
-    _ts_param(0, (0, _common.Param)('id', _common.ParseIntPipe)),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
     _ts_param(1, (0, _common.Body)()),
-    _ts_param(2, (0, _common.Req)()),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        Number,
-        typeof Partial === "undefined" ? Object : Partial,
-        typeof _express.Request === "undefined" ? Object : _express.Request
+        String,
+        typeof Partial === "undefined" ? Object : Partial
     ]),
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], ProductsController.prototype, "update", null);
 _ts_decorate([
     (0, _common.Delete)(':id'),
-    _ts_param(0, (0, _common.Param)('id', _common.ParseIntPipe)),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        Number
+        String
     ]),
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], ProductsController.prototype, "delete", null);

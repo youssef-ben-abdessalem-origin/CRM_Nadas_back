@@ -1,73 +1,60 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
+import { ProductVariant } from './product-variant.entity';
+import { ProductCategory } from './product-category.entity';
+import { Brand } from './brand.entity';
+
+export enum ProductType {
+  SERVICE = 'SERVICE',
+  PHYSICAL = 'PHYSICAL',
+  SUBSCRIPTION = 'SUBSCRIPTION',
+}
 
 @Entity('products')
 export class Product {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   name: string;
 
-  @Column({ unique: true })
-  sku: string;
+  @Column({ unique: true, nullable: true })
+  code: string;
 
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ nullable: true })
-  categoryId: number;
+  @Column({ type: 'enum', enum: ProductType, default: ProductType.PHYSICAL })
+  type: ProductType;
 
-  @Column({ default: 'Software' })
-  categoryName: string;
+  @Column({ type: 'uuid', nullable: true })
+  categoryId: string | null;
 
-  @Column({ default: 'active' })
-  status: string;
+  @ManyToOne(() => ProductCategory, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'categoryId' })
+  category: ProductCategory | null;
 
-  @Column({ nullable: true })
-  pricingModelId: number;
+  @Column({ type: 'uuid', nullable: true })
+  brandId: string | null;
 
-  @Column({ default: 'one-time' })
-  pricingModelName: string;
+  @ManyToOne(() => Brand, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'brandId' })
+  brand: Brand | null;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
-  unitPrice: number;
+  @Column({ default: true })
+  isActive: boolean;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
-  cost: number;
+  @Column({ default: true })
+  isSellable: boolean;
 
-  @Column({ type: 'int', default: 0 })
-  margin: number;
+  @Column({ default: true })
+  isPurchasable: boolean;
 
-  @Column({ default: 'USD' })
-  currency: string;
-
-  @Column({ type: 'int', default: 0 })
-  stock: number;
-
-  @Column({ type: 'int', default: 0 })
-  reorderLevel: number;
-
-  @Column({ nullable: true })
-  unitId: number;
-
-  @Column({ default: 'unit' })
-  unitName: string;
-
-  @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })
-  taxRate: number;
-
-  @Column({ type: 'simple-array', nullable: true })
-  tags: string;
-
-  @Column({ type: 'int', default: 0 })
-  totalSold: number;
-
-  @Column({ type: 'decimal', precision: 14, scale: 2, default: 0 })
-  totalRevenue: number;
+  @OneToMany(() => ProductVariant, (variant) => variant.product, { cascade: true })
+  variants: ProductVariant[];
 
   @CreateDateColumn()
-  created: Date;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  lastUpdated: Date;
+  updatedAt: Date;
 }

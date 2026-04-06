@@ -53,6 +53,10 @@ const _productentity = require("./products/entities/product.entity");
 const _productcategoryentity = require("./products/entities/product-category.entity");
 const _productunitentity = require("./products/entities/product-unit.entity");
 const _productpricingmodelentity = require("./products/entities/product-pricing-model.entity");
+const _productvariantentity = require("./products/entities/product-variant.entity");
+const _pricebookentity = require("./products/entities/price-book.entity");
+const _pricebookitementity = require("./products/entities/price-book-item.entity");
+const _brandentity = require("./products/entities/brand.entity");
 const _productsmodule = require("./products/products.module");
 const _billingmodule = require("./billing/billing.module");
 const _billingentity = require("./billing/entities/billing.entity");
@@ -106,6 +110,10 @@ AppModule = _ts_decorate([
                     _productcategoryentity.ProductCategory,
                     _productunitentity.ProductUnit,
                     _productpricingmodelentity.ProductPricingModel,
+                    _productvariantentity.ProductVariant,
+                    _pricebookentity.PriceBook,
+                    _pricebookitementity.PriceBookItem,
+                    _brandentity.Brand,
                     _billingentity.Quote,
                     _billingentity.Invoice
                 ]

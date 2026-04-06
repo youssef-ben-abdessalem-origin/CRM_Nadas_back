@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-Object.defineProperty(exports, "ProductCategory", {
+Object.defineProperty(exports, "Brand", {
     enumerable: true,
     get: function() {
-        return ProductCategory;
+        return Brand;
     }
 });
 const _typeorm = require("typeorm");
@@ -18,45 +18,32 @@ function _ts_decorate(decorators, target, key, desc) {
 function _ts_metadata(k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 }
-let ProductCategory = class ProductCategory {
+let Brand = class Brand {
 };
 _ts_decorate([
     (0, _typeorm.PrimaryGeneratedColumn)('uuid'),
     _ts_metadata("design:type", String)
-], ProductCategory.prototype, "id", void 0);
+], Brand.prototype, "id", void 0);
 _ts_decorate([
     (0, _typeorm.Column)(),
     _ts_metadata("design:type", String)
-], ProductCategory.prototype, "name", void 0);
+], Brand.prototype, "name", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
-        type: 'uuid',
         nullable: true
     }),
-    _ts_metadata("design:type", Object)
-], ProductCategory.prototype, "parentId", void 0);
+    _ts_metadata("design:type", String)
+], Brand.prototype, "logo", void 0);
 _ts_decorate([
-    (0, _typeorm.ManyToOne)(()=>ProductCategory, (category)=>category.children, {
-        nullable: true,
-        onDelete: 'SET NULL'
-    }),
-    (0, _typeorm.JoinColumn)({
-        name: 'parentId'
-    }),
-    _ts_metadata("design:type", Object)
-], ProductCategory.prototype, "parent", void 0);
+    (0, _typeorm.CreateDateColumn)(),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], Brand.prototype, "createdAt", void 0);
 _ts_decorate([
-    (0, _typeorm.OneToMany)(()=>ProductCategory, (category)=>category.parent),
-    _ts_metadata("design:type", Array)
-], ProductCategory.prototype, "children", void 0);
-_ts_decorate([
-    (0, _typeorm.Column)({
-        default: true
-    }),
-    _ts_metadata("design:type", Boolean)
-], ProductCategory.prototype, "isActive", void 0);
-ProductCategory = _ts_decorate([
-    (0, _typeorm.Entity)('product_categories')
-], ProductCategory);
+    (0, _typeorm.UpdateDateColumn)(),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], Brand.prototype, "updatedAt", void 0);
+Brand = _ts_decorate([
+    (0, _typeorm.Entity)('brands')
+], Brand);
 
-//# sourceMappingURL=product-category.entity.js.map
+//# sourceMappingURL=brand.entity.js.map

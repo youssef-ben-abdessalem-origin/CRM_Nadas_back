@@ -6,9 +6,24 @@ import { Product } from './entities/product.entity';
 import { ProductCategory } from './entities/product-category.entity';
 import { ProductUnit } from './entities/product-unit.entity';
 import { ProductPricingModel } from './entities/product-pricing-model.entity';
+import { ProductVariant } from './entities/product-variant.entity';
+import { PriceBook } from './entities/price-book.entity';
+import { PriceBookItem } from './entities/price-book-item.entity';
+import { Brand } from './entities/brand.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product, ProductCategory, ProductUnit, ProductPricingModel])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Product,
+      ProductCategory,
+      ProductUnit,
+      ProductPricingModel,
+      ProductVariant,
+      PriceBook,
+      PriceBookItem,
+      Brand,
+    ]),
+  ],
   providers: [ProductsService],
   controllers: [ProductsController],
   exports: [ProductsService],

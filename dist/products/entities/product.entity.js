@@ -2,13 +2,24 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-Object.defineProperty(exports, "Product", {
-    enumerable: true,
-    get: function() {
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: Object.getOwnPropertyDescriptor(all, name).get
+    });
+}
+_export(exports, {
+    get Product () {
         return Product;
+    },
+    get ProductType () {
+        return ProductType;
     }
 });
 const _typeorm = require("typeorm");
+const _productvariantentity = require("./product-variant.entity");
+const _productcategoryentity = require("./product-category.entity");
+const _brandentity = require("./brand.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -18,11 +29,17 @@ function _ts_decorate(decorators, target, key, desc) {
 function _ts_metadata(k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 }
+var ProductType = /*#__PURE__*/ function(ProductType) {
+    ProductType["SERVICE"] = "SERVICE";
+    ProductType["PHYSICAL"] = "PHYSICAL";
+    ProductType["SUBSCRIPTION"] = "SUBSCRIPTION";
+    return ProductType;
+}({});
 let Product = class Product {
 };
 _ts_decorate([
-    (0, _typeorm.PrimaryGeneratedColumn)(),
-    _ts_metadata("design:type", Number)
+    (0, _typeorm.PrimaryGeneratedColumn)('uuid'),
+    _ts_metadata("design:type", String)
 ], Product.prototype, "id", void 0);
 _ts_decorate([
     (0, _typeorm.Column)(),
@@ -30,10 +47,11 @@ _ts_decorate([
 ], Product.prototype, "name", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
-        unique: true
+        unique: true,
+        nullable: true
     }),
     _ts_metadata("design:type", String)
-], Product.prototype, "sku", void 0);
+], Product.prototype, "code", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
         type: 'text',
@@ -43,131 +61,78 @@ _ts_decorate([
 ], Product.prototype, "description", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
+        type: 'enum',
+        enum: ProductType,
+        default: "PHYSICAL"
+    }),
+    _ts_metadata("design:type", String)
+], Product.prototype, "type", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'uuid',
         nullable: true
     }),
-    _ts_metadata("design:type", Number)
+    _ts_metadata("design:type", Object)
 ], Product.prototype, "categoryId", void 0);
 _ts_decorate([
-    (0, _typeorm.Column)({
-        default: 'Software'
+    (0, _typeorm.ManyToOne)(()=>_productcategoryentity.ProductCategory, {
+        nullable: true,
+        onDelete: 'SET NULL'
     }),
-    _ts_metadata("design:type", String)
-], Product.prototype, "categoryName", void 0);
+    (0, _typeorm.JoinColumn)({
+        name: 'categoryId'
+    }),
+    _ts_metadata("design:type", Object)
+], Product.prototype, "category", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
-        default: 'active'
-    }),
-    _ts_metadata("design:type", String)
-], Product.prototype, "status", void 0);
-_ts_decorate([
-    (0, _typeorm.Column)({
+        type: 'uuid',
         nullable: true
     }),
-    _ts_metadata("design:type", Number)
-], Product.prototype, "pricingModelId", void 0);
+    _ts_metadata("design:type", Object)
+], Product.prototype, "brandId", void 0);
+_ts_decorate([
+    (0, _typeorm.ManyToOne)(()=>_brandentity.Brand, {
+        nullable: true,
+        onDelete: 'SET NULL'
+    }),
+    (0, _typeorm.JoinColumn)({
+        name: 'brandId'
+    }),
+    _ts_metadata("design:type", Object)
+], Product.prototype, "brand", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
-        default: 'one-time'
+        default: true
     }),
-    _ts_metadata("design:type", String)
-], Product.prototype, "pricingModelName", void 0);
+    _ts_metadata("design:type", Boolean)
+], Product.prototype, "isActive", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
-        type: 'decimal',
-        precision: 12,
-        scale: 2,
-        default: 0
+        default: true
     }),
-    _ts_metadata("design:type", Number)
-], Product.prototype, "unitPrice", void 0);
+    _ts_metadata("design:type", Boolean)
+], Product.prototype, "isSellable", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
-        type: 'decimal',
-        precision: 12,
-        scale: 2,
-        default: 0
+        default: true
     }),
-    _ts_metadata("design:type", Number)
-], Product.prototype, "cost", void 0);
+    _ts_metadata("design:type", Boolean)
+], Product.prototype, "isPurchasable", void 0);
 _ts_decorate([
-    (0, _typeorm.Column)({
-        type: 'int',
-        default: 0
+    (0, _typeorm.OneToMany)(()=>_productvariantentity.ProductVariant, (variant)=>variant.product, {
+        cascade: true
     }),
-    _ts_metadata("design:type", Number)
-], Product.prototype, "margin", void 0);
-_ts_decorate([
-    (0, _typeorm.Column)({
-        default: 'USD'
-    }),
-    _ts_metadata("design:type", String)
-], Product.prototype, "currency", void 0);
-_ts_decorate([
-    (0, _typeorm.Column)({
-        type: 'int',
-        default: 0
-    }),
-    _ts_metadata("design:type", Number)
-], Product.prototype, "stock", void 0);
-_ts_decorate([
-    (0, _typeorm.Column)({
-        type: 'int',
-        default: 0
-    }),
-    _ts_metadata("design:type", Number)
-], Product.prototype, "reorderLevel", void 0);
-_ts_decorate([
-    (0, _typeorm.Column)({
-        nullable: true
-    }),
-    _ts_metadata("design:type", Number)
-], Product.prototype, "unitId", void 0);
-_ts_decorate([
-    (0, _typeorm.Column)({
-        default: 'unit'
-    }),
-    _ts_metadata("design:type", String)
-], Product.prototype, "unitName", void 0);
-_ts_decorate([
-    (0, _typeorm.Column)({
-        type: 'decimal',
-        precision: 5,
-        scale: 2,
-        default: 0
-    }),
-    _ts_metadata("design:type", Number)
-], Product.prototype, "taxRate", void 0);
-_ts_decorate([
-    (0, _typeorm.Column)({
-        type: 'simple-array',
-        nullable: true
-    }),
-    _ts_metadata("design:type", String)
-], Product.prototype, "tags", void 0);
-_ts_decorate([
-    (0, _typeorm.Column)({
-        type: 'int',
-        default: 0
-    }),
-    _ts_metadata("design:type", Number)
-], Product.prototype, "totalSold", void 0);
-_ts_decorate([
-    (0, _typeorm.Column)({
-        type: 'decimal',
-        precision: 14,
-        scale: 2,
-        default: 0
-    }),
-    _ts_metadata("design:type", Number)
-], Product.prototype, "totalRevenue", void 0);
+    _ts_metadata("design:type", Array)
+], Product.prototype, "variants", void 0);
 _ts_decorate([
     (0, _typeorm.CreateDateColumn)(),
     _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
-], Product.prototype, "created", void 0);
+], Product.prototype, "createdAt", void 0);
 _ts_decorate([
     (0, _typeorm.UpdateDateColumn)(),
     _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
-], Product.prototype, "lastUpdated", void 0);
+], Product.prototype, "updatedAt", void 0);
 Product = _ts_decorate([
     (0, _typeorm.Entity)('products')
 ], Product);

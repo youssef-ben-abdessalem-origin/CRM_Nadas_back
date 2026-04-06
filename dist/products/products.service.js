@@ -15,6 +15,10 @@ const _productentity = require("./entities/product.entity");
 const _productcategoryentity = require("./entities/product-category.entity");
 const _productunitentity = require("./entities/product-unit.entity");
 const _productpricingmodelentity = require("./entities/product-pricing-model.entity");
+const _productvariantentity = require("./entities/product-variant.entity");
+const _pricebookentity = require("./entities/price-book.entity");
+const _pricebookitementity = require("./entities/price-book-item.entity");
+const _brandentity = require("./entities/brand.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -34,6 +38,15 @@ let ProductsService = class ProductsService {
         await this.seedDefaultData();
     }
     async seedDefaultData() {
+        // Seed PriceBook if none
+        const priceBookCount = await this.priceBookRepository.count();
+        if (priceBookCount === 0) {
+            await this.priceBookRepository.save({
+                name: 'Standard Price Book',
+                currency: 'USD',
+                isDefault: true
+            });
+        }
         const categoryCount = await this.categoryRepository.count();
         if (categoryCount === 0) {
             const defaultCategories = [
@@ -51,38 +64,36 @@ let ProductsService = class ProductsService {
                 });
             }
         }
-        const unitCount = await this.unitRepository.count();
-        if (unitCount === 0) {
-            const defaultUnits = [
-                'unit',
-                'license',
-                'hour',
-                'day',
-                'month',
-                'year',
-                'user',
-                'project'
+        // Seed Brands
+        const brandCount = await this.brandRepository.count();
+        if (brandCount === 0) {
+            const defaultBrands = [
+                'Nexus',
+                'CloudFlow',
+                'SafeGuard'
             ];
-            for (const name of defaultUnits){
-                await this.unitRepository.save({
+            for (const name of defaultBrands){
+                await this.brandRepository.save({
                     name
                 });
             }
         }
-        const pricingModelCount = await this.pricingModelRepository.count();
-        if (pricingModelCount === 0) {
-            const defaultPricingModels = [
-                'one-time',
-                'subscription',
-                'usage-based',
-                'tiered'
-            ];
-            for (const name of defaultPricingModels){
-                await this.pricingModelRepository.save({
-                    name
-                });
+    }
+    // Brand Management
+    async getBrands() {
+        return this.brandRepository.find({
+            order: {
+                name: 'ASC'
             }
-        }
+        });
+    }
+    // PriceBook Management
+    async getPriceBooks() {
+        return this.priceBookRepository.find({
+            order: {
+                name: 'ASC'
+            }
+        });
     }
     // Category CRUD
     async getCategories() {
@@ -95,9 +106,10 @@ let ProductsService = class ProductsService {
             }
         });
     }
-    async createCategory(name) {
+    async createCategory(name, parentId) {
         const category = this.categoryRepository.create({
-            name
+            name,
+            parentId
         });
         return this.categoryRepository.save(category);
     }
@@ -112,69 +124,20 @@ let ProductsService = class ProductsService {
     async deleteCategory(id) {
         await this.categoryRepository.delete(id);
     }
-    // Unit CRUD
-    async getUnits() {
-        return this.unitRepository.find({
-            where: {
-                isActive: true
-            },
-            order: {
-                name: 'ASC'
-            }
-        });
-    }
-    async createUnit(name) {
-        const unit = this.unitRepository.create({
-            name
-        });
-        return this.unitRepository.save(unit);
-    }
-    async updateUnit(id, data) {
-        await this.unitRepository.update(id, data);
-        return this.unitRepository.findOne({
-            where: {
-                id
-            }
-        });
-    }
-    async deleteUnit(id) {
-        await this.unitRepository.delete(id);
-    }
-    // Pricing Model CRUD
-    async getPricingModels() {
-        return this.pricingModelRepository.find({
-            where: {
-                isActive: true
-            },
-            order: {
-                name: 'ASC'
-            }
-        });
-    }
-    async createPricingModel(name) {
-        const model = this.pricingModelRepository.create({
-            name
-        });
-        return this.pricingModelRepository.save(model);
-    }
-    async updatePricingModel(id, data) {
-        await this.pricingModelRepository.update(id, data);
-        return this.pricingModelRepository.findOne({
-            where: {
-                id
-            }
-        });
-    }
-    async deletePricingModel(id) {
-        await this.pricingModelRepository.delete(id);
-    }
+    // Product CRUD
     async findAll() {
-        return this.productRepository.find();
+        return this.productRepository.find({
+            relations: [
+                'category',
+                'brand',
+                'variants'
+            ]
+        });
     }
     async findAllPaginated(page = 1, limit = 5, search, categoryId) {
-        const queryBuilder = this.productRepository.createQueryBuilder('product');
+        const queryBuilder = this.productRepository.createQueryBuilder('product').leftJoinAndSelect('product.category', 'category').leftJoinAndSelect('product.brand', 'brand').leftJoinAndSelect('product.variants', 'variants');
         if (search) {
-            queryBuilder.andWhere('(product.name ILIKE :search OR product.sku ILIKE :search OR product.description ILIKE :search)', {
+            queryBuilder.andWhere('(product.name ILIKE :search OR product.code ILIKE :search OR product.description ILIKE :search)', {
                 search: `%${search}%`
             });
         }
@@ -184,7 +147,7 @@ let ProductsService = class ProductsService {
             });
         }
         const [data, total] = await Promise.all([
-            queryBuilder.orderBy('product.id', 'DESC').skip((page - 1) * limit).take(limit).getMany(),
+            queryBuilder.orderBy('product.createdAt', 'DESC').skip((page - 1) * limit).take(limit).getMany(),
             queryBuilder.getCount()
         ]);
         return {
@@ -199,14 +162,49 @@ let ProductsService = class ProductsService {
         const product = await this.productRepository.findOne({
             where: {
                 id
-            }
+            },
+            relations: [
+                'category',
+                'brand',
+                'variants',
+                'variants.prices',
+                'variants.prices.priceBook'
+            ]
         });
         if (!product) throw new _common.NotFoundException('Product not found');
         return product;
     }
     async create(data) {
-        const product = this.productRepository.create(data);
-        return this.productRepository.save(product);
+        const { variants, ...rest } = data;
+        const productInstance = this.productRepository.create(rest);
+        const savedProduct = await this.productRepository.save(productInstance);
+        if (variants && Array.isArray(variants)) {
+            for (const vData of variants){
+                const variantInstance = this.variantRepository.create({
+                    ...vData,
+                    productId: savedProduct.id
+                });
+                const savedVariant = await this.variantRepository.save(variantInstance);
+                if (vData.prices && Array.isArray(vData.prices)) {
+                    for (const pData of vData.prices){
+                        await this.priceBookItemRepository.save({
+                            ...pData,
+                            productVariantId: savedVariant.id
+                        });
+                    }
+                }
+            }
+        } else {
+            // Create a default variant if none provided
+            const defaultVariant = this.variantRepository.create({
+                productId: savedProduct.id,
+                name: 'Default',
+                sku: `${savedProduct.code}-DEF`,
+                isDefault: true
+            });
+            await this.variantRepository.save(defaultVariant);
+        }
+        return this.findOne(savedProduct.id);
     }
     async update(id, data) {
         const product = await this.findOne(id);
@@ -217,11 +215,15 @@ let ProductsService = class ProductsService {
         const product = await this.findOne(id);
         await this.productRepository.remove(product);
     }
-    constructor(productRepository, categoryRepository, unitRepository, pricingModelRepository){
+    constructor(productRepository, categoryRepository, unitRepository, pricingModelRepository, variantRepository, priceBookRepository, priceBookItemRepository, brandRepository){
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.unitRepository = unitRepository;
         this.pricingModelRepository = pricingModelRepository;
+        this.variantRepository = variantRepository;
+        this.priceBookRepository = priceBookRepository;
+        this.priceBookItemRepository = priceBookItemRepository;
+        this.brandRepository = brandRepository;
     }
 };
 ProductsService = _ts_decorate([
@@ -230,8 +232,16 @@ ProductsService = _ts_decorate([
     _ts_param(1, (0, _typeorm.InjectRepository)(_productcategoryentity.ProductCategory)),
     _ts_param(2, (0, _typeorm.InjectRepository)(_productunitentity.ProductUnit)),
     _ts_param(3, (0, _typeorm.InjectRepository)(_productpricingmodelentity.ProductPricingModel)),
+    _ts_param(4, (0, _typeorm.InjectRepository)(_productvariantentity.ProductVariant)),
+    _ts_param(5, (0, _typeorm.InjectRepository)(_pricebookentity.PriceBook)),
+    _ts_param(6, (0, _typeorm.InjectRepository)(_pricebookitementity.PriceBookItem)),
+    _ts_param(7, (0, _typeorm.InjectRepository)(_brandentity.Brand)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,

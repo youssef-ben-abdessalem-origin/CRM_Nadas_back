@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-Object.defineProperty(exports, "ProductCategory", {
+Object.defineProperty(exports, "PriceBook", {
     enumerable: true,
     get: function() {
-        return ProductCategory;
+        return PriceBook;
     }
 });
 const _typeorm = require("typeorm");
@@ -18,45 +18,44 @@ function _ts_decorate(decorators, target, key, desc) {
 function _ts_metadata(k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 }
-let ProductCategory = class ProductCategory {
+let PriceBook = class PriceBook {
 };
 _ts_decorate([
     (0, _typeorm.PrimaryGeneratedColumn)('uuid'),
     _ts_metadata("design:type", String)
-], ProductCategory.prototype, "id", void 0);
+], PriceBook.prototype, "id", void 0);
 _ts_decorate([
     (0, _typeorm.Column)(),
     _ts_metadata("design:type", String)
-], ProductCategory.prototype, "name", void 0);
+], PriceBook.prototype, "name", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
-        type: 'uuid',
-        nullable: true
+        default: 'USD'
     }),
-    _ts_metadata("design:type", Object)
-], ProductCategory.prototype, "parentId", void 0);
+    _ts_metadata("design:type", String)
+], PriceBook.prototype, "currency", void 0);
 _ts_decorate([
-    (0, _typeorm.ManyToOne)(()=>ProductCategory, (category)=>category.children, {
-        nullable: true,
-        onDelete: 'SET NULL'
+    (0, _typeorm.Column)({
+        default: false
     }),
-    (0, _typeorm.JoinColumn)({
-        name: 'parentId'
-    }),
-    _ts_metadata("design:type", Object)
-], ProductCategory.prototype, "parent", void 0);
-_ts_decorate([
-    (0, _typeorm.OneToMany)(()=>ProductCategory, (category)=>category.parent),
-    _ts_metadata("design:type", Array)
-], ProductCategory.prototype, "children", void 0);
+    _ts_metadata("design:type", Boolean)
+], PriceBook.prototype, "isDefault", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
         default: true
     }),
     _ts_metadata("design:type", Boolean)
-], ProductCategory.prototype, "isActive", void 0);
-ProductCategory = _ts_decorate([
-    (0, _typeorm.Entity)('product_categories')
-], ProductCategory);
+], PriceBook.prototype, "isActive", void 0);
+_ts_decorate([
+    (0, _typeorm.CreateDateColumn)(),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], PriceBook.prototype, "createdAt", void 0);
+_ts_decorate([
+    (0, _typeorm.UpdateDateColumn)(),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], PriceBook.prototype, "updatedAt", void 0);
+PriceBook = _ts_decorate([
+    (0, _typeorm.Entity)('price_books')
+], PriceBook);
 
-//# sourceMappingURL=product-category.entity.js.map
+//# sourceMappingURL=price-book.entity.js.map

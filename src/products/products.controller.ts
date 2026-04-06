@@ -1,5 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, ForbiddenException, Req, Query } from '@nestjs/common';
-import { Request } from 'express';
+import { Controller, Get, Post, Put, Delete, Body, Param, Req, Query, ParseUUIDPipe } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Product } from './entities/product.entity';
 
@@ -23,8 +22,20 @@ export class ProductsController {
       page ? parseInt(page) : 1,
       limit ? parseInt(limit) : 5,
       search,
-      categoryId ? parseInt(categoryId) : undefined,
+      categoryId,
     );
+  }
+
+  // Brands
+  @Get('brands')
+  getBrands() {
+    return this.productsService.getBrands();
+  }
+
+  // Price Books
+  @Get('price-books')
+  getPriceBooks() {
+    return this.productsService.getPriceBooks();
   }
 
   // Categories
@@ -34,91 +45,40 @@ export class ProductsController {
   }
 
   @Post('categories')
-  createCategory(@Body('name') name: string) {
-    return this.productsService.createCategory(name);
+  createCategory(@Body('name') name: string, @Body('parentId') parentId?: string) {
+    return this.productsService.createCategory(name, parentId);
   }
 
   @Put('categories/:id')
-  updateCategory(@Param('id') id: string, @Body() data: any) {
-    return this.productsService.updateCategory(Number.parseInt(id), data);
+  updateCategory(@Param('id', ParseUUIDPipe) id: string, @Body() data: any) {
+    return this.productsService.updateCategory(id, data);
   }
 
   @Delete('categories/:id')
-  deleteCategory(@Param('id') id: string) {
-    return this.productsService.deleteCategory(Number.parseInt(id));
-  }
-
-  // Units
-  @Get('units')
-  getUnits() {
-    return this.productsService.getUnits();
-  }
-
-  @Post('units')
-  createUnit(@Body('name') name: string) {
-    return this.productsService.createUnit(name);
-  }
-
-  @Put('units/:id')
-  updateUnit(@Param('id') id: string, @Body() data: any) {
-    return this.productsService.updateUnit(Number.parseInt(id), data);
-  }
-
-  @Delete('units/:id')
-  deleteUnit(@Param('id') id: string) {
-    return this.productsService.deleteUnit(Number.parseInt(id));
-  }
-
-  // Pricing Models
-  @Get('pricing-models')
-  getPricingModels() {
-    return this.productsService.getPricingModels();
-  }
-
-  @Post('pricing-models')
-  createPricingModel(@Body('name') name: string) {
-    return this.productsService.createPricingModel(name);
-  }
-
-  @Reflect.metadata('design:type', Function)
-  @Put('pricing-models/:id')
-  updatePricingModel(@Param('id') id: string, @Body() data: any) {
-    return this.productsService.updatePricingModel(Number.parseInt(id), data);
-  }
-
-  @Delete('pricing-models/:id')
-  deletePricingModel(@Param('id') id: string) {
-    return this.productsService.deletePricingModel(Number.parseInt(id));
+  deleteCategory(@Param('id', ParseUUIDPipe) id: string) {
+    return this.productsService.deleteCategory(id);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<Product> {
+  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Product> {
     return this.productsService.findOne(id);
   }
 
   @Post()
-  create(@Body() data: Partial<Product>): Promise<Product> {
+  create(@Body() data: any): Promise<Product> {
     return this.productsService.create(data);
   }
 
   @Put(':id')
   update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() data: Partial<Product>,
-    @Req() req: Request,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: Partial<Product>
   ): Promise<Product> {
-    const user = (req as any).user;
-    if (data.status !== undefined) {
-      // Only ADMIN or MANAGER can set status
-      if (!user || !user.role || user.role === 'USER') {
-        throw new ForbiddenException('Not allowed to change product status');
-      }
-    }
     return this.productsService.update(id, data);
   }
 
   @Delete(':id')
-  delete(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  delete(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.productsService.delete(id);
   }
 }
