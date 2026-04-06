@@ -1,0 +1,423 @@
+import { Injectable, NotFoundException, OnModuleInit, Inject, forwardRef } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Lead } from './entities/lead.entity';
+import { LeadSource } from './entities/lead-source.entity';
+import { PipelineStage } from './entities/pipeline-stage.entity';
+import { LeadScoreCategory } from './entities/lead-score-category.entity';
+import { LeadPriority } from './entities/lead-priority.entity';
+import { QualificationStage } from './entities/qualification-stage.entity';
+import { AccountsService } from '../accounts/accounts.service';
+import { ContactsService } from '../contacts/contacts.service';
+import { ContactStatus } from '../contacts/entities/contact-status.entity';
+import { ContactTier } from '../contacts/entities/contact-tier.entity';
+
+@Injectable()
+export class LeadsService implements OnModuleInit {
+  constructor(
+    @InjectRepository(Lead)
+    private leadRepository: Repository<Lead>,
+    @InjectRepository(LeadSource)
+    private leadSourceRepository: Repository<LeadSource>,
+    @InjectRepository(PipelineStage)
+    private pipelineStageRepository: Repository<PipelineStage>,
+    @InjectRepository(LeadScoreCategory)
+    private scoreCategoryRepository: Repository<LeadScoreCategory>,
+    @InjectRepository(LeadPriority)
+    private priorityRepository: Repository<LeadPriority>,
+    @InjectRepository(QualificationStage)
+    private qualificationStageRepository: Repository<QualificationStage>,
+    @InjectRepository(ContactStatus)
+    private contactStatusRepository: Repository<ContactStatus>,
+    @InjectRepository(ContactTier)
+    private contactTierRepository: Repository<ContactTier>,
+    @Inject(forwardRef(() => AccountsService))
+    private accountsService: AccountsService,
+    @Inject(forwardRef(() => ContactsService))
+    private contactsService: ContactsService,
+  ) {}
+
+  async onModuleInit() {
+    await this.seedDefaultData();
+  }
+
+  private async seedDefaultData() {
+    const sourcesCount = await this.leadSourceRepository.count();
+    if (sourcesCount === 0) {
+      const defaultSources = ['Website', 'LinkedIn', 'Referral', 'Cold Call', 'Trade Show', 'Google Ads', 'Email Campaign'];
+      for (const name of defaultSources) {
+        await this.leadSourceRepository.save({ name, isActive: true });
+      }
+    }
+
+    const stagesCount = await this.pipelineStageRepository.count();
+    if (stagesCount === 0) {
+      const defaultStages = [
+        { name: 'New', order: 1, isDefault: true },
+        { name: 'Contacted', order: 2 },
+        { name: 'Qualified', order: 3 },
+        { name: 'Unqualified', order: 4 },
+      ];
+      for (const stage of defaultStages) {
+        await this.pipelineStageRepository.save(stage);
+      }
+    }
+
+    const scoresCount = await this.scoreCategoryRepository.count();
+    if (scoresCount === 0) {
+      const defaultScores = [
+        { name: 'Hot', color: '#ef4444', order: 1 },
+        { name: 'Warm', color: '#f59e0b', order: 2 },
+        { name: 'Cold', color: '#3b82f6', order: 3 },
+      ];
+      for (const score of defaultScores) {
+        await this.scoreCategoryRepository.save(score);
+      }
+    }
+
+    const prioritiesCount = await this.priorityRepository.count();
+    if (prioritiesCount === 0) {
+      const defaultPriorities = [
+        { name: 'Low', color: '#6b7280', order: 1 },
+        { name: 'Medium', color: '#3b82f6', order: 2 },
+        { name: 'High', color: '#f59e0b', order: 3 },
+        { name: 'Urgent', color: '#ef4444', order: 4 },
+      ];
+      for (const priority of defaultPriorities) {
+        await this.priorityRepository.save(priority);
+      }
+    }
+
+    const qualificationsCount = await this.qualificationStageRepository.count();
+    if (qualificationsCount === 0) {
+      const defaultQualifications = [
+        { name: 'Not Qualified', order: 1 },
+        { name: 'In Progress', order: 2 },
+        { name: 'Qualified', order: 3 },
+      ];
+      for (const qual of defaultQualifications) {
+        await this.qualificationStageRepository.save(qual);
+      }
+    }
+  }
+
+  async findAll(): Promise<Lead[]> {
+    return this.leadRepository.find({ 
+      relations: ['source', 'stage', 'scoreCategory', 'priority', 'qualificationStage', 'assignedTo', 'account'] 
+    });
+  }
+
+  async findAllPaginated(page = 1, limit = 10, search?: string, stageId?: number): Promise<{ data: Lead[]; total: number; page: number; limit: number; totalPages: number }> {
+    const queryBuilder = this.leadRepository.createQueryBuilder('lead')
+      .leftJoinAndSelect('lead.assignedTo', 'assignedTo')
+      .leftJoinAndSelect('lead.source', 'source')
+      .leftJoinAndSelect('lead.stage', 'stage')
+      .leftJoinAndSelect('lead.scoreCategory', 'scoreCategory')
+      .leftJoinAndSelect('lead.priority', 'priority')
+      .leftJoinAndSelect('lead.qualificationStage', 'qualificationStage');
+
+    if (search) {
+      queryBuilder.andWhere(
+        '(lead.name ILIKE :search OR lead.email ILIKE :search OR lead.company ILIKE :search)',
+        { search: `%${search}%` }
+      );
+    }
+
+    if (stageId) {
+      queryBuilder.andWhere('lead.stageId = :stageId', { stageId });
+    }
+
+    const total = await queryBuilder.getCount();
+    const data = await queryBuilder
+      .orderBy('lead.created', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getMany();
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async findOne(id: number): Promise<Lead> {
+    const lead = await this.leadRepository.findOne({ 
+      where: { id }, 
+      relations: ['source', 'stage', 'scoreCategory', 'priority', 'qualificationStage', 'assignedTo', 'account'] 
+    });
+    if (!lead) throw new NotFoundException('Lead not found');
+    return lead;
+  }
+
+  async create(data: Partial<Lead>): Promise<Lead> {
+    const leadData: Partial<Lead> = { ...data };
+    leadData.created = new Date();
+    leadData.lastActivity = 'Just now';
+
+    if (leadData.priorityId) {
+      const priority = await this.priorityRepository.findOne({ where: { id: leadData.priorityId } });
+      if (!priority) throw new NotFoundException('Priority not found');
+    }
+    
+    if (leadData.stageId && !(await this.pipelineStageRepository.findOne({ where: { id: leadData.stageId } }))) {
+      throw new NotFoundException('Stage not found');
+    }
+
+    // Handle account: link to existing or create new
+    if (leadData.accountId) {
+      // Link to existing account
+      const account = await this.accountsService.findOne(leadData.accountId);
+      leadData.accountId = account.id;
+    } else if (leadData.company) {
+      // Check if account with same name exists
+      const existingAccounts = await this.accountsService.findAll();
+      const existingAccount = existingAccounts.find(a => a.name.toLowerCase() === leadData.company.toLowerCase());
+      
+      if (existingAccount) {
+        // Link to existing account
+        leadData.accountId = existingAccount.id;
+      } else {
+        // Create new account
+        const newAccount = await this.accountsService.create({
+          name: leadData.company,
+          website: leadData.website,
+          industry: leadData.industry,
+          location: leadData.location,
+        });
+        leadData.accountId = Array.isArray(newAccount) ? newAccount[0].id : newAccount.id;
+      }
+    }
+
+    const lead = this.leadRepository.create(leadData);
+    return await this.leadRepository.save(lead);
+  }
+
+  async update(id: number, data: Partial<Lead>): Promise<Lead> {
+    await this.leadRepository.update(id, {
+      ...data,
+      lastActivity: 'Just now',
+    });
+    
+    return this.findOne(id);
+  }
+
+  async delete(id: number): Promise<void> {
+    const lead = await this.findOne(id);
+    await this.leadRepository.remove(lead);
+  }
+
+  async getSources(): Promise<LeadSource[]> {
+    return this.leadSourceRepository.find({ where: { isActive: true } });
+  }
+
+  async getStages(): Promise<PipelineStage[]> {
+    return this.pipelineStageRepository.find({ where: { isActive: true }, order: { order: 'ASC' } });
+  }
+
+  async getScores(): Promise<LeadScoreCategory[]> {
+    return this.scoreCategoryRepository.find({ where: { isActive: true }, order: { order: 'ASC' } });
+  }
+
+  async getPriorities(): Promise<LeadPriority[]> {
+    return this.priorityRepository.find({ where: { isActive: true }, order: { order: 'ASC' } });
+  }
+
+  async getQualifications(): Promise<QualificationStage[]> {
+    return this.qualificationStageRepository.find({ where: { isActive: true }, order: { order: 'ASC' } });
+  }
+
+  async createSource(name: string): Promise<LeadSource> {
+    return this.leadSourceRepository.save({ name, isActive: true });
+  }
+
+  async createStage(name: string, order?: number): Promise<PipelineStage> {
+    const maxOrder = await this.pipelineStageRepository
+      .createQueryBuilder('stage')
+      .select('MAX(stage.order)', 'max')
+      .getRawOne();
+    return this.pipelineStageRepository.save({ name, order: order ?? (maxOrder?.max || 0) + 1, isActive: true });
+  }
+
+  async createScore(name: string, color?: string): Promise<LeadScoreCategory> {
+    const maxOrder = await this.scoreCategoryRepository
+      .createQueryBuilder('score')
+      .select('MAX(score.order)', 'max')
+      .getRawOne();
+    return this.scoreCategoryRepository.save({ name, color, order: (maxOrder?.max || 0) + 1, isActive: true });
+  }
+
+  async createPriority(name: string, color?: string): Promise<LeadPriority> {
+    const maxOrder = await this.priorityRepository
+      .createQueryBuilder('priority')
+      .select('MAX(priority.order)', 'max')
+      .getRawOne();
+    return this.priorityRepository.save({ name, color, order: (maxOrder?.max || 0) + 1, isActive: true });
+  }
+
+  async createQualification(name: string): Promise<QualificationStage> {
+    const maxOrder = await this.qualificationStageRepository
+      .createQueryBuilder('qual')
+      .select('MAX(qual.order)', 'max')
+      .getRawOne();
+    return this.qualificationStageRepository.save({ name, order: (maxOrder?.max || 0) + 1, isActive: true });
+  }
+
+  async updateSource(id: number, data: Partial<LeadSource>): Promise<LeadSource> {
+    const source = await this.leadSourceRepository.findOne({ where: { id } });
+    if (!source) throw new NotFoundException('Source not found');
+    Object.assign(source, data);
+    return this.leadSourceRepository.save(source);
+  }
+
+  async deleteSource(id: number): Promise<void> {
+    const source = await this.leadSourceRepository.findOne({ where: { id } });
+    if (!source) throw new NotFoundException('Source not found');
+    await this.leadSourceRepository.remove(source);
+  }
+
+  async updateStage(id: number, data: Partial<PipelineStage>): Promise<PipelineStage> {
+    const stage = await this.pipelineStageRepository.findOne({ where: { id } });
+    if (!stage) throw new NotFoundException('Stage not found');
+    Object.assign(stage, data);
+    return this.pipelineStageRepository.save(stage);
+  }
+
+  async deleteStage(id: number): Promise<void> {
+    const stage = await this.pipelineStageRepository.findOne({ where: { id } });
+    if (!stage) throw new NotFoundException('Stage not found');
+    await this.pipelineStageRepository.remove(stage);
+  }
+
+  async updateScore(id: number, data: Partial<LeadScoreCategory>): Promise<LeadScoreCategory> {
+    const score = await this.scoreCategoryRepository.findOne({ where: { id } });
+    if (!score) throw new NotFoundException('Score not found');
+    Object.assign(score, data);
+    return this.scoreCategoryRepository.save(score);
+  }
+
+  async deleteScore(id: number): Promise<void> {
+    const score = await this.scoreCategoryRepository.findOne({ where: { id } });
+    if (!score) throw new NotFoundException('Score not found');
+    await this.scoreCategoryRepository.remove(score);
+  }
+
+  async updatePriority(id: number, data: Partial<LeadPriority>): Promise<LeadPriority> {
+    const priority = await this.priorityRepository.findOne({ where: { id } });
+    if (!priority) throw new NotFoundException('Priority not found');
+    Object.assign(priority, data);
+    return this.priorityRepository.save(priority);
+  }
+
+  async deletePriority(id: number): Promise<void> {
+    const priority = await this.priorityRepository.findOne({ where: { id } });
+    if (!priority) throw new NotFoundException('Priority not found');
+    await this.priorityRepository.remove(priority);
+  }
+
+  async updateQualification(id: number, data: Partial<QualificationStage>): Promise<QualificationStage> {
+    const qualification = await this.qualificationStageRepository.findOne({ where: { id } });
+    if (!qualification) throw new NotFoundException('Qualification not found');
+    Object.assign(qualification, data);
+    return this.qualificationStageRepository.save(qualification);
+  }
+
+  async deleteQualification(id: number): Promise<void> {
+    const qualification = await this.qualificationStageRepository.findOne({ where: { id } });
+    if (!qualification) throw new NotFoundException('Qualification not found');
+    await this.qualificationStageRepository.remove(qualification);
+  }
+
+  async getAllSources(includeInactive = false): Promise<LeadSource[]> {
+    return this.leadSourceRepository.find({ where: includeInactive ? {} : { isActive: true } });
+  }
+
+  async getAllStages(includeInactive = false): Promise<PipelineStage[]> {
+    return this.pipelineStageRepository.find({ where: includeInactive ? {} : { isActive: true }, order: { order: 'ASC' } });
+  }
+
+  async getAllScores(includeInactive = false): Promise<LeadScoreCategory[]> {
+    return this.scoreCategoryRepository.find({ where: includeInactive ? {} : { isActive: true }, order: { order: 'ASC' } });
+  }
+
+  async getAllPriorities(includeInactive = false): Promise<LeadPriority[]> {
+    return this.priorityRepository.find({ where: includeInactive ? {} : { isActive: true }, order: { order: 'ASC' } });
+  }
+
+  async getAllQualifications(includeInactive = false): Promise<QualificationStage[]> {
+    return this.qualificationStageRepository.find({ where: includeInactive ? {} : { isActive: true }, order: { order: 'ASC' } });
+  }
+
+  async convert(id: number): Promise<{ lead: Lead; accountId: number; contactId: number }> {
+    const lead = await this.findOne(id);
+    
+    if (lead.isConverted) {
+      throw new Error('Lead is already converted');
+    }
+
+    // Find or create Account from company name
+    let accountId: number;
+    if (lead.company) {
+      const existingAccount = await this.accountsService.findAll().then(accounts => 
+        accounts.find(a => a.name.toLowerCase() === lead.company.toLowerCase())
+      );
+      
+      if (existingAccount) {
+        accountId = existingAccount.id;
+      } else {
+        const account = await this.accountsService.create({
+          name: lead.company,
+          website: lead.website,
+          industry: lead.industry,
+          location: lead.location,
+        });
+        accountId = Array.isArray(account) ? account[0].id : account.id;
+      }
+    } else {
+      // Create a generic account if no company
+      const account = await this.accountsService.create({
+        name: lead.name + "'s Company",
+        industry: lead.industry,
+        location: lead.location,
+      });
+      accountId = Array.isArray(account) ? account[0].id : account.id;
+    }
+
+    // Get default contact status and tier
+    const defaultStatus = await this.contactStatusRepository.findOne({ where: { isDefault: true } });
+    const defaultTier = await this.contactTierRepository.find({ order: { order: 'ASC' }, take: 1 }).then(tiers => tiers[0]);
+
+    // Create Contact linked to Account
+    const contact = await this.contactsService.create({
+      name: lead.name,
+      email: lead.email,
+      phone: lead.phone,
+      title: lead.title,
+      company: lead.company,
+      account: { id: accountId } as any,
+      contactStatusId: defaultStatus?.id,
+      contactTierId: defaultTier?.id,
+      dealValue: lead.value || 0,
+      industry: lead.industry,
+      location: lead.location,
+      website: lead.website,
+      notes: lead.notes,
+    } as any);
+    const contactId = Array.isArray(contact) ? contact[0].id : contact.id;
+
+    // Mark lead as converted
+    lead.isConverted = true;
+    lead.convertedAt = new Date();
+    lead.convertedAccountId = accountId;
+    lead.convertedContactId = contactId;
+    await this.leadRepository.save(lead);
+
+    return {
+      lead: lead,
+      accountId: accountId,
+      contactId: contactId,
+    };
+  }
+}

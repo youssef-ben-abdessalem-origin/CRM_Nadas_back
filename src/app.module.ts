@@ -1,0 +1,70 @@
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { JwtModule } from "@nestjs/jwt";
+import { PassportModule } from "@nestjs/passport";
+import { AuthModule } from "./auth/auth.module";
+import { UsersModule } from "./users/users.module";
+import { LeadsModule } from "./leads/leads.module";
+import { DealsModule } from "./deals/deals.module";
+import { AccountsModule } from "./accounts/accounts.module";
+import { ContactsModule } from "./contacts/contacts.module";
+import { SettingsModule } from "./settings/settings.module";
+import { User } from "./users/entities/user.entity";
+import { Lead } from "./leads/entities/lead.entity";
+import { LeadSource } from "./leads/entities/lead-source.entity";
+import { PipelineStage } from "./leads/entities/pipeline-stage.entity";
+import { LeadScoreCategory } from "./leads/entities/lead-score-category.entity";
+import { LeadPriority } from "./leads/entities/lead-priority.entity";
+import { QualificationStage } from "./leads/entities/qualification-stage.entity";
+import { Deal } from "./deals/entities/deal.entity";
+import { DealStage } from "./deals/entities/deal-stage.entity";
+import { DealReason } from "./deals/entities/deal-reason.entity";
+import { Account } from "./accounts/entities/account.entity";
+import { AccountType } from "./accounts/entities/account-type.entity";
+import { AccountStatus } from "./accounts/entities/account-status.entity";
+import { AccountTier } from "./accounts/entities/account-tier.entity";
+import { Contact } from "./contacts/entities/contact.entity";
+import { ContactStatus } from "./contacts/entities/contact-status.entity";
+import { ContactTier } from "./contacts/entities/contact-tier.entity";
+import { Currency } from "./settings/entities/currency.entity";
+import { Country } from "./settings/entities/country.entity";
+import { Industry } from "./settings/entities/industry.entity";
+import { Tag } from "./settings/entities/tag.entity";
+import { ActivityType } from "./settings/entities/activity-type.entity";
+import { EmailTemplate } from "./settings/entities/email-template.entity";
+import { Notification } from "./settings/entities/notification.entity";
+import { AuditLog } from "./settings/entities/audit-log.entity";
+import { UploadsModule } from "./uploads/uploads.module";
+import { GmailModule } from "./gmail/gmail.module";
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: "postgres",
+      host: "localhost",
+      port: 5432,
+      username: "postgres",
+      password: "admin",
+      database: "nexus_crm_new",
+      synchronize: true,
+      entities: [User, Lead, LeadSource, PipelineStage, LeadScoreCategory, LeadPriority, QualificationStage, Deal, DealStage, DealReason, Account, AccountType, AccountStatus, AccountTier, Contact, ContactStatus, ContactTier, Currency, Country, Industry, Tag, ActivityType, EmailTemplate, Notification, AuditLog],
+    }),
+    JwtModule.register({
+      global: true,
+      secret:
+        "NexusCRM2026SecretKeyForJWTTokenGenerationMustBeAtLeast256BitsLong",
+      signOptions: { expiresIn: "7d" },
+    }),
+    PassportModule.register({ defaultStrategy: "jwt" }),
+    AuthModule,
+    UsersModule,
+    LeadsModule,
+    DealsModule,
+    AccountsModule,
+    ContactsModule,
+    SettingsModule,
+    UploadsModule,
+    GmailModule,
+  ],
+})
+export class AppModule {}

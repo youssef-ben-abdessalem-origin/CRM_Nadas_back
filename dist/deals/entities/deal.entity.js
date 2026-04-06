@@ -1,0 +1,124 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "Deal", {
+    enumerable: true,
+    get: function() {
+        return Deal;
+    }
+});
+const _typeorm = require("typeorm");
+const _userentity = require("../../users/entities/user.entity");
+const _leadentity = require("../../leads/entities/lead.entity");
+const _dealstageentity = require("./deal-stage.entity");
+const _dealreasonentity = require("./deal-reason.entity");
+function _ts_decorate(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+}
+function _ts_metadata(k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+}
+let Deal = class Deal {
+};
+_ts_decorate([
+    (0, _typeorm.PrimaryGeneratedColumn)(),
+    _ts_metadata("design:type", Number)
+], Deal.prototype, "id", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)(),
+    _ts_metadata("design:type", String)
+], Deal.prototype, "name", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Deal.prototype, "company", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 15,
+        scale: 2,
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Deal.prototype, "value", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Deal.prototype, "contact", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'int',
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Deal.prototype, "probability", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'int',
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Deal.prototype, "daysInStage", void 0);
+_ts_decorate([
+    (0, _typeorm.ManyToOne)(()=>_dealstageentity.DealStage, {
+        nullable: true,
+        eager: true
+    }),
+    (0, _typeorm.JoinColumn)({
+        name: 'dealStageId'
+    }),
+    _ts_metadata("design:type", typeof _dealstageentity.DealStage === "undefined" ? Object : _dealstageentity.DealStage)
+], Deal.prototype, "stage", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Deal.prototype, "dealStageId", void 0);
+_ts_decorate([
+    (0, _typeorm.ManyToOne)(()=>_dealreasonentity.DealReason, {
+        nullable: true,
+        eager: true
+    }),
+    (0, _typeorm.JoinColumn)({
+        name: 'dealReasonId'
+    }),
+    _ts_metadata("design:type", typeof _dealreasonentity.DealReason === "undefined" ? Object : _dealreasonentity.DealReason)
+], Deal.prototype, "reason", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Deal.prototype, "dealReasonId", void 0);
+_ts_decorate([
+    (0, _typeorm.ManyToOne)(()=>_leadentity.Lead, {
+        nullable: true
+    }),
+    (0, _typeorm.JoinColumn)({
+        name: 'leadId'
+    }),
+    _ts_metadata("design:type", typeof _leadentity.Lead === "undefined" ? Object : _leadentity.Lead)
+], Deal.prototype, "lead", void 0);
+_ts_decorate([
+    (0, _typeorm.ManyToOne)(()=>_userentity.User, {
+        nullable: true
+    }),
+    (0, _typeorm.JoinColumn)({
+        name: 'ownerId'
+    }),
+    _ts_metadata("design:type", typeof _userentity.User === "undefined" ? Object : _userentity.User)
+], Deal.prototype, "owner", void 0);
+Deal = _ts_decorate([
+    (0, _typeorm.Entity)('deals')
+], Deal);
+
+//# sourceMappingURL=deal.entity.js.map
