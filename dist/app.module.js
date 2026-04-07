@@ -57,6 +57,9 @@ const _productvariantentity = require("./products/entities/product-variant.entit
 const _pricebookentity = require("./products/entities/price-book.entity");
 const _pricebookitementity = require("./products/entities/price-book-item.entity");
 const _brandentity = require("./products/entities/brand.entity");
+const _inventoryentity = require("./products/entities/inventory.entity");
+const _productmediaentity = require("./products/entities/product-media.entity");
+const _productattributeentity = require("./products/entities/product-attribute.entity");
 const _productsmodule = require("./products/products.module");
 const _billingmodule = require("./billing/billing.module");
 const _billingentity = require("./billing/entities/billing.entity");
@@ -114,6 +117,9 @@ AppModule = _ts_decorate([
                     _pricebookentity.PriceBook,
                     _pricebookitementity.PriceBookItem,
                     _brandentity.Brand,
+                    _inventoryentity.Inventory,
+                    _productmediaentity.ProductMedia,
+                    _productattributeentity.ProductAttribute,
                     _billingentity.Quote,
                     _billingentity.Invoice
                 ]

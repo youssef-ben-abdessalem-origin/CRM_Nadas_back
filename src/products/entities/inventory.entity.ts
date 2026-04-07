@@ -9,7 +9,7 @@ export class Inventory {
   @Column({ name: 'variant_id' })
   variantId: string;
 
-  @ManyToOne(() => ProductVariant, (variant: any) => variant.inventory, { onDelete: 'CASCADE' })
+  @ManyToOne(() => ProductVariant, (variant) => variant.inventory, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'variant_id' })
   variant: any;
 

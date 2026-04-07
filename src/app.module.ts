@@ -47,6 +47,9 @@ import { ProductVariant } from "./products/entities/product-variant.entity";
 import { PriceBook } from "./products/entities/price-book.entity";
 import { PriceBookItem } from "./products/entities/price-book-item.entity";
 import { Brand } from "./products/entities/brand.entity";
+import { Inventory } from "./products/entities/inventory.entity";
+import { ProductMedia } from "./products/entities/product-media.entity";
+import { ProductAttribute } from "./products/entities/product-attribute.entity";
 import { ProductsModule } from "./products/products.module";
 import { BillingModule } from "./billing/billing.module";
 import { Quote, Invoice } from "./billing/entities/billing.entity";
@@ -96,6 +99,9 @@ import { Quote, Invoice } from "./billing/entities/billing.entity";
         PriceBook,
         PriceBookItem,
         Brand,
+        Inventory,
+        ProductMedia,
+        ProductAttribute,
         Quote,
         Invoice,
       ],
