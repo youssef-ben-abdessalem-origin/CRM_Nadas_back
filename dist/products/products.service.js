@@ -19,6 +19,9 @@ const _productvariantentity = require("./entities/product-variant.entity");
 const _pricebookentity = require("./entities/price-book.entity");
 const _pricebookitementity = require("./entities/price-book-item.entity");
 const _brandentity = require("./entities/brand.entity");
+const _inventoryentity = require("./entities/inventory.entity");
+const _productmediaentity = require("./entities/product-media.entity");
+const _productattributeentity = require("./entities/product-attribute.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -227,30 +230,30 @@ let ProductsService = class ProductsService {
             relations: [
                 'category',
                 'brand',
-                'variants'
+                'variants',
+                'media',
+                'attributes'
             ]
         });
     }
     async setPrimaryPrice(variantId, priceId) {
-        await this.variantRepository.update(variantId, {
-            defaultPriceId: priceId
-        });
+        // Note: defaultPriceId removed from variant entity in new schema as per schema description, 
+        // it says "price" and "cost" are now on the variant directly.
+        // If we want to keep price books, we can still use them.
         return this.variantRepository.findOne({
             where: {
                 id: variantId
             },
             relations: [
                 'prices',
-                'prices.priceBook',
-                'defaultPrice',
-                'defaultPrice.priceBook'
+                'prices.priceBook'
             ]
         });
     }
     async findAllPaginated(page = 1, limit = 5, search, categoryId) {
-        const queryBuilder = this.productRepository.createQueryBuilder('product').leftJoinAndSelect('product.category', 'category').leftJoinAndSelect('product.brand', 'brand').leftJoinAndSelect('product.variants', 'variants').leftJoinAndSelect('variants.prices', 'prices').leftJoinAndSelect('prices.priceBook', 'priceBook').leftJoinAndSelect('variants.defaultPrice', 'defaultPrice').leftJoinAndSelect('defaultPrice.priceBook', 'dpBook');
+        const queryBuilder = this.productRepository.createQueryBuilder('product').leftJoinAndSelect('product.category', 'category').leftJoinAndSelect('product.brand', 'brand').leftJoinAndSelect('product.variants', 'variants').leftJoinAndSelect('variants.prices', 'prices').leftJoinAndSelect('prices.priceBook', 'priceBook').leftJoinAndSelect('product.media', 'media').leftJoinAndSelect('product.attributes', 'attributes').leftJoinAndSelect('variants.inventory', 'inventory');
         if (search) {
-            queryBuilder.andWhere('(product.name ILIKE :search OR product.code ILIKE :search OR product.description ILIKE :search)', {
+            queryBuilder.andWhere('(product.name ILIKE :search OR product.slug ILIKE :search OR product.description ILIKE :search)', {
                 search: `%${search}%`
             });
         }
@@ -291,7 +294,7 @@ let ProductsService = class ProductsService {
     async upsertPrice(variantId, priceBookId, price) {
         let priceItem = await this.priceBookItemRepository.findOne({
             where: {
-                productVariantId: variantId,
+                variantId: variantId,
                 priceBookId: priceBookId
             }
         });
@@ -299,7 +302,7 @@ let ProductsService = class ProductsService {
             priceItem.price = price;
         } else {
             priceItem = this.priceBookItemRepository.create({
-                productVariantId: variantId,
+                variantId: variantId,
                 priceBookId: priceBookId,
                 price: price
             });
@@ -316,28 +319,40 @@ let ProductsService = class ProductsService {
                 'brand',
                 'variants',
                 'variants.prices',
-                'variants.prices.priceBook'
+                'variants.prices.priceBook',
+                'media',
+                'attributes',
+                'variants.inventory'
             ]
         });
         if (!product) throw new _common.NotFoundException('Product not found');
         return product;
     }
     async create(data) {
-        const { variants, ...rest } = data;
+        const { variants, media, attributes, ...rest } = data;
         const productInstance = this.productRepository.create(rest);
         const savedProduct = await this.productRepository.save(productInstance);
         if (variants && Array.isArray(variants)) {
             for (const vData of variants){
+                const { inventory, prices, ...vRest } = vData;
                 const variantInstance = this.variantRepository.create({
-                    ...vData,
+                    ...vRest,
                     productId: savedProduct.id
                 });
                 const savedVariant = await this.variantRepository.save(variantInstance);
-                if (vData.prices && Array.isArray(vData.prices)) {
-                    for (const pData of vData.prices){
+                if (inventory && Array.isArray(inventory)) {
+                    for (const iData of inventory){
+                        await this.inventoryRepository.save({
+                            ...iData,
+                            variantId: savedVariant.id
+                        });
+                    }
+                }
+                if (prices && Array.isArray(prices)) {
+                    for (const pData of prices){
                         await this.priceBookItemRepository.save({
                             ...pData,
-                            productVariantId: savedVariant.id
+                            variantId: savedVariant.id
                         });
                     }
                 }
@@ -347,10 +362,27 @@ let ProductsService = class ProductsService {
             const defaultVariant = this.variantRepository.create({
                 productId: savedProduct.id,
                 name: 'Default',
-                sku: `${savedProduct.code}-DEF`,
+                sku: `${savedProduct.slug || savedProduct.id}-DEF`,
+                status: _productvariantentity.VariantStatus.ACTIVE,
                 isDefault: true
             });
             await this.variantRepository.save(defaultVariant);
+        }
+        if (media && Array.isArray(media)) {
+            for (const mData of media){
+                await this.mediaRepository.save({
+                    ...mData,
+                    productId: savedProduct.id
+                });
+            }
+        }
+        if (attributes && Array.isArray(attributes)) {
+            for (const aData of attributes){
+                await this.attributeRepository.save({
+                    ...aData,
+                    productId: savedProduct.id
+                });
+            }
         }
         return this.findOne(savedProduct.id);
     }
@@ -361,9 +393,9 @@ let ProductsService = class ProductsService {
     }
     async delete(id) {
         const product = await this.findOne(id);
-        await this.productRepository.remove(product);
+        await this.productRepository.softRemove(product);
     }
-    constructor(productRepository, categoryRepository, unitRepository, pricingModelRepository, variantRepository, priceBookRepository, priceBookItemRepository, brandRepository){
+    constructor(productRepository, categoryRepository, unitRepository, pricingModelRepository, variantRepository, priceBookRepository, priceBookItemRepository, brandRepository, inventoryRepository, mediaRepository, attributeRepository){
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.unitRepository = unitRepository;
@@ -372,6 +404,9 @@ let ProductsService = class ProductsService {
         this.priceBookRepository = priceBookRepository;
         this.priceBookItemRepository = priceBookItemRepository;
         this.brandRepository = brandRepository;
+        this.inventoryRepository = inventoryRepository;
+        this.mediaRepository = mediaRepository;
+        this.attributeRepository = attributeRepository;
     }
 };
 ProductsService = _ts_decorate([
@@ -384,8 +419,14 @@ ProductsService = _ts_decorate([
     _ts_param(5, (0, _typeorm.InjectRepository)(_pricebookentity.PriceBook)),
     _ts_param(6, (0, _typeorm.InjectRepository)(_pricebookitementity.PriceBookItem)),
     _ts_param(7, (0, _typeorm.InjectRepository)(_brandentity.Brand)),
+    _ts_param(8, (0, _typeorm.InjectRepository)(_inventoryentity.Inventory)),
+    _ts_param(9, (0, _typeorm.InjectRepository)(_productmediaentity.ProductMedia)),
+    _ts_param(10, (0, _typeorm.InjectRepository)(_productattributeentity.ProductAttribute)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,

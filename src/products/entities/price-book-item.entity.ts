@@ -1,16 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
-
-export enum PriceBookBillingType {
-  ONE_TIME = 'ONE_TIME',
-  RECURRING = 'RECURRING',
-}
-
-export enum PriceBookBillingPeriod {
-  NONE = 'NONE',
-  MONTHLY = 'MONTHLY',
-  YEARLY = 'YEARLY',
-  WEEKLY = 'WEEKLY',
-}
+import { PriceBook } from './price-book.entity';
+import { ProductVariant } from './product-variant.entity';
 
 @Entity('price_book_items')
 export class PriceBookItem {
@@ -20,34 +10,25 @@ export class PriceBookItem {
   @Column({ name: 'price_book_id' })
   priceBookId: string;
 
-  @ManyToOne('PriceBook', { onDelete: 'CASCADE' })
+  @ManyToOne(() => PriceBook, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'price_book_id' })
-  priceBook: any;
+  priceBook: PriceBook;
 
-  @Column({ name: 'product_variant_id' })
-  productVariantId: string;
+  @Column({ name: 'variant_id' })
+  variantId: string;
 
-  @ManyToOne('ProductVariant', (variant: any) => variant.prices, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'product_variant_id' })
-  productVariant: any;
+  @ManyToOne(() => ProductVariant, (variant) => variant.prices, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'variant_id' })
+  productVariant: ProductVariant;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2 })
+  @Column({ type: 'numeric', precision: 12, scale: 2 })
   price: number;
 
-  @Column({ type: 'enum', enum: PriceBookBillingType, default: PriceBookBillingType.ONE_TIME })
-  billingType: PriceBookBillingType;
+  @Column({ type: 'numeric', precision: 5, scale: 2, default: 0 })
+  discount: number;
 
-  @Column({ type: 'enum', enum: PriceBookBillingPeriod, default: PriceBookBillingPeriod.NONE })
-  billingPeriod: PriceBookBillingPeriod;
-
-  @Column({ default: true })
-  discountAllowed: boolean;
-
-  @Column({ type: 'timestamp', nullable: true })
-  validFrom: Date | null;
-
-  @Column({ type: 'timestamp', nullable: true })
-  validTo: Date | null;
+  @Column({ type: 'int', default: 1 })
+  minQty: number;
 
   @CreateDateColumn()
   createdAt: Date;

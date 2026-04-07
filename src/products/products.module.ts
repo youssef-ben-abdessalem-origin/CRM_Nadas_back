@@ -10,6 +10,9 @@ import { ProductVariant } from './entities/product-variant.entity';
 import { PriceBook } from './entities/price-book.entity';
 import { PriceBookItem } from './entities/price-book-item.entity';
 import { Brand } from './entities/brand.entity';
+import { Inventory } from './entities/inventory.entity';
+import { ProductMedia } from './entities/product-media.entity';
+import { ProductAttribute } from './entities/product-attribute.entity';
 
 @Module({
   imports: [
@@ -22,6 +25,9 @@ import { Brand } from './entities/brand.entity';
       PriceBook,
       PriceBookItem,
       Brand,
+      Inventory,
+      ProductMedia,
+      ProductAttribute,
     ]),
   ],
   providers: [ProductsService],

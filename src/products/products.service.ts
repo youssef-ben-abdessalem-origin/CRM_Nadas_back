@@ -1,14 +1,17 @@
 import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Product } from './entities/product.entity';
+import { Product, ProductStatus } from './entities/product.entity';
 import { ProductCategory } from './entities/product-category.entity';
 import { ProductUnit } from './entities/product-unit.entity';
 import { ProductPricingModel } from './entities/product-pricing-model.entity';
-import { ProductVariant } from './entities/product-variant.entity';
+import { ProductVariant, VariantStatus } from './entities/product-variant.entity';
 import { PriceBook } from './entities/price-book.entity';
 import { PriceBookItem } from './entities/price-book-item.entity';
 import { Brand } from './entities/brand.entity';
+import { Inventory } from './entities/inventory.entity';
+import { ProductMedia } from './entities/product-media.entity';
+import { ProductAttribute } from './entities/product-attribute.entity';
 
 @Injectable()
 export class ProductsService implements OnModuleInit {
@@ -29,6 +32,12 @@ export class ProductsService implements OnModuleInit {
     private readonly priceBookItemRepository: Repository<PriceBookItem>,
     @InjectRepository(Brand)
     private readonly brandRepository: Repository<Brand>,
+    @InjectRepository(Inventory)
+    private readonly inventoryRepository: Repository<Inventory>,
+    @InjectRepository(ProductMedia)
+    private readonly mediaRepository: Repository<ProductMedia>,
+    @InjectRepository(ProductAttribute)
+    private readonly attributeRepository: Repository<ProductAttribute>,
   ) {}
 
   async onModuleInit() {
@@ -166,15 +175,17 @@ export class ProductsService implements OnModuleInit {
   // Product CRUD
   async findAll(): Promise<Product[]> {
     return this.productRepository.find({
-      relations: ['category', 'brand', 'variants'],
+      relations: ['category', 'brand', 'variants', 'media', 'attributes'],
     });
   }
 
   async setPrimaryPrice(variantId: string, priceId: string) {
-    await this.variantRepository.update(variantId, { defaultPriceId: priceId });
+    // Note: defaultPriceId removed from variant entity in new schema as per schema description, 
+    // it says "price" and "cost" are now on the variant directly.
+    // If we want to keep price books, we can still use them.
     return this.variantRepository.findOne({
       where: { id: variantId },
-      relations: ['prices', 'prices.priceBook', 'defaultPrice', 'defaultPrice.priceBook']
+      relations: ['prices', 'prices.priceBook']
     });
   }
 
@@ -185,12 +196,13 @@ export class ProductsService implements OnModuleInit {
       .leftJoinAndSelect('product.variants', 'variants')
       .leftJoinAndSelect('variants.prices', 'prices')
       .leftJoinAndSelect('prices.priceBook', 'priceBook')
-      .leftJoinAndSelect('variants.defaultPrice', 'defaultPrice')
-      .leftJoinAndSelect('defaultPrice.priceBook', 'dpBook');
+      .leftJoinAndSelect('product.media', 'media')
+      .leftJoinAndSelect('product.attributes', 'attributes')
+      .leftJoinAndSelect('variants.inventory', 'inventory');
 
     if (search) {
       queryBuilder.andWhere(
-        '(product.name ILIKE :search OR product.code ILIKE :search OR product.description ILIKE :search)',
+        '(product.name ILIKE :search OR product.slug ILIKE :search OR product.description ILIKE :search)',
         { search: `%${search}%` }
       );
     }
@@ -235,14 +247,14 @@ export class ProductsService implements OnModuleInit {
   // Price Book Item (Pricing) management
   async upsertPrice(variantId: string, priceBookId: string, price: number) {
     let priceItem = await this.priceBookItemRepository.findOne({
-      where: { productVariantId: variantId, priceBookId: priceBookId }
+      where: { variantId: variantId, priceBookId: priceBookId }
     });
 
     if (priceItem) {
       priceItem.price = price;
     } else {
       priceItem = this.priceBookItemRepository.create({
-        productVariantId: variantId,
+        variantId: variantId,
         priceBookId: priceBookId,
         price: price
       });
@@ -254,27 +266,34 @@ export class ProductsService implements OnModuleInit {
   async findOne(id: string): Promise<Product> {
     const product = await this.productRepository.findOne({
       where: { id },
-      relations: ['category', 'brand', 'variants', 'variants.prices', 'variants.prices.priceBook'],
+      relations: ['category', 'brand', 'variants', 'variants.prices', 'variants.prices.priceBook', 'media', 'attributes', 'variants.inventory'],
     });
     if (!product) throw new NotFoundException('Product not found');
     return product;
   }
 
   async create(data: any): Promise<Product> {
-    const { variants, ...rest } = data;
+    const { variants, media, attributes, ...rest } = data;
     const productInstance = this.productRepository.create(rest as Partial<Product>);
     const savedProduct = await this.productRepository.save(productInstance);
 
     if (variants && Array.isArray(variants)) {
       for (const vData of variants) {
-        const variantInstance = this.variantRepository.create({ ...vData, productId: savedProduct.id } as Partial<ProductVariant>);
+        const { inventory, prices, ...vRest } = vData;
+        const variantInstance = this.variantRepository.create({ ...vRest, productId: savedProduct.id } as Partial<ProductVariant>);
         const savedVariant = await this.variantRepository.save(variantInstance);
 
-        if (vData.prices && Array.isArray(vData.prices)) {
-          for (const pData of vData.prices) {
+        if (inventory && Array.isArray(inventory)) {
+          for (const iData of inventory) {
+            await this.inventoryRepository.save({ ...iData, variantId: savedVariant.id });
+          }
+        }
+
+        if (prices && Array.isArray(prices)) {
+          for (const pData of prices) {
             await this.priceBookItemRepository.save({
               ...pData,
-              productVariantId: savedVariant.id,
+              variantId: savedVariant.id,
             });
           }
         }
@@ -284,10 +303,23 @@ export class ProductsService implements OnModuleInit {
       const defaultVariant = this.variantRepository.create({
         productId: savedProduct.id,
         name: 'Default',
-        sku: `${savedProduct.code}-DEF`,
+        sku: `${savedProduct.slug || savedProduct.id}-DEF`,
+        status: VariantStatus.ACTIVE,
         isDefault: true,
       });
       await this.variantRepository.save(defaultVariant);
+    }
+
+    if (media && Array.isArray(media)) {
+      for (const mData of media) {
+        await this.mediaRepository.save({ ...mData, productId: savedProduct.id });
+      }
+    }
+
+    if (attributes && Array.isArray(attributes)) {
+      for (const aData of attributes) {
+        await this.attributeRepository.save({ ...aData, productId: savedProduct.id });
+      }
     }
 
     return this.findOne(savedProduct.id);
@@ -301,6 +333,6 @@ export class ProductsService implements OnModuleInit {
 
   async delete(id: string): Promise<void> {
     const product = await this.findOne(id);
-    await this.productRepository.remove(product);
+    await this.productRepository.softRemove(product);
   }
 }

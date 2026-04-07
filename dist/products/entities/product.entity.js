@@ -12,6 +12,9 @@ _export(exports, {
     get Product () {
         return Product;
     },
+    get ProductStatus () {
+        return ProductStatus;
+    },
     get ProductType () {
         return ProductType;
     }
@@ -20,6 +23,8 @@ const _typeorm = require("typeorm");
 const _productvariantentity = require("./product-variant.entity");
 const _productcategoryentity = require("./product-category.entity");
 const _brandentity = require("./brand.entity");
+const _productmediaentity = require("./product-media.entity");
+const _productattributeentity = require("./product-attribute.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -30,10 +35,16 @@ function _ts_metadata(k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 }
 var ProductType = /*#__PURE__*/ function(ProductType) {
-    ProductType["SERVICE"] = "SERVICE";
-    ProductType["PHYSICAL"] = "PHYSICAL";
-    ProductType["SUBSCRIPTION"] = "SUBSCRIPTION";
+    ProductType["SERVICE"] = "service";
+    ProductType["PHYSICAL"] = "physical";
+    ProductType["DIGITAL"] = "digital";
     return ProductType;
+}({});
+var ProductStatus = /*#__PURE__*/ function(ProductStatus) {
+    ProductStatus["DRAFT"] = "draft";
+    ProductStatus["ACTIVE"] = "active";
+    ProductStatus["ARCHIVED"] = "archived";
+    return ProductStatus;
 }({});
 let Product = class Product {
 };
@@ -47,13 +58,6 @@ _ts_decorate([
 ], Product.prototype, "name", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
-        unique: true,
-        nullable: true
-    }),
-    _ts_metadata("design:type", String)
-], Product.prototype, "code", void 0);
-_ts_decorate([
-    (0, _typeorm.Column)({
         type: 'text',
         nullable: true
     }),
@@ -61,9 +65,16 @@ _ts_decorate([
 ], Product.prototype, "description", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
-        type: 'enum',
-        enum: ProductType,
-        default: "PHYSICAL"
+        unique: true,
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Product.prototype, "slug", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'varchar',
+        length: 50,
+        default: 'physical'
     }),
     _ts_metadata("design:type", String)
 ], Product.prototype, "type", void 0);
@@ -103,6 +114,14 @@ _ts_decorate([
 ], Product.prototype, "brand", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
+        type: 'varchar',
+        length: 50,
+        default: "draft"
+    }),
+    _ts_metadata("design:type", String)
+], Product.prototype, "status", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
         default: true
     }),
     _ts_metadata("design:type", Boolean)
@@ -115,16 +134,68 @@ _ts_decorate([
 ], Product.prototype, "isSellable", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
-        default: true
+        default: false
     }),
     _ts_metadata("design:type", Boolean)
 ], Product.prototype, "isPurchasable", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'varchar',
+        length: 50,
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Product.prototype, "billingType", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'varchar',
+        length: 50,
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Product.prototype, "billingCycle", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'int',
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], Product.prototype, "trialPeriodDays", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'numeric',
+        precision: 12,
+        scale: 2,
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Product.prototype, "setupFee", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'varchar',
+        length: 50,
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Product.prototype, "unitOfMeasure", void 0);
 _ts_decorate([
     (0, _typeorm.OneToMany)(()=>_productvariantentity.ProductVariant, (variant)=>variant.product, {
         cascade: true
     }),
     _ts_metadata("design:type", Array)
 ], Product.prototype, "variants", void 0);
+_ts_decorate([
+    (0, _typeorm.OneToMany)(()=>_productmediaentity.ProductMedia, (media)=>media.product, {
+        cascade: true
+    }),
+    _ts_metadata("design:type", Array)
+], Product.prototype, "media", void 0);
+_ts_decorate([
+    (0, _typeorm.OneToMany)(()=>_productattributeentity.ProductAttribute, (attribute)=>attribute.product, {
+        cascade: true
+    }),
+    _ts_metadata("design:type", Array)
+], Product.prototype, "attributes", void 0);
 _ts_decorate([
     (0, _typeorm.CreateDateColumn)(),
     _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
@@ -133,6 +204,10 @@ _ts_decorate([
     (0, _typeorm.UpdateDateColumn)(),
     _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
 ], Product.prototype, "updatedAt", void 0);
+_ts_decorate([
+    (0, _typeorm.DeleteDateColumn)(),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], Product.prototype, "deletedAt", void 0);
 Product = _ts_decorate([
     (0, _typeorm.Entity)('products')
 ], Product);

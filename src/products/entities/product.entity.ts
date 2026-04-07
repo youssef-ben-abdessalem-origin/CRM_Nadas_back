@@ -1,12 +1,20 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { ProductVariant } from './product-variant.entity';
 import { ProductCategory } from './product-category.entity';
 import { Brand } from './brand.entity';
+import { ProductMedia } from './product-media.entity';
+import { ProductAttribute } from './product-attribute.entity';
 
 export enum ProductType {
-  SERVICE = 'SERVICE',
-  PHYSICAL = 'PHYSICAL',
-  SUBSCRIPTION = 'SUBSCRIPTION',
+  SERVICE = 'service',
+  PHYSICAL = 'physical',
+  DIGITAL = 'digital',
+}
+
+export enum ProductStatus {
+  DRAFT = 'draft',
+  ACTIVE = 'active',
+  ARCHIVED = 'archived',
 }
 
 @Entity('products')
@@ -17,14 +25,14 @@ export class Product {
   @Column()
   name: string;
 
-  @Column({ unique: true, nullable: true })
-  code: string;
-
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'enum', enum: ProductType, default: ProductType.PHYSICAL })
-  type: ProductType;
+  @Column({ unique: true, nullable: true })
+  slug: string;
+
+  @Column({ type: 'varchar', length: 50, default: 'physical' })
+  type: string;
 
   @Column({ type: 'uuid', nullable: true })
   categoryId: string | null;
@@ -40,21 +48,48 @@ export class Product {
   @JoinColumn({ name: 'brandId' })
   brand: Brand | null;
 
+  @Column({ type: 'varchar', length: 50, default: ProductStatus.DRAFT })
+  status: string;
+
   @Column({ default: true })
   isActive: boolean;
 
   @Column({ default: true })
   isSellable: boolean;
 
-  @Column({ default: true })
+  @Column({ default: false })
   isPurchasable: boolean;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  billingType: string;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  billingCycle: string;
+
+  @Column({ type: 'int', default: 0 })
+  trialPeriodDays: number;
+
+  @Column({ type: 'numeric', precision: 12, scale: 2, nullable: true })
+  setupFee: number;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  unitOfMeasure: string;
 
   @OneToMany(() => ProductVariant, (variant) => variant.product, { cascade: true })
   variants: ProductVariant[];
+
+  @OneToMany(() => ProductMedia, (media) => media.product, { cascade: true })
+  media: ProductMedia[];
+
+  @OneToMany(() => ProductAttribute, (attribute) => attribute.product, { cascade: true })
+  attributes: ProductAttribute[];
 
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 }

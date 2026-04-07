@@ -1,0 +1,24 @@
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Product } from './product.entity';
+
+@Entity('product_media')
+export class ProductMedia {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ name: 'product_id' })
+  productId: string;
+
+  @ManyToOne(() => Product, (product) => product.media, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'product_id' })
+  product: Product;
+
+  @Column({ type: 'text' })
+  url: string;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  type: string; // image, video, file
+
+  @Column({ default: false })
+  isPrimary: boolean;
+}

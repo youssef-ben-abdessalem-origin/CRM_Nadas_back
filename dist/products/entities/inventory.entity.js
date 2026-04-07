@@ -2,14 +2,13 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-Object.defineProperty(exports, "PriceBookItem", {
+Object.defineProperty(exports, "Inventory", {
     enumerable: true,
     get: function() {
-        return PriceBookItem;
+        return Inventory;
     }
 });
 const _typeorm = require("typeorm");
-const _pricebookentity = require("./price-book.entity");
 const _productvariantentity = require("./product-variant.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -20,76 +19,66 @@ function _ts_decorate(decorators, target, key, desc) {
 function _ts_metadata(k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 }
-let PriceBookItem = class PriceBookItem {
+let Inventory = class Inventory {
 };
 _ts_decorate([
     (0, _typeorm.PrimaryGeneratedColumn)('uuid'),
     _ts_metadata("design:type", String)
-], PriceBookItem.prototype, "id", void 0);
-_ts_decorate([
-    (0, _typeorm.Column)({
-        name: 'price_book_id'
-    }),
-    _ts_metadata("design:type", String)
-], PriceBookItem.prototype, "priceBookId", void 0);
-_ts_decorate([
-    (0, _typeorm.ManyToOne)(()=>_pricebookentity.PriceBook, {
-        onDelete: 'CASCADE'
-    }),
-    (0, _typeorm.JoinColumn)({
-        name: 'price_book_id'
-    }),
-    _ts_metadata("design:type", typeof _pricebookentity.PriceBook === "undefined" ? Object : _pricebookentity.PriceBook)
-], PriceBookItem.prototype, "priceBook", void 0);
+], Inventory.prototype, "id", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
         name: 'variant_id'
     }),
     _ts_metadata("design:type", String)
-], PriceBookItem.prototype, "variantId", void 0);
+], Inventory.prototype, "variantId", void 0);
 _ts_decorate([
-    (0, _typeorm.ManyToOne)(()=>_productvariantentity.ProductVariant, (variant)=>variant.prices, {
+    (0, _typeorm.ManyToOne)(()=>_productvariantentity.ProductVariant, (variant)=>variant.inventory, {
         onDelete: 'CASCADE'
     }),
     (0, _typeorm.JoinColumn)({
         name: 'variant_id'
     }),
     _ts_metadata("design:type", typeof _productvariantentity.ProductVariant === "undefined" ? Object : _productvariantentity.ProductVariant)
-], PriceBookItem.prototype, "productVariant", void 0);
+], Inventory.prototype, "variant", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
-        type: 'numeric',
-        precision: 12,
-        scale: 2
-    }),
-    _ts_metadata("design:type", Number)
-], PriceBookItem.prototype, "price", void 0);
-_ts_decorate([
-    (0, _typeorm.Column)({
-        type: 'numeric',
-        precision: 5,
-        scale: 2,
         default: 0
     }),
     _ts_metadata("design:type", Number)
-], PriceBookItem.prototype, "discount", void 0);
+], Inventory.prototype, "quantityAvailable", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
-        type: 'int',
-        default: 1
+        default: 0
     }),
     _ts_metadata("design:type", Number)
-], PriceBookItem.prototype, "minQty", void 0);
+], Inventory.prototype, "quantityReserved", void 0);
 _ts_decorate([
-    (0, _typeorm.CreateDateColumn)(),
-    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
-], PriceBookItem.prototype, "createdAt", void 0);
+    (0, _typeorm.Column)({
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], Inventory.prototype, "reorderLevel", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'uuid',
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Inventory.prototype, "warehouseId", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'varchar',
+        length: 50,
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Inventory.prototype, "stockStatus", void 0);
 _ts_decorate([
     (0, _typeorm.UpdateDateColumn)(),
     _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
-], PriceBookItem.prototype, "updatedAt", void 0);
-PriceBookItem = _ts_decorate([
-    (0, _typeorm.Entity)('price_book_items')
-], PriceBookItem);
+], Inventory.prototype, "updatedAt", void 0);
+Inventory = _ts_decorate([
+    (0, _typeorm.Entity)('inventory')
+], Inventory);
 
-//# sourceMappingURL=price-book-item.entity.js.map
+//# sourceMappingURL=inventory.entity.js.map

@@ -21,8 +21,8 @@ function _ts_metadata(k, v) {
 let ProductPricingModel = class ProductPricingModel {
 };
 _ts_decorate([
-    (0, _typeorm.PrimaryGeneratedColumn)(),
-    _ts_metadata("design:type", Number)
+    (0, _typeorm.PrimaryGeneratedColumn)('uuid'),
+    _ts_metadata("design:type", String)
 ], ProductPricingModel.prototype, "id", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({

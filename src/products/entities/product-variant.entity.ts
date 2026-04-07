@@ -1,4 +1,12 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Product } from './product.entity';
+import { PriceBookItem } from './price-book-item.entity';
+import { Inventory } from './inventory.entity';
+
+export enum VariantStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+}
 
 @Entity('product_variants')
 export class ProductVariant {
@@ -8,34 +16,36 @@ export class ProductVariant {
   @Column({ name: 'product_id' })
   productId: string;
 
-  @ManyToOne('Product', (product: any) => product.variants, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Product, (product) => product.variants, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'product_id' })
-  product: any;
+  product: Product;
 
-  @OneToMany('PriceBookItem', (price: any) => price.productVariant)
-  prices: any[];
+  @OneToMany(() => PriceBookItem, (price) => price.productVariant)
+  prices: PriceBookItem[];
 
-  @Column()
+  @OneToMany(() => Inventory, (inventory) => inventory.variant)
+  inventory: Inventory[];
+
+  @Column({ nullable: true })
   name: string;
 
   @Column({ unique: true })
   sku: string;
 
+  @Column({ type: 'numeric', precision: 12, scale: 2, nullable: true })
+  price: number;
+
+  @Column({ type: 'numeric', precision: 12, scale: 2, nullable: true })
+  cost: number;
+
   @Column({ type: 'jsonb', nullable: true })
   attributes: any;
-
-  @Column({ name: 'default_price_id', nullable: true })
-  defaultPriceId: string;
-
-  @ManyToOne('PriceBookItem', { nullable: true })
-  @JoinColumn({ name: 'default_price_id' })
-  defaultPrice: any;
 
   @Column({ default: false })
   isDefault: boolean;
 
-  @Column({ default: true })
-  isActive: boolean;
+  @Column({ type: 'varchar', length: 50, default: VariantStatus.ACTIVE })
+  status: string;
 
   @CreateDateColumn()
   createdAt: Date;
