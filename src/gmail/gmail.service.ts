@@ -1,9 +1,9 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { google, gmail_v1 } from 'googleapis';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { User } from '../users/entities/user.entity';
 
 interface GmailTokens {
@@ -18,7 +18,7 @@ export class GmailService {
 
   constructor(
     @InjectRepository(User)
-    private userRepository: Repository<User>,
+    private readonly userRepository: Repository<User>,
   ) {
     this.initOAuthClient();
   }
@@ -26,12 +26,12 @@ export class GmailService {
   private initOAuthClient() {
     const credentialsPath = path.join(process.cwd(), 'client_secret.json');
     const credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf8'));
-    const { client_id, client_secret, redirect_uris } = credentials.web;
+    const { client_id, client_secret } = credentials.web;
 
     this.oauth2Client = new google.auth.OAuth2(
       client_id,
       client_secret,
-      'http://localhost:3000/api/v1/gmail/callback',
+      'http://localhost:3001/api/v1/gmail/callback',
     );
   }
 
@@ -53,7 +53,7 @@ export class GmailService {
     console.log('setTokens called with userId:', userId, 'code length:', code.length);
     const { tokens } = await this.oauth2Client.getToken(code);
     console.log('Tokens received:', tokens ? 'yes' : 'no', 'refresh_token:', !!tokens?.refresh_token);
-    await this.userRepository.update(userId, { gmailTokens: tokens as any });
+    await this.userRepository.update(userId, { gmailTokens: tokens });
     console.log('Tokens saved to user:', userId);
     return { success: true };
   }
@@ -103,7 +103,7 @@ export class GmailService {
       messages.map(async (msg) => {
         const fullMessage = await gmail.users.messages.get({
           userId: 'me',
-          id: msg.id!,
+          id: msg.id,
           format: 'full',
         });
         return fullMessage.data;
@@ -150,7 +150,7 @@ export class GmailService {
       body,
     ].join('\n');
 
-    const encodedMessage = Buffer.from(message).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');
+    const encodedMessage = Buffer.from(message).toString('base64').replaceAll('+', '-').replaceAll('/', '_');
 
     const response = await gmail.users.messages.send({
       userId: 'me',
@@ -160,6 +160,6 @@ export class GmailService {
       },
     });
 
-    return { messageId: response.data.id! };
+    return { messageId: response.data.id };
   }
 }

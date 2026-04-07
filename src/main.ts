@@ -27,7 +27,7 @@ async function bootstrap() {
   SwaggerModule.setup("swagger-ui", app, document);
 
   await app.listen(3001);
-  console.log("Server running on http://localhost:3000");
-  console.log("Swagger UI: http://localhost:3000/swagger-ui");
+  console.log("Server running on http://localhost:3001");
+  console.log("Swagger UI: http://localhost:3001/swagger-ui");
 }
 bootstrap();

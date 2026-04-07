@@ -12,8 +12,8 @@ const _common = require("@nestjs/common");
 const _typeorm = require("@nestjs/typeorm");
 const _typeorm1 = require("typeorm");
 const _googleapis = require("googleapis");
-const _fs = /*#__PURE__*/ _interop_require_wildcard(require("fs"));
-const _path = /*#__PURE__*/ _interop_require_wildcard(require("path"));
+const _nodefs = /*#__PURE__*/ _interop_require_wildcard(require("node:fs"));
+const _nodepath = /*#__PURE__*/ _interop_require_wildcard(require("node:path"));
 const _userentity = require("../users/entities/user.entity");
 function _getRequireWildcardCache(nodeInterop) {
     if (typeof WeakMap !== "function") return null;
@@ -72,10 +72,10 @@ function _ts_param(paramIndex, decorator) {
 }
 let GmailService = class GmailService {
     initOAuthClient() {
-        const credentialsPath = _path.join(process.cwd(), 'client_secret.json');
-        const credentials = JSON.parse(_fs.readFileSync(credentialsPath, 'utf8'));
-        const { client_id, client_secret, redirect_uris } = credentials.web;
-        this.oauth2Client = new _googleapis.google.auth.OAuth2(client_id, client_secret, 'http://localhost:3000/api/v1/gmail/callback');
+        const credentialsPath = _nodepath.join(process.cwd(), 'client_secret.json');
+        const credentials = JSON.parse(_nodefs.readFileSync(credentialsPath, 'utf8'));
+        const { client_id, client_secret } = credentials.web;
+        this.oauth2Client = new _googleapis.google.auth.OAuth2(client_id, client_secret, 'http://localhost:3001/api/v1/gmail/callback');
     }
     getAuthUrl(userId) {
         const scopes = [
@@ -193,7 +193,7 @@ let GmailService = class GmailService {
             '',
             body
         ].join('\n');
-        const encodedMessage = Buffer.from(message).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');
+        const encodedMessage = Buffer.from(message).toString('base64').replaceAll('+', '-').replaceAll('/', '_');
         const response = await gmail.users.messages.send({
             userId: 'me',
             requestBody: {

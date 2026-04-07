@@ -13,7 +13,6 @@ const _swagger = require("@nestjs/swagger");
 const _authservice = require("./auth.service");
 const _passport = require("@nestjs/passport");
 const _gmailservice = require("../gmail/gmail.service");
-const _express = require("express");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -29,11 +28,6 @@ function _ts_param(paramIndex, decorator) {
     };
 }
 let AuthController = class AuthController {
-    async gmailCallback(code, state, res) {
-        const userId = parseInt(state);
-        await this.gmailService.setTokens(userId, code);
-        res.redirect('http://localhost:5173/emails?gmail_connected=true');
-    }
     async login(body) {
         return this.authService.login(body.email, body.password);
     }
@@ -51,22 +45,6 @@ let AuthController = class AuthController {
         this.gmailService = gmailService;
     }
 };
-_ts_decorate([
-    (0, _common.Get)('gmail/callback'),
-    (0, _swagger.ApiOperation)({
-        summary: 'Gmail OAuth callback'
-    }),
-    _ts_param(0, (0, _common.Query)('code')),
-    _ts_param(1, (0, _common.Query)('state')),
-    _ts_param(2, (0, _common.Res)()),
-    _ts_metadata("design:type", Function),
-    _ts_metadata("design:paramtypes", [
-        String,
-        String,
-        typeof _express.Response === "undefined" ? Object : _express.Response
-    ]),
-    _ts_metadata("design:returntype", Promise)
-], AuthController.prototype, "gmailCallback", null);
 _ts_decorate([
     (0, _common.Post)('login'),
     (0, _swagger.ApiOperation)({

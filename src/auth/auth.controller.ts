@@ -1,25 +1,17 @@
-import { Controller, Post, Body, Get, UseGuards, Request, Query, Res } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Request } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { GmailService } from '../gmail/gmail.service';
-import { Response } from 'express';
 
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(
-    private authService: AuthService,
-    private gmailService: GmailService,
+    private readonly authService: AuthService,
+    private readonly gmailService: GmailService,
   ) {}
 
-  @Get('gmail/callback')
-  @ApiOperation({ summary: 'Gmail OAuth callback' })
-  async gmailCallback(@Query('code') code: string, @Query('state') state: string, @Res() res: Response) {
-    const userId = parseInt(state);
-    await this.gmailService.setTokens(userId, code);
-    res.redirect('http://localhost:5173/emails?gmail_connected=true');
-  }
 
   @Post('login')
   @ApiOperation({ summary: 'User login' })
