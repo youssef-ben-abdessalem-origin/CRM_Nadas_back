@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -7,7 +7,7 @@ import { User } from './entities/user.entity';
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) {}
 
   @Get()
   @UseGuards(AuthGuard('jwt'))
@@ -15,6 +15,14 @@ export class UsersController {
   @ApiOperation({ summary: 'Get all users' })
   findAll(): Promise<User[]> {
     return this.usersService.findAll();
+  }
+  
+  @Post()
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create user' })
+  create(@Body() data: any): Promise<User> {
+    return this.usersService.create(data);
   }
 
   @Get('profile')

@@ -50,9 +50,15 @@ import { Brand } from "./products/entities/brand.entity";
 import { Inventory } from "./products/entities/inventory.entity";
 import { ProductMedia } from "./products/entities/product-media.entity";
 import { ProductAttribute } from "./products/entities/product-attribute.entity";
+import { ProductType } from "./products/entities/product-type.entity";
+import { TaxClass } from "./products/entities/tax-class.entity";
 import { ProductsModule } from "./products/products.module";
 import { BillingModule } from "./billing/billing.module";
 import { Quote, Invoice } from "./billing/entities/billing.entity";
+import { Role } from "./roles/entities/role.entity";
+import { Permission } from "./permissions/entities/permission.entity";
+import { RolesModule } from "./roles/roles.module";
+import { PermissionsModule } from "./permissions/permissions.module";
 
 @Module({
   imports: [
@@ -62,7 +68,7 @@ import { Quote, Invoice } from "./billing/entities/billing.entity";
       port: 5432,
       username: "postgres",
       password: "admin",
-      database: "nexus_crm_new",
+      database: "CRM_NEW_2026",
       synchronize: true,
       entities: [
         User,
@@ -102,8 +108,12 @@ import { Quote, Invoice } from "./billing/entities/billing.entity";
         Inventory,
         ProductMedia,
         ProductAttribute,
+        ProductType,
+        TaxClass,
         Quote,
         Invoice,
+        Role,
+        Permission,
       ],
     }),
     JwtModule.register({
@@ -126,6 +136,8 @@ import { Quote, Invoice } from "./billing/entities/billing.entity";
     ProfileModule,
     ProductsModule,
     BillingModule,
+    RolesModule,
+    PermissionsModule,
   ],
 })
 export class AppModule {}

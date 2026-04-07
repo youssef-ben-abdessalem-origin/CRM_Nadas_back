@@ -23,6 +23,8 @@ const _brandentity = require("./entities/brand.entity");
 const _inventoryentity = require("./entities/inventory.entity");
 const _productmediaentity = require("./entities/product-media.entity");
 const _productattributeentity = require("./entities/product-attribute.entity");
+const _producttypeentity = require("./entities/product-type.entity");
+const _taxclassentity = require("./entities/tax-class.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -45,7 +47,9 @@ ProductsModule = _ts_decorate([
                 _brandentity.Brand,
                 _inventoryentity.Inventory,
                 _productmediaentity.ProductMedia,
-                _productattributeentity.ProductAttribute
+                _productattributeentity.ProductAttribute,
+                _producttypeentity.ProductType,
+                _taxclassentity.TaxClass
             ])
         ],
         providers: [

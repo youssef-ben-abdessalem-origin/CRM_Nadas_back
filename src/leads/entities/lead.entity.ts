@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { LeadSource } from './lead-source.entity';
 import { PipelineStage } from './pipeline-stage.entity';
@@ -15,11 +15,11 @@ export class Lead {
   @Column()
   name: string;
 
-  @Column()
-  email: string;
+  @Column({ type: 'jsonb', nullable: true })
+  emails: string[];
 
-  @Column({ nullable: true })
-  phone: string;
+  @Column({ type: 'jsonb', nullable: true })
+  phones: string[];
 
   @Column({ nullable: true })
   company: string;
@@ -62,6 +62,16 @@ export class Lead {
   @Column({ nullable: true })
   qualificationStageId: number;
 
+  @Column({ default: 'active' })
+  status: string;
+
+  @ManyToOne(() => User, { nullable: true, eager: true })
+  @JoinColumn({ name: 'ownerId' })
+  owner: User;
+
+  @Column({ nullable: true })
+  ownerId: number;
+
   @Column({ type: 'decimal', precision: 15, scale: 2, nullable: true })
   value: number;
 
@@ -77,24 +87,14 @@ export class Lead {
   @Column({ type: 'text', nullable: true })
   notes: string;
 
-  @Column({ nullable: true })
-  tags: string;
+  @Column({ type: 'jsonb', nullable: true })
+  tags: string[];
 
   @Column({ type: 'date', nullable: true })
   nextFollowUp: Date;
 
-  @Column({ type: 'date', nullable: true })
-  created: Date;
-
   @Column({ nullable: true })
   lastActivity: string;
-
-  @ManyToOne(() => User, { nullable: true, eager: true })
-  @JoinColumn({ name: 'assignedToId' })
-  assignedTo: User;
-
-  @Column({ nullable: true })
-  assignedToId: number;
 
   @Column({ default: false })
   isConverted: boolean;
@@ -117,4 +117,17 @@ export class Lead {
 
   @Column({ type: 'jsonb', nullable: true })
   attachments: { url: string; name: string; type: string; uploadedAt: string }[];
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  // Legacy fields for compatibility during migration if needed
+  @Column({ nullable: true })
+  email: string;
+
+  @Column({ nullable: true })
+  phone: string;
 }

@@ -20,11 +20,8 @@ _export(exports, {
     }
 });
 const _typeorm = require("typeorm");
-const _productvariantentity = require("./product-variant.entity");
 const _productcategoryentity = require("./product-category.entity");
 const _brandentity = require("./brand.entity");
-const _productmediaentity = require("./product-media.entity");
-const _productattributeentity = require("./product-attribute.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -179,19 +176,19 @@ _ts_decorate([
     _ts_metadata("design:type", String)
 ], Product.prototype, "unitOfMeasure", void 0);
 _ts_decorate([
-    (0, _typeorm.OneToMany)(()=>_productvariantentity.ProductVariant, (variant)=>variant.product, {
+    (0, _typeorm.OneToMany)('ProductVariant', 'product', {
         cascade: true
     }),
     _ts_metadata("design:type", Array)
 ], Product.prototype, "variants", void 0);
 _ts_decorate([
-    (0, _typeorm.OneToMany)(()=>_productmediaentity.ProductMedia, (media)=>media.product, {
+    (0, _typeorm.OneToMany)('ProductMedia', 'product', {
         cascade: true
     }),
     _ts_metadata("design:type", Array)
 ], Product.prototype, "media", void 0);
 _ts_decorate([
-    (0, _typeorm.OneToMany)(()=>_productattributeentity.ProductAttribute, (attribute)=>attribute.product, {
+    (0, _typeorm.OneToMany)('ProductAttribute', 'product', {
         cascade: true
     }),
     _ts_metadata("design:type", Array)

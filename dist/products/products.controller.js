@@ -28,12 +28,34 @@ let ProductsController = class ProductsController {
     findAll() {
         return this.productsService.findAll();
     }
-    findAllPaginated(page, limit, search, categoryId) {
-        return this.productsService.findAllPaginated(page ? Number.parseInt(page) : 1, limit ? Number.parseInt(limit) : 5, search, categoryId);
+    findAllPaginated(page, limit, search, categoryId, status, type) {
+        return this.productsService.findAllPaginated(page ? Number.parseInt(page) : 1, limit ? Number.parseInt(limit) : 5, search, categoryId, status, type);
     }
     // Brands
     getBrands() {
         return this.productsService.getBrands();
+    }
+    createBrand(name, logo) {
+        return this.productsService.createBrand(name, logo);
+    }
+    updateBrand(id, data) {
+        return this.productsService.updateBrand(id, data);
+    }
+    deleteBrand(id) {
+        return this.productsService.deleteBrand(id);
+    }
+    // Tax Classes
+    getTaxClasses() {
+        return this.productsService.getTaxClasses();
+    }
+    createTaxClass(data) {
+        return this.productsService.createTaxClass(data);
+    }
+    updateTaxClass(id, data) {
+        return this.productsService.updateTaxClass(id, data);
+    }
+    deleteTaxClass(id) {
+        return this.productsService.deleteTaxClass(id);
     }
     // Units
     getUnits() {
@@ -48,7 +70,19 @@ let ProductsController = class ProductsController {
     deleteUnit(id) {
         return this.productsService.deleteUnit(id);
     }
-    // Pricing Models
+    // Product Types
+    getProductTypes() {
+        return this.productsService.getProductTypes();
+    }
+    createProductType(data) {
+        return this.productsService.createProductType(data);
+    }
+    updateProductType(id, data) {
+        return this.productsService.updateProductType(id, data);
+    }
+    deleteProductType(id) {
+        return this.productsService.deleteProductType(id);
+    }
     getPricingModels() {
         return this.productsService.getPricingModels();
     }
@@ -116,6 +150,12 @@ let ProductsController = class ProductsController {
     delete(id) {
         return this.productsService.delete(id);
     }
+    archive(id) {
+        return this.productsService.archive(id);
+    }
+    duplicate(id) {
+        return this.productsService.duplicate(id);
+    }
     constructor(productsService){
         this.productsService = productsService;
     }
@@ -132,8 +172,12 @@ _ts_decorate([
     _ts_param(1, (0, _common.Query)('limit')),
     _ts_param(2, (0, _common.Query)('search')),
     _ts_param(3, (0, _common.Query)('categoryId')),
+    _ts_param(4, (0, _common.Query)('status')),
+    _ts_param(5, (0, _common.Query)('type')),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
+        String,
+        String,
         String,
         String,
         String,
@@ -147,6 +191,72 @@ _ts_decorate([
     _ts_metadata("design:paramtypes", []),
     _ts_metadata("design:returntype", void 0)
 ], ProductsController.prototype, "getBrands", null);
+_ts_decorate([
+    (0, _common.Post)('brands'),
+    _ts_param(0, (0, _common.Body)('name')),
+    _ts_param(1, (0, _common.Body)('logo')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String,
+        String
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "createBrand", null);
+_ts_decorate([
+    (0, _common.Put)('brands/:id'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
+    _ts_param(1, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String,
+        Object
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "updateBrand", null);
+_ts_decorate([
+    (0, _common.Delete)('brands/:id'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "deleteBrand", null);
+_ts_decorate([
+    (0, _common.Get)('tax-classes'),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", []),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "getTaxClasses", null);
+_ts_decorate([
+    (0, _common.Post)('tax-classes'),
+    _ts_param(0, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Object
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "createTaxClass", null);
+_ts_decorate([
+    (0, _common.Put)('tax-classes/:id'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
+    _ts_param(1, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String,
+        Object
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "updateTaxClass", null);
+_ts_decorate([
+    (0, _common.Delete)('tax-classes/:id'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "deleteTaxClass", null);
 _ts_decorate([
     (0, _common.Get)('units'),
     _ts_metadata("design:type", Function),
@@ -182,6 +292,41 @@ _ts_decorate([
     ]),
     _ts_metadata("design:returntype", void 0)
 ], ProductsController.prototype, "deleteUnit", null);
+_ts_decorate([
+    (0, _common.Get)('types'),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", []),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "getProductTypes", null);
+_ts_decorate([
+    (0, _common.Post)('types'),
+    _ts_param(0, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Object
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "createProductType", null);
+_ts_decorate([
+    (0, _common.Put)('types/:id'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
+    _ts_param(1, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String,
+        Object
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "updateProductType", null);
+_ts_decorate([
+    (0, _common.Delete)('types/:id'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], ProductsController.prototype, "deleteProductType", null);
 _ts_decorate([
     (0, _common.Get)('pricing-models'),
     _ts_metadata("design:type", Function),
@@ -380,6 +525,24 @@ _ts_decorate([
     ]),
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], ProductsController.prototype, "delete", null);
+_ts_decorate([
+    (0, _common.Post)(':id/archive'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String
+    ]),
+    _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
+], ProductsController.prototype, "archive", null);
+_ts_decorate([
+    (0, _common.Post)(':id/duplicate'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseUUIDPipe)),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String
+    ]),
+    _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
+], ProductsController.prototype, "duplicate", null);
 ProductsController = _ts_decorate([
     (0, _common.Controller)('products'),
     _ts_metadata("design:type", Function),

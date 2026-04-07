@@ -11,7 +11,50 @@ Object.defineProperty(exports, "UsersService", {
 const _common = require("@nestjs/common");
 const _typeorm = require("@nestjs/typeorm");
 const _typeorm1 = require("typeorm");
+const _bcrypt = /*#__PURE__*/ _interop_require_wildcard(require("bcrypt"));
 const _userentity = require("./entities/user.entity");
+const _roleentity = require("../roles/entities/role.entity");
+function _getRequireWildcardCache(nodeInterop) {
+    if (typeof WeakMap !== "function") return null;
+    var cacheBabelInterop = new WeakMap();
+    var cacheNodeInterop = new WeakMap();
+    return (_getRequireWildcardCache = function(nodeInterop) {
+        return nodeInterop ? cacheNodeInterop : cacheBabelInterop;
+    })(nodeInterop);
+}
+function _interop_require_wildcard(obj, nodeInterop) {
+    if (!nodeInterop && obj && obj.__esModule) {
+        return obj;
+    }
+    if (obj === null || typeof obj !== "object" && typeof obj !== "function") {
+        return {
+            default: obj
+        };
+    }
+    var cache = _getRequireWildcardCache(nodeInterop);
+    if (cache && cache.has(obj)) {
+        return cache.get(obj);
+    }
+    var newObj = {
+        __proto__: null
+    };
+    var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
+    for(var key in obj){
+        if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) {
+            var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
+            if (desc && (desc.get || desc.set)) {
+                Object.defineProperty(newObj, key, desc);
+            } else {
+                newObj[key] = obj[key];
+            }
+        }
+    }
+    newObj.default = obj;
+    if (cache) {
+        cache.set(obj, newObj);
+    }
+    return newObj;
+}
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -28,16 +71,49 @@ function _ts_param(paramIndex, decorator) {
 }
 let UsersService = class UsersService {
     async findAll() {
-        return this.userRepository.find();
+        return this.userRepository.find({
+            relations: [
+                'role'
+            ]
+        });
+    }
+    async create(data) {
+        const existing = await this.userRepository.findOne({
+            where: {
+                email: data.email
+            }
+        });
+        if (existing) {
+            throw new _common.BadRequestException('Email already exists');
+        }
+        const hashedPassword = await _bcrypt.hash(data.password || 'password123', 10);
+        const user = this.userRepository.create({
+            name: data.name,
+            email: data.email,
+            password: hashedPassword,
+            phone: data.phone,
+            enabled: data.enabled ?? true
+        });
+        if (data.roleId) {
+            user.role = await this.roleRepository.findOne({
+                where: {
+                    id: data.roleId
+                }
+            });
+        }
+        return this.userRepository.save(user);
     }
     async findOne(id) {
-        if (!id || isNaN(id)) {
+        if (!id || Number.isNaN(id)) {
             throw new _common.NotFoundException('User not found');
         }
         const user = await this.userRepository.findOne({
             where: {
                 id
-            }
+            },
+            relations: [
+                'role'
+            ]
         });
         if (!user) throw new _common.NotFoundException('User not found');
         return user;
@@ -46,8 +122,14 @@ let UsersService = class UsersService {
         const user = await this.findOne(id);
         if (data.name) user.name = data.name;
         if (data.phone) user.phone = data.phone;
-        if (data.role) user.role = data.role;
         if (data.enabled !== undefined) user.enabled = data.enabled;
+        if (data.roleId) {
+            user.role = await this.roleRepository.findOne({
+                where: {
+                    id: data.roleId
+                }
+            });
+        }
         return this.userRepository.save(user);
     }
     async updateProfile(id, data) {
@@ -55,22 +137,24 @@ let UsersService = class UsersService {
         if (data.name) user.name = data.name;
         if (data.phone) user.phone = data.phone;
         if (data.avatar) user.avatar = data.avatar;
-        user.updatedAt = new Date();
         return this.userRepository.save(user);
     }
     async delete(id) {
         const user = await this.findOne(id);
         await this.userRepository.remove(user);
     }
-    constructor(userRepository){
+    constructor(userRepository, roleRepository){
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
 };
 UsersService = _ts_decorate([
     (0, _common.Injectable)(),
     _ts_param(0, (0, _typeorm.InjectRepository)(_userentity.User)),
+    _ts_param(1, (0, _typeorm.InjectRepository)(_roleentity.Role)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository
     ])
 ], UsersService);

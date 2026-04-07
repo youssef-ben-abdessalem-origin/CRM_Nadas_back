@@ -9,14 +9,13 @@ Object.defineProperty(exports, "AuthModule", {
     }
 });
 const _common = require("@nestjs/common");
-const _typeorm = require("@nestjs/typeorm");
 const _jwtservice = require("./jwt.service");
 const _jwtstrategy = require("./jwt.strategy");
 const _usersmodule = require("../users/users.module");
 const _authcontroller = require("./auth.controller");
 const _authservice = require("./auth.service");
-const _userentity = require("../users/entities/user.entity");
 const _gmailmodule = require("../gmail/gmail.module");
+const _rolesmodule = require("../roles/roles.module");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -28,10 +27,8 @@ let AuthModule = class AuthModule {
 AuthModule = _ts_decorate([
     (0, _common.Module)({
         imports: [
-            _typeorm.TypeOrmModule.forFeature([
-                _userentity.User
-            ]),
             _usersmodule.UsersModule,
+            _rolesmodule.RolesModule,
             _gmailmodule.GmailModule
         ],
         controllers: [

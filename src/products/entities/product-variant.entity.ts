@@ -1,7 +1,4 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
-import { Product } from './product.entity';
-import { PriceBookItem } from './price-book-item.entity';
-import { Inventory } from './inventory.entity';
 
 export enum VariantStatus {
   ACTIVE = 'active',
@@ -16,14 +13,14 @@ export class ProductVariant {
   @Column({ name: 'product_id' })
   productId: string;
 
-  @ManyToOne(() => Product, (product) => product.variants, { onDelete: 'CASCADE' })
+  @ManyToOne('Product', 'variants', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'product_id' })
   product: any;
 
-  @OneToMany(() => PriceBookItem, (price) => price.productVariant)
+  @OneToMany('PriceBookItem', 'productVariant')
   prices: any[];
 
-  @OneToMany(() => Inventory, (inventory) => inventory.variant)
+  @OneToMany('Inventory', 'variant')
   inventory: any[];
 
   @Column({ nullable: true })

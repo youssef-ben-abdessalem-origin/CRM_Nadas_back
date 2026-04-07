@@ -2,21 +2,14 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-function _export(target, all) {
-    for(var name in all)Object.defineProperty(target, name, {
-        enumerable: true,
-        get: Object.getOwnPropertyDescriptor(all, name).get
-    });
-}
-_export(exports, {
-    get Role () {
-        return Role;
-    },
-    get User () {
+Object.defineProperty(exports, "User", {
+    enumerable: true,
+    get: function() {
         return User;
     }
 });
 const _typeorm = require("typeorm");
+const _roleentity = require("../../roles/entities/role.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -26,12 +19,6 @@ function _ts_decorate(decorators, target, key, desc) {
 function _ts_metadata(k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 }
-var Role = /*#__PURE__*/ function(Role) {
-    Role["ADMIN"] = "ADMIN";
-    Role["MANAGER"] = "MANAGER";
-    Role["USER"] = "USER";
-    return Role;
-}({});
 let User = class User {
 };
 _ts_decorate([
@@ -53,13 +40,21 @@ _ts_decorate([
     _ts_metadata("design:type", String)
 ], User.prototype, "name", void 0);
 _ts_decorate([
-    (0, _typeorm.Column)({
-        type: 'enum',
-        enum: Role,
-        default: "USER"
+    (0, _typeorm.ManyToOne)(()=>_roleentity.Role, {
+        nullable: true,
+        eager: true
     }),
-    _ts_metadata("design:type", String)
+    (0, _typeorm.JoinColumn)({
+        name: 'roleId'
+    }),
+    _ts_metadata("design:type", typeof _roleentity.Role === "undefined" ? Object : _roleentity.Role)
 ], User.prototype, "role", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], User.prototype, "roleId", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
         default: true

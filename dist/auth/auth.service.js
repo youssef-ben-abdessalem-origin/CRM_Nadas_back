@@ -13,6 +13,7 @@ const _typeorm = require("@nestjs/typeorm");
 const _typeorm1 = require("typeorm");
 const _jwtservice = require("./jwt.service");
 const _userentity = require("../users/entities/user.entity");
+const _roleentity = require("../roles/entities/role.entity");
 const _bcrypt = /*#__PURE__*/ _interop_require_wildcard(require("bcrypt"));
 function _getRequireWildcardCache(nodeInterop) {
     if (typeof WeakMap !== "function") return null;
@@ -79,13 +80,18 @@ let AuthService = class AuthService {
         if (existing) {
             throw new _common.BadRequestException('Email already exists');
         }
+        const userRole = await this.roleRepository.findOne({
+            where: {
+                name: 'USER'
+            }
+        });
         const hashedPassword = await _bcrypt.hash(password, 10);
         const user = this.userRepository.create({
             name,
             email,
             password: hashedPassword,
             phone,
-            role: _userentity.Role.USER,
+            role: userRole,
             enabled: true
         });
         await this.userRepository.save(user);
@@ -137,7 +143,7 @@ let AuthService = class AuthService {
         const accessToken = await this.jwtService.generateToken({
             email: user.email,
             sub: user.id,
-            role: user.role
+            role: user.role?.name || 'USER'
         });
         const refreshToken = await this.jwtService.generateRefreshToken({
             email: user.email,
@@ -157,23 +163,26 @@ let AuthService = class AuthService {
             id: user.id,
             email: user.email,
             name: user.name,
-            role: user.role,
+            role: user.role?.name || 'USER',
             enabled: user.enabled,
             phone: user.phone,
             avatar: user.avatar,
             createdAt: user.createdAt?.toISOString()
         };
     }
-    constructor(userRepository, jwtService){
+    constructor(userRepository, roleRepository, jwtService){
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
         this.jwtService = jwtService;
     }
 };
 AuthService = _ts_decorate([
     (0, _common.Injectable)(),
     _ts_param(0, (0, _typeorm.InjectRepository)(_userentity.User)),
+    _ts_param(1, (0, _typeorm.InjectRepository)(_roleentity.Role)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _jwtservice.JwtService === "undefined" ? Object : _jwtservice.JwtService
     ])

@@ -1,6 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { PriceBook } from './price-book.entity';
-import { ProductVariant } from './product-variant.entity';
 
 @Entity('price_book_items')
 export class PriceBookItem {
@@ -17,7 +16,7 @@ export class PriceBookItem {
   @Column({ name: 'variant_id' })
   variantId: string;
 
-  @ManyToOne(() => ProductVariant, (variant) => variant.prices, { onDelete: 'CASCADE' })
+  @ManyToOne('ProductVariant', 'prices', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'variant_id' })
   productVariant: any;
 

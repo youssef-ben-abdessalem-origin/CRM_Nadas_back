@@ -10,7 +10,6 @@ Object.defineProperty(exports, "PriceBookItem", {
 });
 const _typeorm = require("typeorm");
 const _pricebookentity = require("./price-book.entity");
-const _productvariantentity = require("./product-variant.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -48,7 +47,7 @@ _ts_decorate([
     _ts_metadata("design:type", String)
 ], PriceBookItem.prototype, "variantId", void 0);
 _ts_decorate([
-    (0, _typeorm.ManyToOne)(()=>_productvariantentity.ProductVariant, (variant)=>variant.prices, {
+    (0, _typeorm.ManyToOne)('ProductVariant', 'prices', {
         onDelete: 'CASCADE'
     }),
     (0, _typeorm.JoinColumn)({

@@ -1,5 +1,4 @@
 import { Entity, PrimaryGeneratedColumn, Column, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { ProductVariant } from './product-variant.entity';
 
 @Entity('inventory')
 export class Inventory {
@@ -9,7 +8,7 @@ export class Inventory {
   @Column({ name: 'variant_id' })
   variantId: string;
 
-  @ManyToOne(() => ProductVariant, (variant) => variant.inventory, { onDelete: 'CASCADE' })
+  @ManyToOne('ProductVariant', 'inventory', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'variant_id' })
   variant: any;
 

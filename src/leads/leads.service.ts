@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, OnModuleInit, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Lead } from './entities/lead.entity';
 import { LeadSource } from './entities/lead-source.entity';
 import { PipelineStage } from './entities/pipeline-stage.entity';
@@ -18,29 +18,29 @@ import { ContactTier } from '../contacts/entities/contact-tier.entity';
 export class LeadsService implements OnModuleInit {
   constructor(
     @InjectRepository(Lead)
-    private leadRepository: Repository<Lead>,
+    private readonly leadRepository: Repository<Lead>,
     @InjectRepository(LeadSource)
-    private leadSourceRepository: Repository<LeadSource>,
+    private readonly leadSourceRepository: Repository<LeadSource>,
     @InjectRepository(PipelineStage)
-    private pipelineStageRepository: Repository<PipelineStage>,
+    private readonly pipelineStageRepository: Repository<PipelineStage>,
     @InjectRepository(LeadScoreCategory)
-    private scoreCategoryRepository: Repository<LeadScoreCategory>,
+    private readonly scoreCategoryRepository: Repository<LeadScoreCategory>,
     @InjectRepository(LeadPriority)
-    private priorityRepository: Repository<LeadPriority>,
+    private readonly priorityRepository: Repository<LeadPriority>,
     @InjectRepository(QualificationStage)
-    private qualificationStageRepository: Repository<QualificationStage>,
+    private readonly qualificationStageRepository: Repository<QualificationStage>,
     @InjectRepository(ContactStatus)
-    private contactStatusRepository: Repository<ContactStatus>,
+    private readonly contactStatusRepository: Repository<ContactStatus>,
     @InjectRepository(ContactTier)
-    private contactTierRepository: Repository<ContactTier>,
+    private readonly contactTierRepository: Repository<ContactTier>,
     @InjectRepository(DealStage)
-    private dealStageRepository: Repository<DealStage>,
+    private readonly dealStageRepository: Repository<DealStage>,
     @Inject(forwardRef(() => AccountsService))
-    private accountsService: AccountsService,
+    private readonly accountsService: AccountsService,
     @Inject(forwardRef(() => ContactsService))
-    private contactsService: ContactsService,
+    private readonly contactsService: ContactsService,
     @Inject(forwardRef(() => DealsService))
-    private dealsService: DealsService,
+    private readonly dealsService: DealsService,
   ) {}
 
   async onModuleInit() {
@@ -109,13 +109,13 @@ export class LeadsService implements OnModuleInit {
 
   async findAll(): Promise<Lead[]> {
     return this.leadRepository.find({ 
-      relations: ['source', 'stage', 'scoreCategory', 'priority', 'qualificationStage', 'assignedTo', 'account'] 
+      relations: ['source', 'stage', 'scoreCategory', 'priority', 'qualificationStage', 'owner', 'account'] 
     });
   }
 
   async findAllPaginated(page = 1, limit = 10, search?: string, stageId?: number): Promise<{ data: Lead[]; total: number; page: number; limit: number; totalPages: number }> {
     const queryBuilder = this.leadRepository.createQueryBuilder('lead')
-      .leftJoinAndSelect('lead.assignedTo', 'assignedTo')
+      .leftJoinAndSelect('lead.owner', 'owner')
       .leftJoinAndSelect('lead.source', 'source')
       .leftJoinAndSelect('lead.stage', 'stage')
       .leftJoinAndSelect('lead.scoreCategory', 'scoreCategory')
@@ -124,7 +124,7 @@ export class LeadsService implements OnModuleInit {
 
     if (search) {
       queryBuilder.andWhere(
-        '(lead.name ILIKE :search OR lead.email ILIKE :search OR lead.company ILIKE :search)',
+        '(lead.name ILIKE :search OR lead.emails::text ILIKE :search OR lead.company ILIKE :search)',
         { search: `%${search}%` }
       );
     }
@@ -135,7 +135,7 @@ export class LeadsService implements OnModuleInit {
 
     const total = await queryBuilder.getCount();
     const data = await queryBuilder
-      .orderBy('lead.created', 'DESC')
+      .orderBy('lead.createdAt', 'DESC')
       .skip((page - 1) * limit)
       .take(limit)
       .getMany();
@@ -152,21 +152,14 @@ export class LeadsService implements OnModuleInit {
   async findOne(id: number): Promise<Lead> {
     const lead = await this.leadRepository.findOne({ 
       where: { id }, 
-      relations: ['source', 'stage', 'scoreCategory', 'priority', 'qualificationStage', 'assignedTo', 'account'] 
+      relations: ['source', 'stage', 'scoreCategory', 'priority', 'qualificationStage', 'owner', 'account'] 
     });
     if (!lead) throw new NotFoundException('Lead not found');
     return lead;
   }
 
   async create(data: Partial<Lead>): Promise<Lead> {
-    if (data.email) {
-      const existing = await this.leadRepository.findOne({ where: { email: data.email } });
-      if (existing) {
-        throw new Error(`A lead with email "${data.email}" already exists (ID: ${existing.id})`);
-      }
-    }
     const leadData: Partial<Lead> = { ...data };
-    leadData.created = new Date();
     leadData.lastActivity = 'Just now';
 
     if (leadData.priorityId) {
@@ -223,7 +216,7 @@ export class LeadsService implements OnModuleInit {
         name: `${lead.name} - Deal`,
         company: lead.company,
         value: lead.value,
-        contact: lead.email,
+        contact: lead.emails?.[0] || lead.email,
         leadId: lead.id,
         dealStageId: wonStage?.id,
         notes: `Created from lead: ${lead.name}. ${lead.notes || ''}`,
@@ -244,7 +237,12 @@ export class LeadsService implements OnModuleInit {
 
   async bulkUpdate(ids: number[], updates: Partial<Lead>): Promise<Lead[]> {
     await this.leadRepository.update(ids, updates);
-    return this.leadRepository.findByIds(ids);
+    return this.findByIds(ids);
+  }
+
+  async findByIds(ids: number[]): Promise<Lead[]> {
+    if (ids.length === 0) return [];
+    return this.leadRepository.find({ where: { id: In(ids) } });
   }
 
   async getSources(): Promise<LeadSource[]> {
@@ -430,8 +428,8 @@ export class LeadsService implements OnModuleInit {
     // Create Contact linked to Account
     const contact = await this.contactsService.create({
       name: lead.name,
-      email: lead.email,
-      phone: lead.phone,
+      email: lead.emails?.[0] || lead.email,
+      phone: lead.phones?.[0] || lead.phone,
       title: lead.title,
       company: lead.company,
       account: { id: accountId } as any,

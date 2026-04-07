@@ -1,5 +1,4 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { Product } from './product.entity';
 
 @Entity('product_attributes')
 export class ProductAttribute {
@@ -9,7 +8,7 @@ export class ProductAttribute {
   @Column({ name: 'product_id' })
   productId: string;
 
-  @ManyToOne(() => Product, (product) => product.attributes, { onDelete: 'CASCADE' })
+  @ManyToOne('Product', 'attributes', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'product_id' })
   product: any;
 

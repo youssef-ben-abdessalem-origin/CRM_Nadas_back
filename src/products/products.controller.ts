@@ -17,12 +17,16 @@ export class ProductsController {
     @Query('limit') limit?: string,
     @Query('search') search?: string,
     @Query('categoryId') categoryId?: string,
+    @Query('status') status?: string,
+    @Query('type') type?: string,
   ) {
     return this.productsService.findAllPaginated(
       page ? Number.parseInt(page) : 1,
       limit ? Number.parseInt(limit) : 5,
       search,
       categoryId,
+      status,
+      type,
     );
   }
 
@@ -30,6 +34,42 @@ export class ProductsController {
   @Get('brands')
   getBrands() {
     return this.productsService.getBrands();
+  }
+
+  @Post('brands')
+  createBrand(@Body('name') name: string, @Body('logo') logo?: string) {
+    return this.productsService.createBrand(name, logo);
+  }
+
+  @Put('brands/:id')
+  updateBrand(@Param('id', ParseUUIDPipe) id: string, @Body() data: any) {
+    return this.productsService.updateBrand(id, data);
+  }
+
+  @Delete('brands/:id')
+  deleteBrand(@Param('id', ParseUUIDPipe) id: string) {
+    return this.productsService.deleteBrand(id);
+  }
+
+  // Tax Classes
+  @Get('tax-classes')
+  getTaxClasses() {
+    return this.productsService.getTaxClasses();
+  }
+
+  @Post('tax-classes')
+  createTaxClass(@Body() data: any) {
+    return this.productsService.createTaxClass(data);
+  }
+
+  @Put('tax-classes/:id')
+  updateTaxClass(@Param('id', ParseUUIDPipe) id: string, @Body() data: any) {
+    return this.productsService.updateTaxClass(id, data);
+  }
+
+  @Delete('tax-classes/:id')
+  deleteTaxClass(@Param('id', ParseUUIDPipe) id: string) {
+    return this.productsService.deleteTaxClass(id);
   }
 
   // Units
@@ -53,7 +93,27 @@ export class ProductsController {
     return this.productsService.deleteUnit(id);
   }
 
-  // Pricing Models
+
+  // Product Types
+  @Get('types')
+  getProductTypes() {
+    return this.productsService.getProductTypes();
+  }
+
+  @Post('types')
+  createProductType(@Body() data: any) {
+    return this.productsService.createProductType(data);
+  }
+
+  @Put('types/:id')
+  updateProductType(@Param('id', ParseUUIDPipe) id: string, @Body() data: any) {
+    return this.productsService.updateProductType(id, data);
+  }
+
+  @Delete('types/:id')
+  deleteProductType(@Param('id', ParseUUIDPipe) id: string) {
+    return this.productsService.deleteProductType(id);
+  }
   @Get('pricing-models')
   getPricingModels() {
     return this.productsService.getPricingModels();
@@ -171,5 +231,15 @@ export class ProductsController {
   @Delete(':id')
   delete(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.productsService.delete(id);
+  }
+
+  @Post(':id/archive')
+  archive(@Param('id', ParseUUIDPipe) id: string): Promise<Product> {
+    return this.productsService.archive(id);
+  }
+
+  @Post(':id/duplicate')
+  duplicate(@Param('id', ParseUUIDPipe) id: string): Promise<Product> {
+    return this.productsService.duplicate(id);
   }
 }

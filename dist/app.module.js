@@ -60,9 +60,15 @@ const _brandentity = require("./products/entities/brand.entity");
 const _inventoryentity = require("./products/entities/inventory.entity");
 const _productmediaentity = require("./products/entities/product-media.entity");
 const _productattributeentity = require("./products/entities/product-attribute.entity");
+const _producttypeentity = require("./products/entities/product-type.entity");
+const _taxclassentity = require("./products/entities/tax-class.entity");
 const _productsmodule = require("./products/products.module");
 const _billingmodule = require("./billing/billing.module");
 const _billingentity = require("./billing/entities/billing.entity");
+const _roleentity = require("./roles/entities/role.entity");
+const _permissionentity = require("./permissions/entities/permission.entity");
+const _rolesmodule = require("./roles/roles.module");
+const _permissionsmodule = require("./permissions/permissions.module");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -80,7 +86,7 @@ AppModule = _ts_decorate([
                 port: 5432,
                 username: "postgres",
                 password: "admin",
-                database: "nexus_crm_new",
+                database: "CRM_NEW_2026",
                 synchronize: true,
                 entities: [
                     _userentity.User,
@@ -120,8 +126,12 @@ AppModule = _ts_decorate([
                     _inventoryentity.Inventory,
                     _productmediaentity.ProductMedia,
                     _productattributeentity.ProductAttribute,
+                    _producttypeentity.ProductType,
+                    _taxclassentity.TaxClass,
                     _billingentity.Quote,
-                    _billingentity.Invoice
+                    _billingentity.Invoice,
+                    _roleentity.Role,
+                    _permissionentity.Permission
                 ]
             }),
             _jwt.JwtModule.register({
@@ -146,7 +156,9 @@ AppModule = _ts_decorate([
             _activitiesmodule.ActivitiesModule,
             _profilemodule.ProfileModule,
             _productsmodule.ProductsModule,
-            _billingmodule.BillingModule
+            _billingmodule.BillingModule,
+            _rolesmodule.RolesModule,
+            _permissionsmodule.PermissionsModule
         ]
     })
 ], AppModule);

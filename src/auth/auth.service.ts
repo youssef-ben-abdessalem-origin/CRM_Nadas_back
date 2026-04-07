@@ -2,7 +2,8 @@ import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from './jwt.service';
-import { User, Role } from '../users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
+import { Role } from '../roles/entities/role.entity';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -10,6 +11,8 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Role)
+    private roleRepository: Repository<Role>,
     private jwtService: JwtService,
   ) {}
 
@@ -19,13 +22,15 @@ export class AuthService {
       throw new BadRequestException('Email already exists');
     }
 
+    const userRole = await this.roleRepository.findOne({ where: { name: 'USER' } });
+    
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = this.userRepository.create({
       name,
       email,
       password: hashedPassword,
       phone,
-      role: Role.USER,
+      role: userRole,
       enabled: true,
     });
     await this.userRepository.save(user);
@@ -73,7 +78,7 @@ export class AuthService {
     const accessToken = await this.jwtService.generateToken({ 
       email: user.email, 
       sub: user.id, 
-      role: user.role 
+      role: user.role?.name || 'USER' 
     });
     const refreshToken = await this.jwtService.generateRefreshToken({ 
       email: user.email, 
@@ -95,7 +100,7 @@ export class AuthService {
       id: user.id,
       email: user.email,
       name: user.name,
-      role: user.role,
+      role: user.role?.name || 'USER',
       enabled: user.enabled,
       phone: user.phone,
       avatar: user.avatar,

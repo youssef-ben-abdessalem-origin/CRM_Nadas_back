@@ -36,15 +36,19 @@ _ts_decorate([
     _ts_metadata("design:type", String)
 ], Lead.prototype, "name", void 0);
 _ts_decorate([
-    (0, _typeorm.Column)(),
-    _ts_metadata("design:type", String)
-], Lead.prototype, "email", void 0);
-_ts_decorate([
     (0, _typeorm.Column)({
+        type: 'jsonb',
         nullable: true
     }),
-    _ts_metadata("design:type", String)
-], Lead.prototype, "phone", void 0);
+    _ts_metadata("design:type", Array)
+], Lead.prototype, "emails", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'jsonb',
+        nullable: true
+    }),
+    _ts_metadata("design:type", Array)
+], Lead.prototype, "phones", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
         nullable: true
@@ -139,6 +143,28 @@ _ts_decorate([
 ], Lead.prototype, "qualificationStageId", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
+        default: 'active'
+    }),
+    _ts_metadata("design:type", String)
+], Lead.prototype, "status", void 0);
+_ts_decorate([
+    (0, _typeorm.ManyToOne)(()=>_userentity.User, {
+        nullable: true,
+        eager: true
+    }),
+    (0, _typeorm.JoinColumn)({
+        name: 'ownerId'
+    }),
+    _ts_metadata("design:type", typeof _userentity.User === "undefined" ? Object : _userentity.User)
+], Lead.prototype, "owner", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Lead.prototype, "ownerId", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
         type: 'decimal',
         precision: 15,
         scale: 2,
@@ -173,9 +199,10 @@ _ts_decorate([
 ], Lead.prototype, "notes", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
+        type: 'jsonb',
         nullable: true
     }),
-    _ts_metadata("design:type", String)
+    _ts_metadata("design:type", Array)
 ], Lead.prototype, "tags", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
@@ -186,33 +213,10 @@ _ts_decorate([
 ], Lead.prototype, "nextFollowUp", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
-        type: 'date',
-        nullable: true
-    }),
-    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
-], Lead.prototype, "created", void 0);
-_ts_decorate([
-    (0, _typeorm.Column)({
         nullable: true
     }),
     _ts_metadata("design:type", String)
 ], Lead.prototype, "lastActivity", void 0);
-_ts_decorate([
-    (0, _typeorm.ManyToOne)(()=>_userentity.User, {
-        nullable: true,
-        eager: true
-    }),
-    (0, _typeorm.JoinColumn)({
-        name: 'assignedToId'
-    }),
-    _ts_metadata("design:type", typeof _userentity.User === "undefined" ? Object : _userentity.User)
-], Lead.prototype, "assignedTo", void 0);
-_ts_decorate([
-    (0, _typeorm.Column)({
-        nullable: true
-    }),
-    _ts_metadata("design:type", Number)
-], Lead.prototype, "assignedToId", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
         default: false
@@ -260,6 +264,26 @@ _ts_decorate([
     }),
     _ts_metadata("design:type", Array)
 ], Lead.prototype, "attachments", void 0);
+_ts_decorate([
+    (0, _typeorm.CreateDateColumn)(),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], Lead.prototype, "createdAt", void 0);
+_ts_decorate([
+    (0, _typeorm.UpdateDateColumn)(),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], Lead.prototype, "updatedAt", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Lead.prototype, "email", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Lead.prototype, "phone", void 0);
 Lead = _ts_decorate([
     (0, _typeorm.Entity)('leads')
 ], Lead);

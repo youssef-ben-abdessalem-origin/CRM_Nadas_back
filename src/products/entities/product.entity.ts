@@ -1,9 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
-import { ProductVariant } from './product-variant.entity';
 import { ProductCategory } from './product-category.entity';
 import { Brand } from './brand.entity';
-import { ProductMedia } from './product-media.entity';
-import { ProductAttribute } from './product-attribute.entity';
 
 export enum ProductType {
   SERVICE = 'service',
@@ -75,13 +72,13 @@ export class Product {
   @Column({ type: 'varchar', length: 50, nullable: true })
   unitOfMeasure: string;
 
-  @OneToMany(() => ProductVariant, (variant) => variant.product, { cascade: true })
+  @OneToMany('ProductVariant', 'product', { cascade: true })
   variants: any[];
 
-  @OneToMany(() => ProductMedia, (media) => media.product, { cascade: true })
+  @OneToMany('ProductMedia', 'product', { cascade: true })
   media: any[];
 
-  @OneToMany(() => ProductAttribute, (attribute) => attribute.product, { cascade: true })
+  @OneToMany('ProductAttribute', 'product', { cascade: true })
   attributes: any[];
 
   @CreateDateColumn()

@@ -165,15 +165,15 @@ let LeadsService = class LeadsService {
                 'scoreCategory',
                 'priority',
                 'qualificationStage',
-                'assignedTo',
+                'owner',
                 'account'
             ]
         });
     }
     async findAllPaginated(page = 1, limit = 10, search, stageId) {
-        const queryBuilder = this.leadRepository.createQueryBuilder('lead').leftJoinAndSelect('lead.assignedTo', 'assignedTo').leftJoinAndSelect('lead.source', 'source').leftJoinAndSelect('lead.stage', 'stage').leftJoinAndSelect('lead.scoreCategory', 'scoreCategory').leftJoinAndSelect('lead.priority', 'priority').leftJoinAndSelect('lead.qualificationStage', 'qualificationStage');
+        const queryBuilder = this.leadRepository.createQueryBuilder('lead').leftJoinAndSelect('lead.owner', 'owner').leftJoinAndSelect('lead.source', 'source').leftJoinAndSelect('lead.stage', 'stage').leftJoinAndSelect('lead.scoreCategory', 'scoreCategory').leftJoinAndSelect('lead.priority', 'priority').leftJoinAndSelect('lead.qualificationStage', 'qualificationStage');
         if (search) {
-            queryBuilder.andWhere('(lead.name ILIKE :search OR lead.email ILIKE :search OR lead.company ILIKE :search)', {
+            queryBuilder.andWhere('(lead.name ILIKE :search OR lead.emails::text ILIKE :search OR lead.company ILIKE :search)', {
                 search: `%${search}%`
             });
         }
@@ -183,7 +183,7 @@ let LeadsService = class LeadsService {
             });
         }
         const total = await queryBuilder.getCount();
-        const data = await queryBuilder.orderBy('lead.created', 'DESC').skip((page - 1) * limit).take(limit).getMany();
+        const data = await queryBuilder.orderBy('lead.createdAt', 'DESC').skip((page - 1) * limit).take(limit).getMany();
         return {
             data,
             total,
@@ -203,7 +203,7 @@ let LeadsService = class LeadsService {
                 'scoreCategory',
                 'priority',
                 'qualificationStage',
-                'assignedTo',
+                'owner',
                 'account'
             ]
         });
@@ -211,20 +211,9 @@ let LeadsService = class LeadsService {
         return lead;
     }
     async create(data) {
-        if (data.email) {
-            const existing = await this.leadRepository.findOne({
-                where: {
-                    email: data.email
-                }
-            });
-            if (existing) {
-                throw new Error(`A lead with email "${data.email}" already exists (ID: ${existing.id})`);
-            }
-        }
         const leadData = {
             ...data
         };
-        leadData.created = new Date();
         leadData.lastActivity = 'Just now';
         if (leadData.priorityId) {
             const priority = await this.priorityRepository.findOne({
@@ -289,7 +278,7 @@ let LeadsService = class LeadsService {
                 name: `${lead.name} - Deal`,
                 company: lead.company,
                 value: lead.value,
-                contact: lead.email,
+                contact: lead.emails?.[0] || lead.email,
                 leadId: lead.id,
                 dealStageId: wonStage?.id,
                 notes: `Created from lead: ${lead.name}. ${lead.notes || ''}`
@@ -306,7 +295,15 @@ let LeadsService = class LeadsService {
     }
     async bulkUpdate(ids, updates) {
         await this.leadRepository.update(ids, updates);
-        return this.leadRepository.findByIds(ids);
+        return this.findByIds(ids);
+    }
+    async findByIds(ids) {
+        if (ids.length === 0) return [];
+        return this.leadRepository.find({
+            where: {
+                id: (0, _typeorm1.In)(ids)
+            }
+        });
     }
     async getSources() {
         return this.leadSourceRepository.find({
@@ -581,8 +578,8 @@ let LeadsService = class LeadsService {
         // Create Contact linked to Account
         const contact = await this.contactsService.create({
             name: lead.name,
-            email: lead.email,
-            phone: lead.phone,
+            email: lead.emails?.[0] || lead.email,
+            phone: lead.phones?.[0] || lead.phone,
             title: lead.title,
             company: lead.company,
             account: {

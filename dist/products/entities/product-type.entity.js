@@ -1,0 +1,64 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "ProductType", {
+    enumerable: true,
+    get: function() {
+        return ProductType;
+    }
+});
+const _typeorm = require("typeorm");
+function _ts_decorate(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+}
+function _ts_metadata(k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+}
+let ProductType = class ProductType {
+};
+_ts_decorate([
+    (0, _typeorm.PrimaryGeneratedColumn)('uuid'),
+    _ts_metadata("design:type", String)
+], ProductType.prototype, "id", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        unique: true
+    }),
+    _ts_metadata("design:type", String)
+], ProductType.prototype, "name", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        unique: true
+    }),
+    _ts_metadata("design:type", String)
+], ProductType.prototype, "code", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'text',
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], ProductType.prototype, "description", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        default: true
+    }),
+    _ts_metadata("design:type", Boolean)
+], ProductType.prototype, "isActive", void 0);
+_ts_decorate([
+    (0, _typeorm.CreateDateColumn)(),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], ProductType.prototype, "createdAt", void 0);
+_ts_decorate([
+    (0, _typeorm.UpdateDateColumn)(),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], ProductType.prototype, "updatedAt", void 0);
+ProductType = _ts_decorate([
+    (0, _typeorm.Entity)('product_types')
+], ProductType);
+
+//# sourceMappingURL=product-type.entity.js.map

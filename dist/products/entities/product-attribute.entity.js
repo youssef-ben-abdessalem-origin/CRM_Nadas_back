@@ -9,7 +9,6 @@ Object.defineProperty(exports, "ProductAttribute", {
     }
 });
 const _typeorm = require("typeorm");
-const _productentity = require("./product.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -32,7 +31,7 @@ _ts_decorate([
     _ts_metadata("design:type", String)
 ], ProductAttribute.prototype, "productId", void 0);
 _ts_decorate([
-    (0, _typeorm.ManyToOne)(()=>_productentity.Product, (product)=>product.attributes, {
+    (0, _typeorm.ManyToOne)('Product', 'attributes', {
         onDelete: 'CASCADE'
     }),
     (0, _typeorm.JoinColumn)({

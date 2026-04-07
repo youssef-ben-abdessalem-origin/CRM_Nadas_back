@@ -31,6 +31,9 @@ let UsersController = class UsersController {
     findAll() {
         return this.usersService.findAll();
     }
+    create(data) {
+        return this.usersService.create(data);
+    }
     getProfile(req) {
         return req.user;
     }
@@ -61,6 +64,20 @@ _ts_decorate([
     _ts_metadata("design:paramtypes", []),
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], UsersController.prototype, "findAll", null);
+_ts_decorate([
+    (0, _common.Post)(),
+    (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
+    (0, _swagger.ApiBearerAuth)(),
+    (0, _swagger.ApiOperation)({
+        summary: 'Create user'
+    }),
+    _ts_param(0, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Object
+    ]),
+    _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
+], UsersController.prototype, "create", null);
 _ts_decorate([
     (0, _common.Get)('profile'),
     (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),

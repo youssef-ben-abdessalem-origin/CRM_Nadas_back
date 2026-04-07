@@ -13,6 +13,8 @@ import { Brand } from './entities/brand.entity';
 import { Inventory } from './entities/inventory.entity';
 import { ProductMedia } from './entities/product-media.entity';
 import { ProductAttribute } from './entities/product-attribute.entity';
+import { ProductType } from './entities/product-type.entity';
+import { TaxClass } from './entities/tax-class.entity';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { ProductAttribute } from './entities/product-attribute.entity';
       Inventory,
       ProductMedia,
       ProductAttribute,
+      ProductType,
+      TaxClass,
     ]),
   ],
   providers: [ProductsService],
