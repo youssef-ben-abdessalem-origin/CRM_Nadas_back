@@ -9,6 +9,7 @@ Object.defineProperty(exports, "Inventory", {
     }
 });
 const _typeorm = require("typeorm");
+const _productvariantentity = require("./product-variant.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -31,7 +32,7 @@ _ts_decorate([
     _ts_metadata("design:type", String)
 ], Inventory.prototype, "variantId", void 0);
 _ts_decorate([
-    (0, _typeorm.ManyToOne)('ProductVariant', 'inventory', {
+    (0, _typeorm.ManyToOne)(()=>_productvariantentity.ProductVariant, (variant)=>variant.inventory, {
         onDelete: 'CASCADE'
     }),
     (0, _typeorm.JoinColumn)({

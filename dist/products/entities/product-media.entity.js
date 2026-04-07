@@ -38,7 +38,7 @@ _ts_decorate([
     (0, _typeorm.JoinColumn)({
         name: 'product_id'
     }),
-    _ts_metadata("design:type", typeof _productentity.Product === "undefined" ? Object : _productentity.Product)
+    _ts_metadata("design:type", Object)
 ], ProductMedia.prototype, "product", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({

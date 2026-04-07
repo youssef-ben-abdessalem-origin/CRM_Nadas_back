@@ -18,6 +18,8 @@ _export(exports, {
 });
 const _typeorm = require("typeorm");
 const _productentity = require("./product.entity");
+const _pricebookitementity = require("./price-book-item.entity");
+const _inventoryentity = require("./inventory.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -51,14 +53,14 @@ _ts_decorate([
     (0, _typeorm.JoinColumn)({
         name: 'product_id'
     }),
-    _ts_metadata("design:type", typeof _productentity.Product === "undefined" ? Object : _productentity.Product)
+    _ts_metadata("design:type", Object)
 ], ProductVariant.prototype, "product", void 0);
 _ts_decorate([
-    (0, _typeorm.OneToMany)('PriceBookItem', 'productVariant'),
+    (0, _typeorm.OneToMany)(()=>_pricebookitementity.PriceBookItem, (price)=>price.productVariant),
     _ts_metadata("design:type", Array)
 ], ProductVariant.prototype, "prices", void 0);
 _ts_decorate([
-    (0, _typeorm.OneToMany)('Inventory', 'variant'),
+    (0, _typeorm.OneToMany)(()=>_inventoryentity.Inventory, (inventory)=>inventory.variant),
     _ts_metadata("design:type", Array)
 ], ProductVariant.prototype, "inventory", void 0);
 _ts_decorate([

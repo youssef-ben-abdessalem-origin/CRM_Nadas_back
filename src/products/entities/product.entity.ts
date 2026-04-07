@@ -75,13 +75,13 @@ export class Product {
   @Column({ type: 'varchar', length: 50, nullable: true })
   unitOfMeasure: string;
 
-  @OneToMany('ProductVariant', 'product', { cascade: true })
+  @OneToMany(() => ProductVariant, (variant: any) => variant.product, { cascade: true })
   variants: any[];
 
-  @OneToMany('ProductMedia', 'product', { cascade: true })
+  @OneToMany(() => ProductMedia, (media: any) => media.product, { cascade: true })
   media: any[];
 
-  @OneToMany('ProductAttribute', 'product', { cascade: true })
+  @OneToMany(() => ProductAttribute, (attribute: any) => attribute.product, { cascade: true })
   attributes: any[];
 
   @CreateDateColumn()

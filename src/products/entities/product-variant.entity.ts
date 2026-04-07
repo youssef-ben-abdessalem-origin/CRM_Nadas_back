@@ -16,14 +16,14 @@ export class ProductVariant {
   @Column({ name: 'product_id' })
   productId: string;
 
-  @ManyToOne(() => Product, (product) => product.variants, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Product, (product: any) => product.variants, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'product_id' })
-  product: Product;
+  product: any;
 
-  @OneToMany('PriceBookItem', 'productVariant')
+  @OneToMany(() => PriceBookItem, (price: any) => price.productVariant)
   prices: any[];
 
-  @OneToMany('Inventory', 'variant')
+  @OneToMany(() => Inventory, (inventory: any) => inventory.variant)
   inventory: any[];
 
   @Column({ nullable: true })

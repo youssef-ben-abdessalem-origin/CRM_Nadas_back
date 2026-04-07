@@ -11,7 +11,7 @@ export class ProductMedia {
 
   @ManyToOne(() => Product, (product) => product.media, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'product_id' })
-  product: Product;
+  product: any;
 
   @Column({ type: 'text' })
   url: string;
