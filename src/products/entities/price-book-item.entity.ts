@@ -17,9 +17,9 @@ export class PriceBookItem {
   @Column({ name: 'variant_id' })
   variantId: string;
 
-  @ManyToOne(() => ProductVariant, (variant) => variant.prices, { onDelete: 'CASCADE' })
+  @ManyToOne('ProductVariant', 'prices', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'variant_id' })
-  productVariant: ProductVariant;
+  productVariant: any;
 
   @Column({ type: 'numeric', precision: 12, scale: 2 })
   price: number;

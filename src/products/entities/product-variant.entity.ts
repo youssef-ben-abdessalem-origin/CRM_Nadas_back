@@ -20,11 +20,11 @@ export class ProductVariant {
   @JoinColumn({ name: 'product_id' })
   product: Product;
 
-  @OneToMany(() => PriceBookItem, (price) => price.productVariant)
-  prices: PriceBookItem[];
+  @OneToMany('PriceBookItem', 'productVariant')
+  prices: any[];
 
-  @OneToMany(() => Inventory, (inventory) => inventory.variant)
-  inventory: Inventory[];
+  @OneToMany('Inventory', 'variant')
+  inventory: any[];
 
   @Column({ nullable: true })
   name: string;
