@@ -57,6 +57,9 @@ export class Product {
   @Column({ default: false })
   isPurchasable: boolean;
 
+  @Column({ type: 'text', nullable: true })
+  image: string;
+
   @Column({ type: 'varchar', length: 50, nullable: true })
   billingType: string;
 

@@ -18,6 +18,12 @@ export class QuoteItem {
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
   total: number;
 
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  discount: number;
+
+  @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })
+  taxRate: number;
+
   @Column({ nullable: true })
   productId: number;
 

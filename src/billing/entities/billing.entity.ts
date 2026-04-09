@@ -2,6 +2,12 @@ import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateCol
 
 export enum QuoteStatus {
   DRAFT = 'draft',
+  NEGOTIATION = 'negotiation',
+  DELIVERED = 'delivered',
+  ON_HOLD = 'on_hold',
+  CONFIRMED = 'confirmed',
+  CLOSED_WON = 'closed_won',
+  CLOSED_LOST = 'closed_lost',
   SENT = 'sent',
   ACCEPTED = 'accepted',
   REJECTED = 'rejected',
@@ -21,11 +27,23 @@ export class Quote {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   quoteNumber: string;
 
-  @Column()
+  @Column({ nullable: true })
+  subject: string;
+
+  @Column({ nullable: true })
   title: string;
+
+  @Column({ nullable: true })
+  ownerId: number;
+
+  @Column({ nullable: true })
+  team: string;
+
+  @Column({ nullable: true, default: 'FedEX' })
+  carrier: string;
 
   @Column({ nullable: true })
   contactId: number;
@@ -48,6 +66,9 @@ export class Quote {
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
   subtotal: number;
 
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  discount: number;
+
   @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })
   taxRate: number;
 
@@ -55,16 +76,38 @@ export class Quote {
   taxAmount: number;
 
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  adjustment: number;
+
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
   total: number;
+
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  grandTotal: number;
 
   @Column({ type: 'text', nullable: true })
   notes: string;
+
+  @Column({ type: 'text', nullable: true })
+  termsAndConditions: string;
+
+  @Column({ type: 'text', nullable: true })
+  description: string;
 
   @Column({ nullable: true })
   validUntil: Date;
 
   @Column({ nullable: true })
   dealId: number;
+
+  @Column({ nullable: true })
+  dealName: string;
+
+  // Address Information
+  @Column({ type: 'text', nullable: true })
+  billingAddress: string;
+
+  @Column({ type: 'text', nullable: true })
+  shippingAddress: string;
 
   @CreateDateColumn()
   created: Date;
