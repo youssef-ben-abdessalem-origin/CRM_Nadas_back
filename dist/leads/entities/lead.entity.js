@@ -242,9 +242,37 @@ _ts_decorate([
     _ts_metadata("design:type", Number)
 ], Lead.prototype, "convertedContactId", void 0);
 _ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Lead.prototype, "lossReason", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'text',
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Lead.prototype, "lossNotes", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'timestamp',
+        nullable: true
+    }),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], Lead.prototype, "lostAt", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'date',
+        nullable: true
+    }),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], Lead.prototype, "reengagementDate", void 0);
+_ts_decorate([
     (0, _typeorm.ManyToOne)(()=>_accountentity.Account, {
         nullable: true,
-        eager: true
+        eager: true,
+        onDelete: 'SET NULL'
     }),
     (0, _typeorm.JoinColumn)({
         name: 'accountId'
@@ -284,6 +312,117 @@ _ts_decorate([
     }),
     _ts_metadata("design:type", String)
 ], Lead.prototype, "phone", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Lead.prototype, "firstName", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Lead.prototype, "lastName", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Lead.prototype, "mobile", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Lead.prototype, "fax", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Lead.prototype, "skypeId", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Lead.prototype, "secondaryEmail", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Lead.prototype, "twitter", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", Boolean)
+], Lead.prototype, "emailOptOut", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Lead.prototype, "employees", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 15,
+        scale: 2,
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Lead.prototype, "annualRevenue", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Lead.prototype, "address", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Lead.prototype, "street", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Lead.prototype, "city", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Lead.prototype, "state", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Lead.prototype, "zipCode", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Lead.prototype, "country", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Lead.prototype, "latitude", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Lead.prototype, "longitude", void 0);
 Lead = _ts_decorate([
     (0, _typeorm.Entity)('leads')
 ], Lead);

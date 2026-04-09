@@ -133,6 +133,9 @@ export class LeadsService implements OnModuleInit {
       queryBuilder.andWhere('lead.stageId = :stageId', { stageId });
     }
 
+    // Hide converted leads from the main list by default
+    queryBuilder.andWhere('lead.isConverted = :isConverted', { isConverted: false });
+
     const total = await queryBuilder.getCount();
     const data = await queryBuilder
       .orderBy('lead.createdAt', 'DESC')
@@ -171,28 +174,19 @@ export class LeadsService implements OnModuleInit {
       throw new NotFoundException('Stage not found');
     }
 
-    // Handle account: link to existing or create new
+    // Handle account: only link to existing if possible, do NOT create new automatically
     if (leadData.accountId) {
-      // Link to existing account
+      // Link to existing account by ID
       const account = await this.accountsService.findOne(leadData.accountId);
       leadData.accountId = account.id;
     } else if (leadData.company) {
-      // Check if account with same name exists
+      // Check if account with same name exists to link automatically
       const existingAccounts = await this.accountsService.findAll();
       const existingAccount = existingAccounts.find(a => a.name.toLowerCase() === leadData.company.toLowerCase());
       
       if (existingAccount) {
         // Link to existing account
         leadData.accountId = existingAccount.id;
-      } else {
-        // Create new account
-        const newAccount = await this.accountsService.create({
-          name: leadData.company,
-          website: leadData.website,
-          industry: leadData.industry,
-          location: leadData.location,
-        });
-        leadData.accountId = Array.isArray(newAccount) ? newAccount[0].id : newAccount.id;
       }
     }
 
@@ -203,12 +197,21 @@ export class LeadsService implements OnModuleInit {
   async update(id: number, data: Partial<Lead>): Promise<Lead> {
     const lead = await this.findOne(id);
     const wasWon = lead.stage?.name?.toLowerCase().includes('won');
+    const wasLost = lead.stage?.name?.toLowerCase().includes('unqualified') || lead.stage?.name?.toLowerCase().includes('lost');
     const isNowWon = data.stageId && (await this.pipelineStageRepository.findOne({ where: { id: data.stageId } }))?.name?.toLowerCase().includes('won');
+    const isNowLost = data.stageId && (await this.pipelineStageRepository.findOne({ where: { id: data.stageId } }))?.name?.toLowerCase().includes('unqualified') || (data.stageId && (await this.pipelineStageRepository.findOne({ where: { id: data.stageId } }))?.name?.toLowerCase().includes('lost'));
     
-    await this.leadRepository.update(id, {
+    const updateData: any = {
       ...data,
       lastActivity: 'Just now',
-    });
+    };
+
+    // Set lostAt timestamp when lead becomes lost
+    if (!wasLost && isNowLost) {
+      updateData.lostAt = new Date();
+    }
+
+    await this.leadRepository.update(id, updateData);
 
     if (!wasWon && isNowWon) {
       const wonStage = await this.pipelineStageRepository.findOne({ where: { name: 'Closed Won' } });
@@ -445,6 +448,7 @@ export class LeadsService implements OnModuleInit {
 
     // Mark lead as converted
     lead.isConverted = true;
+    lead.status = 'converted';
     lead.convertedAt = new Date();
     lead.convertedAccountId = accountId;
     lead.convertedContactId = contactId;

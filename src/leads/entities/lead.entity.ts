@@ -108,7 +108,20 @@ export class Lead {
   @Column({ nullable: true })
   convertedContactId: number;
 
-  @ManyToOne(() => Account, { nullable: true, eager: true })
+  // Lost lead fields
+  @Column({ nullable: true })
+  lossReason: string;
+
+  @Column({ type: 'text', nullable: true })
+  lossNotes: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  lostAt: Date;
+
+  @Column({ type: 'date', nullable: true })
+  reengagementDate: Date;
+
+  @ManyToOne(() => Account, { nullable: true, eager: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'accountId' })
   account: Account;
 
@@ -130,4 +143,60 @@ export class Lead {
 
   @Column({ nullable: true })
   phone: string;
+
+  // Extended lead information
+  @Column({ nullable: true })
+  firstName: string;
+
+  @Column({ nullable: true })
+  lastName: string;
+
+  @Column({ nullable: true })
+  mobile: string;
+
+  @Column({ nullable: true })
+  fax: string;
+
+  @Column({ nullable: true })
+  skypeId: string;
+
+  @Column({ nullable: true })
+  secondaryEmail: string;
+
+  @Column({ nullable: true })
+  twitter: string;
+
+  @Column({ nullable: true })
+  emailOptOut: boolean;
+
+  @Column({ nullable: true })
+  employees: number;
+
+  @Column({ type: 'decimal', precision: 15, scale: 2, nullable: true })
+  annualRevenue: number;
+
+  // Address fields
+  @Column({ nullable: true })
+  address: string;
+
+  @Column({ nullable: true })
+  street: string;
+
+  @Column({ nullable: true })
+  city: string;
+
+  @Column({ nullable: true })
+  state: string;
+
+  @Column({ nullable: true })
+  zipCode: string;
+
+  @Column({ nullable: true })
+  country: string;
+
+  @Column({ nullable: true })
+  latitude: number;
+
+  @Column({ nullable: true })
+  longitude: number;
 }

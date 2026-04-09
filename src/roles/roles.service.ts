@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Role } from './entities/role.entity';
 import { Permission } from '../permissions/entities/permission.entity';
+import { User } from '../users/entities/user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class RolesService implements OnModuleInit {
@@ -11,6 +13,8 @@ export class RolesService implements OnModuleInit {
     private readonly roleRepository: Repository<Role>,
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
   async onModuleInit() {
@@ -63,19 +67,42 @@ export class RolesService implements OnModuleInit {
         await this.roleRepository.save(role);
       }
     }
+
+    // Seed default admin user
+    const adminEmail = 'admin@nexus.crm';
+    const adminUser = await this.userRepository.findOne({ where: { email: adminEmail } });
+    if (!adminUser) {
+      const adminRole = await this.roleRepository.findOne({ where: { name: 'ADMIN' } });
+      const hashedPassword = await bcrypt.hash('Admin@123', 10);
+      await this.userRepository.save(
+        this.userRepository.create({
+          name: 'System Admin',
+          email: adminEmail,
+          password: hashedPassword,
+          role: adminRole,
+          enabled: true,
+        }),
+      );
+    }
   }
 
   async findAll(): Promise<Role[]> {
     return this.roleRepository.find();
   }
 
-  async findOne(id: number): Promise<Role> {
-    const role = await this.roleRepository.findOne({ where: { id } });
-    if (!role) throw new NotFoundException('Role not found');
+  async findOne(id: string): Promise<Role> {
+    const role = await this.roleRepository.findOne({ where: { id } as any });
+    if (!role) throw new NotFoundException(`Role with ID ${id} not found`);
     return role;
   }
 
+  async getRolePermissions(id: string): Promise<Permission[]> {
+    const role = await this.findOne(id);
+    return role.permissions;
+  }
+
   async create(data: { name: string; description?: string; color?: string; permissionIds?: number[] }): Promise<Role> {
+    if (!data.name) throw new BadRequestException('Role name is required');
     const existing = await this.roleRepository.findOne({ where: { name: data.name } });
     if (existing) throw new BadRequestException('Role already exists');
 
@@ -95,7 +122,7 @@ export class RolesService implements OnModuleInit {
     return this.roleRepository.save(role);
   }
 
-  async update(id: number, data: { name?: string; description?: string; color?: string; permissionIds?: number[] }): Promise<Role> {
+  async update(id: string, data: { name?: string; description?: string; color?: string; permissionIds?: number[] }): Promise<Role> {
     const role = await this.findOne(id);
     
     if (data.name) role.name = data.name;
@@ -111,7 +138,7 @@ export class RolesService implements OnModuleInit {
     return this.roleRepository.save(role);
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(id: string): Promise<void> {
     const role = await this.findOne(id);
     if (role.isSystem) throw new BadRequestException('Cannot delete system roles');
     await this.roleRepository.remove(role);

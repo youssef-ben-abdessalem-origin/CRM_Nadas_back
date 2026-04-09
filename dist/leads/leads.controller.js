@@ -27,22 +27,33 @@ function _ts_param(paramIndex, decorator) {
     };
 }
 const createLeadExample = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+1 555-123-4567",
-    company: "Acme Corp",
-    title: "CEO",
+    name: "Alexander von Pierce",
+    emails: [
+        "alexander.p@quantum-invest.sh",
+        "info@quantum-hq.com"
+    ],
+    phones: [
+        "+44 20 7946 0958",
+        "+1 (555) 000-1111"
+    ],
+    company: "Quantum Investment Group",
+    title: "Chief Investment Officer",
     sourceId: 1,
     stageId: 1,
-    scoreCategoryId: 1,
-    priorityId: 1,
+    scoreCategoryId: 2,
+    priorityId: 3,
     qualificationStageId: 1,
-    value: 50000,
-    location: "San Francisco, CA",
-    industry: "Technology",
-    website: "https://acme.com",
-    notes: "Interested in enterprise plan",
-    tags: "enterprise,hot-lead"
+    value: 250000.00,
+    location: "London, UK / San Francisco, US",
+    industry: "Venture Capital & Fintech",
+    website: "https://quantum-invest.sh",
+    notes: "High-priority Whale lead. Interested in Series B participation. Relicensed from internal strategy session.",
+    tags: [
+        "whale",
+        "expansion",
+        "strategic-2026"
+    ],
+    nextFollowUp: "2026-04-10"
 };
 let LeadsController = class LeadsController {
     findAll() {

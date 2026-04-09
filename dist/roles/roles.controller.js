@@ -31,16 +31,19 @@ let RolesController = class RolesController {
         return this.rolesService.findAll();
     }
     findOne(id) {
-        return this.rolesService.findOne(+id);
+        return this.rolesService.findOne(id);
+    }
+    getRolePermissions(id) {
+        return this.rolesService.getRolePermissions(id);
     }
     create(data) {
         return this.rolesService.create(data);
     }
     update(id, data) {
-        return this.rolesService.update(+id, data);
+        return this.rolesService.update(id, data);
     }
     delete(id) {
-        return this.rolesService.delete(+id);
+        return this.rolesService.delete(id);
     }
     constructor(rolesService){
         this.rolesService = rolesService;
@@ -67,6 +70,18 @@ _ts_decorate([
     ]),
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], RolesController.prototype, "findOne", null);
+_ts_decorate([
+    (0, _common.Get)(':id/permissions'),
+    (0, _swagger.ApiOperation)({
+        summary: 'Get permissions by role ID'
+    }),
+    _ts_param(0, (0, _common.Param)('id')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], RolesController.prototype, "getRolePermissions", null);
 _ts_decorate([
     (0, _common.Post)(),
     (0, _swagger.ApiOperation)({

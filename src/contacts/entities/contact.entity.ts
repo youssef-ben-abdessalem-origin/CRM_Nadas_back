@@ -70,7 +70,7 @@ export class Contact {
   @Column({ nullable: true })
   avatar: string;
 
-  @ManyToOne(() => Account, { nullable: true })
+  @ManyToOne(() => Account, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'accountId' })
   account: Account;
 }

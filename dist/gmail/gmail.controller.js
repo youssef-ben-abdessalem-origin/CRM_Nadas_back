@@ -37,7 +37,7 @@ let GmailController = class GmailController {
     async callback(code, state, res) {
         console.log('Gmail callback received, state:', state, 'code exists:', !!code);
         try {
-            const userId = parseInt(state);
+            const userId = Number.parseInt(state);
             console.log('Setting tokens for userId:', userId);
             await this.gmailService.setTokens(userId, code);
             res.redirect('http://localhost:8080/emails?gmail_connected=true');
@@ -64,11 +64,14 @@ let GmailController = class GmailController {
     async getProfile(req) {
         return this.gmailService.getProfile(req.user.id);
     }
-    async listMessages(req, maxResults, pageToken) {
-        return this.gmailService.listMessages(req.user.id, maxResults ? parseInt(maxResults) : 50, pageToken);
+    async listMessages(req, maxResults, pageToken, label) {
+        return this.gmailService.listMessages(req.user.id, maxResults ? Number.parseInt(maxResults) : 50, pageToken, label || 'INBOX');
     }
     async getMessage(req, id) {
         return this.gmailService.getMessage(req.user.id, id);
+    }
+    async getThread(req, id) {
+        return this.gmailService.getThread(req.user.id, id);
     }
     async sendEmail(req, to, subject, body, threadId) {
         return this.gmailService.sendEmail(req.user.id, to, subject, body, threadId);
@@ -175,9 +178,11 @@ _ts_decorate([
     _ts_param(0, (0, _common.Request)()),
     _ts_param(1, (0, _common.Query)('maxResults')),
     _ts_param(2, (0, _common.Query)('pageToken')),
+    _ts_param(3, (0, _common.Query)('label')),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
         Object,
+        String,
         String,
         String
     ]),
@@ -199,6 +204,22 @@ _ts_decorate([
     ]),
     _ts_metadata("design:returntype", Promise)
 ], GmailController.prototype, "getMessage", null);
+_ts_decorate([
+    (0, _common.Get)('threads/:id'),
+    (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
+    (0, _swagger.ApiBearerAuth)(),
+    (0, _swagger.ApiOperation)({
+        summary: 'Get Gmail thread by ID'
+    }),
+    _ts_param(0, (0, _common.Request)()),
+    _ts_param(1, (0, _common.Param)('id')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Object,
+        String
+    ]),
+    _ts_metadata("design:returntype", Promise)
+], GmailController.prototype, "getThread", null);
 _ts_decorate([
     (0, _common.Post)('send'),
     (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),

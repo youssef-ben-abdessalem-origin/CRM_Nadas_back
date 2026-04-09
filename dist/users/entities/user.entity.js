@@ -51,9 +51,10 @@ _ts_decorate([
 ], User.prototype, "role", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
+        type: 'uuid',
         nullable: true
     }),
-    _ts_metadata("design:type", Number)
+    _ts_metadata("design:type", String)
 ], User.prototype, "roleId", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({

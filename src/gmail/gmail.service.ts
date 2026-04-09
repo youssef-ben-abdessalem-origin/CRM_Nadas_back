@@ -82,7 +82,7 @@ export class GmailService {
     return response.data;
   }
 
-  async listMessages(userId: number, maxResults = 50, pageToken?: string): Promise<{
+  async listMessages(userId: number, maxResults = 50, pageToken?: string, label = 'INBOX'): Promise<{
     messages: gmail_v1.Schema$Message[];
     nextPageToken?: string;
     resultSizeEstimate: number;
@@ -94,7 +94,7 @@ export class GmailService {
       userId: 'me',
       maxResults,
       pageToken,
-      labelIds: ['INBOX'],
+      labelIds: [label],
     });
 
     const messages = response.data.messages || [];
@@ -124,6 +124,19 @@ export class GmailService {
     const response = await gmail.users.messages.get({
       userId: 'me',
       id: messageId,
+      format: 'full',
+    });
+
+    return response.data;
+  }
+
+  async getThread(userId: number, threadId: string): Promise<gmail_v1.Schema$Thread> {
+    const auth = await this.getAuth(userId);
+    const gmail = google.gmail({ version: 'v1', auth });
+
+    const response = await gmail.users.threads.get({
+      userId: 'me',
+      id: threadId,
       format: 'full',
     });
 

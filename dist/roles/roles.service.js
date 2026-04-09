@@ -13,6 +13,49 @@ const _typeorm = require("@nestjs/typeorm");
 const _typeorm1 = require("typeorm");
 const _roleentity = require("./entities/role.entity");
 const _permissionentity = require("../permissions/entities/permission.entity");
+const _userentity = require("../users/entities/user.entity");
+const _bcrypt = /*#__PURE__*/ _interop_require_wildcard(require("bcrypt"));
+function _getRequireWildcardCache(nodeInterop) {
+    if (typeof WeakMap !== "function") return null;
+    var cacheBabelInterop = new WeakMap();
+    var cacheNodeInterop = new WeakMap();
+    return (_getRequireWildcardCache = function(nodeInterop) {
+        return nodeInterop ? cacheNodeInterop : cacheBabelInterop;
+    })(nodeInterop);
+}
+function _interop_require_wildcard(obj, nodeInterop) {
+    if (!nodeInterop && obj && obj.__esModule) {
+        return obj;
+    }
+    if (obj === null || typeof obj !== "object" && typeof obj !== "function") {
+        return {
+            default: obj
+        };
+    }
+    var cache = _getRequireWildcardCache(nodeInterop);
+    if (cache && cache.has(obj)) {
+        return cache.get(obj);
+    }
+    var newObj = {
+        __proto__: null
+    };
+    var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
+    for(var key in obj){
+        if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) {
+            var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
+            if (desc && (desc.get || desc.set)) {
+                Object.defineProperty(newObj, key, desc);
+            } else {
+                newObj[key] = obj[key];
+            }
+        }
+    }
+    newObj.default = obj;
+    if (cache) {
+        cache.set(obj, newObj);
+    }
+    return newObj;
+}
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -144,6 +187,28 @@ let RolesService = class RolesService {
                 await this.roleRepository.save(role);
             }
         }
+        // Seed default admin user
+        const adminEmail = 'admin@nexus.crm';
+        const adminUser = await this.userRepository.findOne({
+            where: {
+                email: adminEmail
+            }
+        });
+        if (!adminUser) {
+            const adminRole = await this.roleRepository.findOne({
+                where: {
+                    name: 'ADMIN'
+                }
+            });
+            const hashedPassword = await _bcrypt.hash('Admin@123', 10);
+            await this.userRepository.save(this.userRepository.create({
+                name: 'System Admin',
+                email: adminEmail,
+                password: hashedPassword,
+                role: adminRole,
+                enabled: true
+            }));
+        }
     }
     async findAll() {
         return this.roleRepository.find();
@@ -154,10 +219,15 @@ let RolesService = class RolesService {
                 id
             }
         });
-        if (!role) throw new _common.NotFoundException('Role not found');
+        if (!role) throw new _common.NotFoundException(`Role with ID ${id} not found`);
         return role;
     }
+    async getRolePermissions(id) {
+        const role = await this.findOne(id);
+        return role.permissions;
+    }
     async create(data) {
+        if (!data.name) throw new _common.BadRequestException('Role name is required');
         const existing = await this.roleRepository.findOne({
             where: {
                 name: data.name
@@ -198,17 +268,20 @@ let RolesService = class RolesService {
         if (role.isSystem) throw new _common.BadRequestException('Cannot delete system roles');
         await this.roleRepository.remove(role);
     }
-    constructor(roleRepository, permissionRepository){
+    constructor(roleRepository, permissionRepository, userRepository){
         this.roleRepository = roleRepository;
         this.permissionRepository = permissionRepository;
+        this.userRepository = userRepository;
     }
 };
 RolesService = _ts_decorate([
     (0, _common.Injectable)(),
     _ts_param(0, (0, _typeorm.InjectRepository)(_roleentity.Role)),
     _ts_param(1, (0, _typeorm.InjectRepository)(_permissionentity.Permission)),
+    _ts_param(2, (0, _typeorm.InjectRepository)(_userentity.User)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository
     ])

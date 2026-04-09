@@ -70,13 +70,13 @@ export class ContactsService implements OnModuleInit {
       created: new Date().toISOString().split('T')[0],
       avatar: initials,
     });
-    return (await this.contactRepository.save(contact))[0];
+    return await this.contactRepository.save(contact);
   }
 
   async update(id: number, data: Partial<Contact>): Promise<Contact> {
     const contact = await this.findOne(id);
     Object.assign(contact, data);
-    return (await this.contactRepository.save(contact))[0];
+    return await this.contactRepository.save(contact);
   }
 
   async delete(id: number): Promise<void> {

@@ -111,12 +111,12 @@ let ContactsService = class ContactsService {
             created: new Date().toISOString().split('T')[0],
             avatar: initials
         });
-        return (await this.contactRepository.save(contact))[0];
+        return await this.contactRepository.save(contact);
     }
     async update(id, data) {
         const contact = await this.findOne(id);
         Object.assign(contact, data);
-        return (await this.contactRepository.save(contact))[0];
+        return await this.contactRepository.save(contact);
     }
     async delete(id) {
         const contact = await this.findOne(id);

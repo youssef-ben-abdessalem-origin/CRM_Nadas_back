@@ -19,8 +19,8 @@ export class User {
   @JoinColumn({ name: 'roleId' })
   role: Role;
 
-  @Column({ nullable: true })
-  roleId: number;
+  @Column({ type: 'uuid', nullable: true })
+  roleId: string;
 
   @Column({ default: true })
   enabled: boolean;

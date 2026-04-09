@@ -14,6 +14,7 @@ const _roleentity = require("./entities/role.entity");
 const _rolesservice = require("./roles.service");
 const _rolescontroller = require("./roles.controller");
 const _permissionsmodule = require("../permissions/permissions.module");
+const _userentity = require("../users/entities/user.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -26,7 +27,8 @@ RolesModule = _ts_decorate([
     (0, _common.Module)({
         imports: [
             _typeorm.TypeOrmModule.forFeature([
-                _roleentity.Role
+                _roleentity.Role,
+                _userentity.User
             ]),
             _permissionsmodule.PermissionsModule
         ],

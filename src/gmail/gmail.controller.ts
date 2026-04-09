@@ -7,7 +7,7 @@ import { Response } from 'express';
 @ApiTags('Gmail')
 @Controller('gmail')
 export class GmailController {
-  constructor(private gmailService: GmailService) {}
+  constructor(private readonly gmailService: GmailService) {}
 
   @Get('auth-url')
   @UseGuards(AuthGuard('jwt'))
@@ -23,7 +23,7 @@ export class GmailController {
   async callback(@Query('code') code: string, @Query('state') state: string, @Res() res: Response) {
     console.log('Gmail callback received, state:', state, 'code exists:', !!code);
     try {
-      const userId = parseInt(state);
+      const userId = Number.parseInt(state);
       console.log('Setting tokens for userId:', userId);
       await this.gmailService.setTokens(userId, code);
       res.redirect('http://localhost:8080/emails?gmail_connected=true');
@@ -75,11 +75,13 @@ export class GmailController {
     @Request() req: any,
     @Query('maxResults') maxResults?: string,
     @Query('pageToken') pageToken?: string,
+    @Query('label') label?: string,
   ) {
     return this.gmailService.listMessages(
       req.user.id,
-      maxResults ? parseInt(maxResults) : 50,
+      maxResults ? Number.parseInt(maxResults) : 50,
       pageToken,
+      label || 'INBOX',
     );
   }
 
@@ -89,6 +91,14 @@ export class GmailController {
   @ApiOperation({ summary: 'Get Gmail message by ID' })
   async getMessage(@Request() req: any, @Param('id') id: string) {
     return this.gmailService.getMessage(req.user.id, id);
+  }
+
+  @Get('threads/:id')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get Gmail thread by ID' })
+  async getThread(@Request() req: any, @Param('id') id: string) {
+    return this.gmailService.getThread(req.user.id, id);
   }
 
   @Post('send')

@@ -9,7 +9,9 @@ Object.defineProperty(exports, "AppModule", {
     }
 });
 const _common = require("@nestjs/common");
+const _core = require("@nestjs/core");
 const _typeorm = require("@nestjs/typeorm");
+const _auditinterceptor = require("./common/interceptors/audit.interceptor");
 const _jwt = require("@nestjs/jwt");
 const _passport = require("@nestjs/passport");
 const _authmodule = require("./auth/auth.module");
@@ -159,6 +161,12 @@ AppModule = _ts_decorate([
             _billingmodule.BillingModule,
             _rolesmodule.RolesModule,
             _permissionsmodule.PermissionsModule
+        ],
+        providers: [
+            {
+                provide: _core.APP_INTERCEPTOR,
+                useClass: _auditinterceptor.AuditInterceptor
+            }
         ]
     })
 ], AppModule);

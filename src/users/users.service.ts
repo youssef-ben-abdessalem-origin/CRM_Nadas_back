@@ -18,7 +18,7 @@ export class UsersService {
     return this.userRepository.find({ relations: ['role'] });
   }
 
-  async create(data: { name: string; email: string; password?: string; roleId?: number; phone?: string; enabled?: boolean }): Promise<User> {
+  async create(data: { name: string; email: string; password?: string; roleId?: string; phone?: string; enabled?: boolean }): Promise<User> {
     const existing = await this.userRepository.findOne({ where: { email: data.email } });
     if (existing) {
       throw new BadRequestException('Email already exists');
@@ -34,7 +34,7 @@ export class UsersService {
     });
 
     if (data.roleId) {
-      user.role = await this.roleRepository.findOne({ where: { id: data.roleId } });
+      user.role = await this.roleRepository.findOne({ where: { id: data.roleId } as any });
     }
 
     return this.userRepository.save(user);
@@ -49,14 +49,14 @@ export class UsersService {
     return user;
   }
 
-  async update(id: number, data: { name?: string; phone?: string; roleId?: number; enabled?: boolean }): Promise<User> {
+  async update(id: number, data: { name?: string; phone?: string; roleId?: string; enabled?: boolean }): Promise<User> {
     const user = await this.findOne(id);
     if (data.name) user.name = data.name;
     if (data.phone) user.phone = data.phone;
     if (data.enabled !== undefined) user.enabled = data.enabled;
     
     if (data.roleId) {
-      user.role = await this.roleRepository.findOne({ where: { id: data.roleId } });
+      user.role = await this.roleRepository.findOne({ where: { id: data.roleId } as any });
     }
 
     return this.userRepository.save(user);

@@ -162,7 +162,8 @@ _ts_decorate([
 ], Contact.prototype, "avatar", void 0);
 _ts_decorate([
     (0, _typeorm.ManyToOne)(()=>_accountentity.Account, {
-        nullable: true
+        nullable: true,
+        onDelete: 'SET NULL'
     }),
     (0, _typeorm.JoinColumn)({
         name: 'accountId'

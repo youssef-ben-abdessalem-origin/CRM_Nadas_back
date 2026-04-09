@@ -130,7 +130,7 @@ let GmailService = class GmailService {
         });
         return response.data;
     }
-    async listMessages(userId, maxResults = 50, pageToken) {
+    async listMessages(userId, maxResults = 50, pageToken, label = 'INBOX') {
         const auth = await this.getAuth(userId);
         const gmail = _googleapis.google.gmail({
             version: 'v1',
@@ -141,7 +141,7 @@ let GmailService = class GmailService {
             maxResults,
             pageToken,
             labelIds: [
-                'INBOX'
+                label
             ]
         });
         const messages = response.data.messages || [];
@@ -168,6 +168,19 @@ let GmailService = class GmailService {
         const response = await gmail.users.messages.get({
             userId: 'me',
             id: messageId,
+            format: 'full'
+        });
+        return response.data;
+    }
+    async getThread(userId, threadId) {
+        const auth = await this.getAuth(userId);
+        const gmail = _googleapis.google.gmail({
+            version: 'v1',
+            auth
+        });
+        const response = await gmail.users.threads.get({
+            userId: 'me',
+            id: threadId,
             format: 'full'
         });
         return response.data;

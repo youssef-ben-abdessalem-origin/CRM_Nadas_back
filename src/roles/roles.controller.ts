@@ -20,7 +20,13 @@ export class RolesController {
   @Get(':id')
   @ApiOperation({ summary: 'Get role by ID' })
   findOne(@Param('id') id: string): Promise<Role> {
-    return this.rolesService.findOne(+id);
+     return this.rolesService.findOne(id);
+  }
+
+  @Get(':id/permissions')
+  @ApiOperation({ summary: 'Get permissions by role ID' })
+  getRolePermissions(@Param('id') id: string) {
+    return this.rolesService.getRolePermissions(id);
   }
 
   @Post()
@@ -32,12 +38,12 @@ export class RolesController {
   @Put(':id')
   @ApiOperation({ summary: 'Update role' })
   update(@Param('id') id: string, @Body() data: any): Promise<Role> {
-    return this.rolesService.update(+id, data);
+    return this.rolesService.update(id, data);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete role' })
   delete(@Param('id') id: string): Promise<void> {
-    return this.rolesService.delete(+id);
+    return this.rolesService.delete(id);
   }
 }

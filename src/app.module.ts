@@ -1,5 +1,7 @@
 import { Module } from "@nestjs/common";
+import { APP_INTERCEPTOR } from "@nestjs/core";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { AuditInterceptor } from "./common/interceptors/audit.interceptor";
 import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
 import { AuthModule } from "./auth/auth.module";
@@ -138,6 +140,12 @@ import { PermissionsModule } from "./permissions/permissions.module";
     BillingModule,
     RolesModule,
     PermissionsModule,
+  ],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditInterceptor,
+    },
   ],
 })
 export class AppModule {}

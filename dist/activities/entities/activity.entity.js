@@ -42,6 +42,18 @@ _ts_decorate([
 ], Activity.prototype, "id", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
+        default: 'todo'
+    }),
+    _ts_metadata("design:type", String)
+], Activity.prototype, "status", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        default: 'medium'
+    }),
+    _ts_metadata("design:type", String)
+], Activity.prototype, "priority", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
         type: 'enum',
         enum: ActivityEntityType
     }),

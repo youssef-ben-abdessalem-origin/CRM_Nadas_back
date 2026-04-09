@@ -13,6 +13,9 @@ const _swagger = require("@nestjs/swagger");
 const _authservice = require("./auth.service");
 const _passport = require("@nestjs/passport");
 const _gmailservice = require("../gmail/gmail.service");
+const _logindto = require("./dto/login.dto");
+const _registerdto = require("./dto/register.dto");
+const _refreshtokendto = require("./dto/refresh-token.dto");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -53,7 +56,7 @@ _ts_decorate([
     _ts_param(0, (0, _common.Body)()),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        Object
+        typeof _logindto.LoginDto === "undefined" ? Object : _logindto.LoginDto
     ]),
     _ts_metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
@@ -65,7 +68,7 @@ _ts_decorate([
     _ts_param(0, (0, _common.Body)()),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        Object
+        typeof _registerdto.RegisterDto === "undefined" ? Object : _registerdto.RegisterDto
     ]),
     _ts_metadata("design:returntype", Promise)
 ], AuthController.prototype, "register", null);
@@ -77,7 +80,7 @@ _ts_decorate([
     _ts_param(0, (0, _common.Body)()),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        Object
+        typeof _refreshtokendto.RefreshTokenDto === "undefined" ? Object : _refreshtokendto.RefreshTokenDto
     ]),
     _ts_metadata("design:returntype", Promise)
 ], AuthController.prototype, "refresh", null);

@@ -13,6 +13,12 @@ export class Activity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ default: 'todo' })
+  status: string; // todo, in_progress, done, cancelled
+
+  @Column({ default: 'medium' })
+  priority: string; // low, medium, high, urgent
+
   @Column({ type: 'enum', enum: ActivityEntityType })
   entityType: ActivityEntityType;
 
