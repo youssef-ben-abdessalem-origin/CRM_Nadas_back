@@ -61,6 +61,27 @@ import { Role } from "./roles/entities/role.entity";
 import { Permission } from "./permissions/entities/permission.entity";
 import { RolesModule } from "./roles/roles.module";
 import { PermissionsModule } from "./permissions/permissions.module";
+import { Task } from "./tasks/entities/task.entity";
+import { TasksModule } from "./tasks/tasks.module";
+import { ForecastModule } from "./forecast/forecast.module";
+import { ForecastPeriod } from "./forecast/entities/forecast-period.entity";
+import { ForecastTarget } from "./forecast/entities/forecast-target.entity";
+import { ForecastAdjustment } from "./forecast/entities/forecast-adjustment.entity";
+import { ForecastConfig } from "./forecast/entities/forecast-config.entity";
+import { ForecastStageMapping } from "./forecast/entities/forecast-stage-mapping.entity";
+import { ForecastSnapshot } from "./forecast/entities/forecast-snapshot.entity";
+import { WorkDriveTeam } from "./workdrive/entities/workdrive-team.entity";
+import { WorkDriveFolder } from "./workdrive/entities/workdrive-folder.entity";
+import { WorkDriveFile } from "./workdrive/entities/workdrive-file.entity";
+import { WorkDrivePermission } from "./workdrive/entities/workdrive-permission.entity";
+import { WorkDriveModule } from "./workdrive/workdrive.module";
+import { DashboardModule } from "./dashboard/dashboard.module";
+import { Campaign } from "./campaigns/entities/campaign.entity";
+import { CampaignType } from "./campaigns/entities/campaign-type.entity";
+import { CampaignStatus } from "./campaigns/entities/campaign-status.entity";
+import { CampaignsModule } from "./campaigns/campaigns.module";
+import { Vendor } from "./vendors/entities/vendor.entity";
+import { VendorsModule } from "./vendors/vendors.module";
 
 @Module({
   imports: [
@@ -116,6 +137,21 @@ import { PermissionsModule } from "./permissions/permissions.module";
         Invoice,
         Role,
         Permission,
+        Task,
+        ForecastPeriod,
+        ForecastTarget,
+        ForecastAdjustment,
+        ForecastConfig,
+        ForecastStageMapping,
+        ForecastSnapshot,
+        WorkDriveTeam,
+        WorkDriveFolder,
+        WorkDriveFile,
+        WorkDrivePermission,
+        Campaign,
+        CampaignType,
+        CampaignStatus,
+        Vendor,
       ],
     }),
     JwtModule.register({
@@ -140,6 +176,12 @@ import { PermissionsModule } from "./permissions/permissions.module";
     BillingModule,
     RolesModule,
     PermissionsModule,
+    TasksModule,
+    ForecastModule,
+    WorkDriveModule,
+    DashboardModule,
+    CampaignsModule,
+    VendorsModule,
   ],
   providers: [
     {

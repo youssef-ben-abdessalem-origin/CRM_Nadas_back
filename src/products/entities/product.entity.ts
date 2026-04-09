@@ -72,6 +72,64 @@ export class Product {
   @Column({ type: 'varchar', length: 50, nullable: true })
   unitOfMeasure: string;
 
+  @Column({ type: 'int', nullable: true })
+  ownerId: number;
+
+  @ManyToOne('User', { nullable: true })
+  @JoinColumn({ name: 'ownerId' })
+  owner: any;
+
+  @Column({ nullable: true })
+  productCode: string;
+
+  @Column({ nullable: true })
+  vendorName: string;
+
+  @Column({ nullable: true })
+  manufacturer: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  salesStartDate: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  salesEndDate: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  supportStartDate: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  supportEndDate: Date;
+
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  unitPrice: number;
+
+  @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })
+  tax: number;
+
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  commissionRate: number;
+
+  @Column({ default: true })
+  taxable: boolean;
+
+  @Column({ nullable: true })
+  usageUnit: string;
+
+  @Column({ type: 'int', default: 0 })
+  quantityInStock: number;
+
+  @Column({ nullable: true })
+  handler: string;
+
+  @Column({ type: 'int', default: 0 })
+  qtyOrdered: number;
+
+  @Column({ type: 'int', default: 0 })
+  reorderLevel: number;
+
+  @Column({ type: 'int', default: 0 })
+  quantityInDemand: number;
+
   @OneToMany('ProductVariant', 'product', { cascade: true })
   variants: any[];
 

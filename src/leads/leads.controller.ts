@@ -261,16 +261,22 @@ export class LeadsController {
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Convert lead to Account + Contact' })
-  convert(@Param('id') id: string): Promise<{ lead: Lead; accountId: number; contactId: number }> {
-    return this.leadsService.convert(+id);
+  convert(
+    @Param('id') id: string,
+    @Body() body: { ownerId?: number; createDeal?: boolean }
+  ): Promise<{ lead: Lead; accountId: number; contactId: number; dealId?: number }> {
+    return this.leadsService.convert(+id, body);
   }
 
   @Post(':id/convert-to-deal')
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Convert lead to Deal only' })
-  convertToDeal(@Param('id') id: string): Promise<{ dealId: number }> {
-    return this.leadsService.convertToDeal(+id);
+  convertToDeal(
+    @Param('id') id: string,
+    @Body() body: { ownerId?: number }
+  ): Promise<{ dealId: number }> {
+    return this.leadsService.convertToDeal(+id, body);
   }
 
   @Post('bulk-delete')

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+                                                                                                                      import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Deal } from './entities/deal.entity';
@@ -100,8 +100,30 @@ export class DealsService implements OnModuleInit {
 
   async update(id: number, data: Partial<Deal>): Promise<Deal> {
     const deal = await this.findOne(id);
+    
+    // Clear relations if their ID columns are being updated to avoid persistence conflicts
+    if (data.dealStageId !== undefined && deal.stage && deal.stage.id !== data.dealStageId) {
+      deal.stage = null;
+    }
+    if (data.dealReasonId !== undefined && deal.reason && deal.reason.id !== data.dealReasonId) {
+      deal.reason = null;
+    }
+    if (data.ownerId !== undefined && deal.owner && deal.owner.id !== data.ownerId) {
+      deal.owner = null;
+    }
+    if (data.leadId !== undefined && deal.lead && deal.lead.id !== data.leadId) {
+      deal.lead = null;
+    }
+    if (data.accountId !== undefined && deal.account && deal.account.id !== data.accountId) {
+      deal.account = null;
+    }
+    if (data.contactId !== undefined && deal.contactEntity && deal.contactEntity.id !== data.contactId) {
+      deal.contactEntity = null;
+    }
+
     Object.assign(deal, data);
-    return this.dealRepository.save(deal);
+    await this.dealRepository.save(deal);
+    return this.findOne(id);
   }
 
   async delete(id: number): Promise<void> {

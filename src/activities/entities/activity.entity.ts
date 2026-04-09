@@ -50,6 +50,21 @@ export class Activity {
   @Column({ nullable: true })
   assignedToId: number;
 
+  @Column({ nullable: true })
+  callType: string;
+
+  @Column({ nullable: true })
+  durationMinutes: string;
+
+  @Column({ nullable: true })
+  durationSeconds: string;
+
+  @Column({ nullable: true })
+  voiceRecording: string;
+
+  @Column({ nullable: true })
+  reminder: string;
+
   @ManyToOne(() => User, { nullable: true, eager: true })
   @JoinColumn({ name: 'createdById' })
   createdBy: User;

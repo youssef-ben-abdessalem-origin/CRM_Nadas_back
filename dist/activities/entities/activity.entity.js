@@ -117,6 +117,36 @@ _ts_decorate([
     _ts_metadata("design:type", Number)
 ], Activity.prototype, "assignedToId", void 0);
 _ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Activity.prototype, "callType", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Activity.prototype, "durationMinutes", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Activity.prototype, "durationSeconds", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Activity.prototype, "voiceRecording", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Activity.prototype, "reminder", void 0);
+_ts_decorate([
     (0, _typeorm.ManyToOne)(()=>_userentity.User, {
         nullable: true,
         eager: true

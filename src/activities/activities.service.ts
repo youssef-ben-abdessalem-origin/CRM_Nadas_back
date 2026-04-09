@@ -8,9 +8,9 @@ import { ActivityType } from '../settings/entities/activity-type.entity';
 export class ActivitiesService {
   constructor(
     @InjectRepository(Activity)
-    private activityRepository: Repository<Activity>,
+    private readonly activityRepository: Repository<Activity>,
     @InjectRepository(ActivityType)
-    private activityTypeRepository: Repository<ActivityType>,
+    private readonly activityTypeRepository: Repository<ActivityType>,
   ) {}
 
   async findAll(): Promise<Activity[]> {
@@ -38,6 +38,12 @@ export class ActivitiesService {
       dueDate?: Date;
       assignedToId?: number;
       createdById?: number;
+      callType?: string;
+      durationMinutes?: string;
+      durationSeconds?: string;
+      voiceRecording?: string;
+      reminder?: string;
+      status?: string;
     },
   ): Promise<Activity> {
     const activity = this.activityRepository.create(data);

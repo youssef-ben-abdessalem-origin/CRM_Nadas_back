@@ -544,11 +544,12 @@ let LeadsService = class LeadsService {
             }
         });
     }
-    async convert(id) {
+    async convert(id, options) {
         const lead = await this.findOne(id);
         if (lead.isConverted) {
             throw new Error('Lead is already converted');
         }
+        const ownerId = options?.ownerId || lead.ownerId;
         // Find or create Account from company name
         let accountId;
         if (lead.company) {
@@ -560,7 +561,8 @@ let LeadsService = class LeadsService {
                     name: lead.company,
                     website: lead.website,
                     industry: lead.industry,
-                    location: lead.location
+                    location: lead.location,
+                    ownerId: ownerId
                 });
                 accountId = Array.isArray(account) ? account[0].id : account.id;
             }
@@ -569,7 +571,8 @@ let LeadsService = class LeadsService {
             const account = await this.accountsService.create({
                 name: lead.name + "'s Company",
                 industry: lead.industry,
-                location: lead.location
+                location: lead.location,
+                ownerId: ownerId
             });
             accountId = Array.isArray(account) ? account[0].id : account.id;
         }
@@ -601,47 +604,100 @@ let LeadsService = class LeadsService {
             industry: lead.industry,
             location: lead.location,
             website: lead.website,
-            notes: lead.notes
+            notes: lead.notes,
+            ownerId: ownerId
         });
         const contactId = Array.isArray(contact) ? contact[0].id : contact.id;
-        // Mark lead as converted
-        lead.isConverted = true;
-        lead.status = 'converted';
-        lead.convertedAt = new Date();
-        lead.convertedAccountId = accountId;
-        lead.convertedContactId = contactId;
-        await this.leadRepository.save(lead);
+        // Create Deal if requested
+        let dealId;
+        if (options?.createDeal) {
+            // Get default deal stage or the first one available
+            let defaultStage = await this.dealStageRepository.findOne({
+                where: {
+                    isDefault: true
+                }
+            });
+            if (!defaultStage) {
+                defaultStage = await this.dealStageRepository.findOne({
+                    where: {
+                        isActive: true
+                    },
+                    order: {
+                        order: 'ASC'
+                    }
+                });
+            }
+            const deal = await this.dealsService.create({
+                name: `${lead.name} - Deal`,
+                company: lead.company,
+                value: lead.value || 0,
+                contact: lead.email || lead.emails && lead.emails[0] || '',
+                leadId: lead.id,
+                dealStageId: defaultStage?.id || 1,
+                notes: `Created from lead conversion: ${lead.name}.`,
+                ownerId: ownerId,
+                accountId: accountId,
+                contactId: contactId
+            });
+            dealId = deal.id;
+        }
+        // Mark lead as converted using direct update to ensure persistence
+        await this.leadRepository.update(id, {
+            isConverted: true,
+            status: 'converted',
+            convertedAt: new Date(),
+            convertedAccountId: accountId,
+            convertedContactId: contactId,
+            ownerId: ownerId
+        });
+        const updatedLead = await this.findOne(id);
         return {
-            lead: lead,
+            lead: updatedLead,
             accountId: accountId,
-            contactId: contactId
+            contactId: contactId,
+            dealId: dealId
         };
     }
-    async convertToDeal(id) {
+    async convertToDeal(id, options) {
         const lead = await this.findOne(id);
         if (lead.isConverted) {
             throw new Error('Lead is already converted');
         }
-        // Get default deal stage
-        const defaultStage = await this.dealStageRepository.findOne({
+        const ownerId = options?.ownerId || lead.ownerId;
+        // Get default deal stage or the first one available
+        let defaultStage = await this.dealStageRepository.findOne({
             where: {
                 isDefault: true
             }
         });
+        if (!defaultStage) {
+            defaultStage = await this.dealStageRepository.findOne({
+                where: {
+                    isActive: true
+                },
+                order: {
+                    order: 'ASC'
+                }
+            });
+        }
         // Create a deal from the lead
         const deal = await this.dealsService.create({
             name: `${lead.name} - Deal`,
             company: lead.company,
             value: lead.value || 0,
-            contact: lead.email,
+            contact: lead.email || lead.emails && lead.emails[0] || '',
             leadId: lead.id,
-            dealStageId: defaultStage?.id,
-            notes: `Created from lead: ${lead.name}. ${lead.notes || ''}`
+            dealStageId: defaultStage?.id || 1,
+            notes: `Created from lead: ${lead.name}. ${lead.notes || ''}`,
+            ownerId: ownerId
         });
-        // Mark lead as converted
-        lead.isConverted = true;
-        lead.convertedAt = new Date();
-        await this.leadRepository.save(lead);
+        // Mark lead as converted using direct update to ensure persistence
+        await this.leadRepository.update(id, {
+            isConverted: true,
+            status: 'converted',
+            convertedAt: new Date(),
+            ownerId: ownerId
+        });
         return {
             dealId: deal.id
         };

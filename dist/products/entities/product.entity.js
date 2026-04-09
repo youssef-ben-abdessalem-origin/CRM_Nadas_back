@@ -176,6 +176,141 @@ _ts_decorate([
     _ts_metadata("design:type", String)
 ], Product.prototype, "unitOfMeasure", void 0);
 _ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'int',
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Product.prototype, "ownerId", void 0);
+_ts_decorate([
+    (0, _typeorm.ManyToOne)('User', {
+        nullable: true
+    }),
+    (0, _typeorm.JoinColumn)({
+        name: 'ownerId'
+    }),
+    _ts_metadata("design:type", Object)
+], Product.prototype, "owner", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Product.prototype, "productCode", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Product.prototype, "vendorName", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Product.prototype, "manufacturer", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'timestamp',
+        nullable: true
+    }),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], Product.prototype, "salesStartDate", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'timestamp',
+        nullable: true
+    }),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], Product.prototype, "salesEndDate", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'timestamp',
+        nullable: true
+    }),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], Product.prototype, "supportStartDate", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'timestamp',
+        nullable: true
+    }),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], Product.prototype, "supportEndDate", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], Product.prototype, "unitPrice", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 5,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], Product.prototype, "tax", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], Product.prototype, "commissionRate", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        default: true
+    }),
+    _ts_metadata("design:type", Boolean)
+], Product.prototype, "taxable", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Product.prototype, "usageUnit", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'int',
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], Product.prototype, "quantityInStock", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Product.prototype, "handler", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'int',
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], Product.prototype, "qtyOrdered", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'int',
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], Product.prototype, "reorderLevel", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'int',
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], Product.prototype, "quantityInDemand", void 0);
+_ts_decorate([
     (0, _typeorm.OneToMany)('ProductVariant', 'product', {
         cascade: true
     }),

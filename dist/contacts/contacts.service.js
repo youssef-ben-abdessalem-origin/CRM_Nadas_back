@@ -115,8 +115,16 @@ let ContactsService = class ContactsService {
     }
     async update(id, data) {
         const contact = await this.findOne(id);
+        // Clear relations if their ID columns are being updated to avoid persistence conflicts
+        if (data.contactStatusId !== undefined && contact.contactStatus && contact.contactStatus.id !== data.contactStatusId) {
+            contact.contactStatus = null;
+        }
+        if (data.contactTierId !== undefined && contact.contactTier && contact.contactTier.id !== data.contactTierId) {
+            contact.contactTier = null;
+        }
         Object.assign(contact, data);
-        return await this.contactRepository.save(contact);
+        await this.contactRepository.save(contact);
+        return this.findOne(id);
     }
     async delete(id) {
         const contact = await this.findOne(id);

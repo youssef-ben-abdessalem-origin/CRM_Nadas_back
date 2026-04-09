@@ -134,11 +134,11 @@ let LeadsController = class LeadsController {
     delete(id) {
         return this.leadsService.delete(+id);
     }
-    convert(id) {
-        return this.leadsService.convert(+id);
+    convert(id, body) {
+        return this.leadsService.convert(+id, body);
     }
-    convertToDeal(id) {
-        return this.leadsService.convertToDeal(+id);
+    convertToDeal(id, body) {
+        return this.leadsService.convertToDeal(+id, body);
     }
     bulkDelete(ids) {
         return this.leadsService.bulkDelete(ids);
@@ -553,9 +553,11 @@ _ts_decorate([
         summary: 'Convert lead to Account + Contact'
     }),
     _ts_param(0, (0, _common.Param)('id')),
+    _ts_param(1, (0, _common.Body)()),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        String
+        String,
+        Object
     ]),
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], LeadsController.prototype, "convert", null);
@@ -567,9 +569,11 @@ _ts_decorate([
         summary: 'Convert lead to Deal only'
     }),
     _ts_param(0, (0, _common.Param)('id')),
+    _ts_param(1, (0, _common.Body)()),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        String
+        String,
+        Object
     ]),
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], LeadsController.prototype, "convertToDeal", null);

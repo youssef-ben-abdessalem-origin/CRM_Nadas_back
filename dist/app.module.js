@@ -71,6 +71,27 @@ const _roleentity = require("./roles/entities/role.entity");
 const _permissionentity = require("./permissions/entities/permission.entity");
 const _rolesmodule = require("./roles/roles.module");
 const _permissionsmodule = require("./permissions/permissions.module");
+const _taskentity = require("./tasks/entities/task.entity");
+const _tasksmodule = require("./tasks/tasks.module");
+const _forecastmodule = require("./forecast/forecast.module");
+const _forecastperiodentity = require("./forecast/entities/forecast-period.entity");
+const _forecasttargetentity = require("./forecast/entities/forecast-target.entity");
+const _forecastadjustmententity = require("./forecast/entities/forecast-adjustment.entity");
+const _forecastconfigentity = require("./forecast/entities/forecast-config.entity");
+const _forecaststagemappingentity = require("./forecast/entities/forecast-stage-mapping.entity");
+const _forecastsnapshotentity = require("./forecast/entities/forecast-snapshot.entity");
+const _workdriveteamentity = require("./workdrive/entities/workdrive-team.entity");
+const _workdrivefolderentity = require("./workdrive/entities/workdrive-folder.entity");
+const _workdrivefileentity = require("./workdrive/entities/workdrive-file.entity");
+const _workdrivepermissionentity = require("./workdrive/entities/workdrive-permission.entity");
+const _workdrivemodule = require("./workdrive/workdrive.module");
+const _dashboardmodule = require("./dashboard/dashboard.module");
+const _campaignentity = require("./campaigns/entities/campaign.entity");
+const _campaigntypeentity = require("./campaigns/entities/campaign-type.entity");
+const _campaignstatusentity = require("./campaigns/entities/campaign-status.entity");
+const _campaignsmodule = require("./campaigns/campaigns.module");
+const _vendorentity = require("./vendors/entities/vendor.entity");
+const _vendorsmodule = require("./vendors/vendors.module");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -133,7 +154,22 @@ AppModule = _ts_decorate([
                     _billingentity.Quote,
                     _billingentity.Invoice,
                     _roleentity.Role,
-                    _permissionentity.Permission
+                    _permissionentity.Permission,
+                    _taskentity.Task,
+                    _forecastperiodentity.ForecastPeriod,
+                    _forecasttargetentity.ForecastTarget,
+                    _forecastadjustmententity.ForecastAdjustment,
+                    _forecastconfigentity.ForecastConfig,
+                    _forecaststagemappingentity.ForecastStageMapping,
+                    _forecastsnapshotentity.ForecastSnapshot,
+                    _workdriveteamentity.WorkDriveTeam,
+                    _workdrivefolderentity.WorkDriveFolder,
+                    _workdrivefileentity.WorkDriveFile,
+                    _workdrivepermissionentity.WorkDrivePermission,
+                    _campaignentity.Campaign,
+                    _campaigntypeentity.CampaignType,
+                    _campaignstatusentity.CampaignStatus,
+                    _vendorentity.Vendor
                 ]
             }),
             _jwt.JwtModule.register({
@@ -160,7 +196,13 @@ AppModule = _ts_decorate([
             _productsmodule.ProductsModule,
             _billingmodule.BillingModule,
             _rolesmodule.RolesModule,
-            _permissionsmodule.PermissionsModule
+            _permissionsmodule.PermissionsModule,
+            _tasksmodule.TasksModule,
+            _forecastmodule.ForecastModule,
+            _workdrivemodule.WorkDriveModule,
+            _dashboardmodule.DashboardModule,
+            _campaignsmodule.CampaignsModule,
+            _vendorsmodule.VendorsModule
         ],
         providers: [
             {
