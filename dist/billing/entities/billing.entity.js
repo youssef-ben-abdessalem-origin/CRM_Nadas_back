@@ -34,6 +34,12 @@ function _ts_metadata(k, v) {
 }
 var QuoteStatus = /*#__PURE__*/ function(QuoteStatus) {
     QuoteStatus["DRAFT"] = "draft";
+    QuoteStatus["NEGOTIATION"] = "negotiation";
+    QuoteStatus["DELIVERED"] = "delivered";
+    QuoteStatus["ON_HOLD"] = "on_hold";
+    QuoteStatus["CONFIRMED"] = "confirmed";
+    QuoteStatus["CLOSED_WON"] = "closed_won";
+    QuoteStatus["CLOSED_LOST"] = "closed_lost";
     QuoteStatus["SENT"] = "sent";
     QuoteStatus["ACCEPTED"] = "accepted";
     QuoteStatus["REJECTED"] = "rejected";
@@ -56,14 +62,42 @@ _ts_decorate([
 ], Quote.prototype, "id", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
-        unique: true
+        unique: true,
+        nullable: true
     }),
     _ts_metadata("design:type", String)
 ], Quote.prototype, "quoteNumber", void 0);
 _ts_decorate([
-    (0, _typeorm.Column)(),
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Quote.prototype, "subject", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
     _ts_metadata("design:type", String)
 ], Quote.prototype, "title", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Quote.prototype, "ownerId", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Quote.prototype, "team", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true,
+        default: 'FedEX'
+    }),
+    _ts_metadata("design:type", String)
+], Quote.prototype, "carrier", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
         nullable: true
@@ -114,6 +148,15 @@ _ts_decorate([
 _ts_decorate([
     (0, _typeorm.Column)({
         type: 'decimal',
+        precision: 12,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], Quote.prototype, "discount", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
         precision: 5,
         scale: 2,
         default: 0
@@ -137,7 +180,25 @@ _ts_decorate([
         default: 0
     }),
     _ts_metadata("design:type", Number)
+], Quote.prototype, "adjustment", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
 ], Quote.prototype, "total", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], Quote.prototype, "grandTotal", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
         type: 'text',
@@ -145,6 +206,20 @@ _ts_decorate([
     }),
     _ts_metadata("design:type", String)
 ], Quote.prototype, "notes", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'text',
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Quote.prototype, "termsAndConditions", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'text',
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Quote.prototype, "description", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
         nullable: true
@@ -157,6 +232,26 @@ _ts_decorate([
     }),
     _ts_metadata("design:type", Number)
 ], Quote.prototype, "dealId", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Quote.prototype, "dealName", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'text',
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Quote.prototype, "billingAddress", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'text',
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Quote.prototype, "shippingAddress", void 0);
 _ts_decorate([
     (0, _typeorm.CreateDateColumn)(),
     _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)

@@ -137,6 +137,13 @@ _ts_decorate([
 ], Product.prototype, "isPurchasable", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
+        type: 'text',
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Product.prototype, "image", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
         type: 'varchar',
         length: 50,
         nullable: true

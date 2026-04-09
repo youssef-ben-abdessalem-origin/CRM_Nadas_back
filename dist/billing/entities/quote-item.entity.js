@@ -56,6 +56,24 @@ _ts_decorate([
 ], QuoteItem.prototype, "total", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], QuoteItem.prototype, "discount", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 5,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], QuoteItem.prototype, "taxRate", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
         nullable: true
     }),
     _ts_metadata("design:type", Number)
