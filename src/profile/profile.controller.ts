@@ -9,22 +9,8 @@ export class ProfileController {
 
   @Get('currency')
   @UseGuards(JwtAuthGuard)
-  getDefaultCurrency(@Req() req: Request) {
+  async getDefaultCurrency(@Req() req: Request) {
     const user: any = req.user;
-    const currency = user?.currency ?? 'USD';
-    const symbolMap: Record<string, string> = {
-      USD: '$',
-      EUR: '€',
-      GBP: '£',
-      JPY: '¥',
-      INR: '₹',
-      CAD: '$',
-      AUD: '$',
-      CHF: 'CHF',
-      CNY: '¥',
-    };
-    const symbol = symbolMap[currency] ?? '$';
-    // also return a CurrencyBadge-like object for frontend convenience
-    return { currency, symbol };
+    return this.profileService.getCurrencyInfo(user);
   }
 }

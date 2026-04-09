@@ -27,26 +27,9 @@ function _ts_param(paramIndex, decorator) {
     };
 }
 let ProfileController = class ProfileController {
-    getDefaultCurrency(req) {
+    async getDefaultCurrency(req) {
         const user = req.user;
-        const currency = user?.currency ?? 'USD';
-        const symbolMap = {
-            USD: '$',
-            EUR: '€',
-            GBP: '£',
-            JPY: '¥',
-            INR: '₹',
-            CAD: '$',
-            AUD: '$',
-            CHF: 'CHF',
-            CNY: '¥'
-        };
-        const symbol = symbolMap[currency] ?? '$';
-        // also return a CurrencyBadge-like object for frontend convenience
-        return {
-            currency,
-            symbol
-        };
+        return this.profileService.getCurrencyInfo(user);
     }
     constructor(profileService){
         this.profileService = profileService;
@@ -60,7 +43,7 @@ _ts_decorate([
     _ts_metadata("design:paramtypes", [
         typeof _express.Request === "undefined" ? Object : _express.Request
     ]),
-    _ts_metadata("design:returntype", void 0)
+    _ts_metadata("design:returntype", Promise)
 ], ProfileController.prototype, "getDefaultCurrency", null);
 ProfileController = _ts_decorate([
     (0, _common.Controller)('profile'),

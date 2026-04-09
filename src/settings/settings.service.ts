@@ -169,6 +169,19 @@ export class SettingsService implements OnModuleInit {
     });
   }
 
+  async getDefaultCurrencyInfo(): Promise<Currency> {
+    const currency = await this.currencyRepository.findOne({ 
+      where: { isDefault: true, isActive: true } 
+    });
+    if (!currency) {
+      // Fallback if none found
+      const first = await this.currencyRepository.findOne({ where: { isActive: true } });
+      if (first) return first;
+      return { code: 'USD', symbol: '$', name: 'US Dollar', isDefault: true } as Currency;
+    }
+    return currency;
+  }
+
   async getCurrencyById(id: number): Promise<Currency> {
     const currency = await this.currencyRepository.findOne({ where: { id } });
     if (!currency) throw new NotFoundException('Currency not found');

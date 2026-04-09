@@ -367,6 +367,30 @@ let SettingsService = class SettingsService {
             }
         });
     }
+    async getDefaultCurrencyInfo() {
+        const currency = await this.currencyRepository.findOne({
+            where: {
+                isDefault: true,
+                isActive: true
+            }
+        });
+        if (!currency) {
+            // Fallback if none found
+            const first = await this.currencyRepository.findOne({
+                where: {
+                    isActive: true
+                }
+            });
+            if (first) return first;
+            return {
+                code: 'USD',
+                symbol: '$',
+                name: 'US Dollar',
+                isDefault: true
+            };
+        }
+        return currency;
+    }
     async getCurrencyById(id) {
         const currency = await this.currencyRepository.findOne({
             where: {
