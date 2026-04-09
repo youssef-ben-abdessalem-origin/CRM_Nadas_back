@@ -12,6 +12,9 @@ const _common = require("@nestjs/common");
 const _typeorm = require("@nestjs/typeorm");
 const _typeorm1 = require("typeorm");
 const _billingentity = require("./entities/billing.entity");
+const _contactsservice = require("../contacts/contacts.service");
+const _accountsservice = require("../accounts/accounts.service");
+const _dealsservice = require("../deals/deals.service");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -45,7 +48,10 @@ let BillingService = class BillingService {
         return this.quoteRepository.find({
             order: {
                 created: 'DESC'
-            }
+            },
+            relations: [
+                'items'
+            ]
         });
     }
     async findQuote(id) {
@@ -61,20 +67,75 @@ let BillingService = class BillingService {
         return quote;
     }
     async createQuote(data) {
-        const quote = this.quoteRepository.create({
-            ...data,
-            quoteNumber: this.generateQuoteNumber(),
-            subtotal: data.subtotal || 0,
-            taxAmount: data.taxAmount || 0,
-            total: data.total || 0,
-            status: data.status || _billingentity.QuoteStatus.DRAFT
-        });
-        return this.quoteRepository.save(quote);
+        // Manually construct to avoid TypeORM 'create' overload confusion with 'any'
+        const quote = new _billingentity.Quote();
+        Object.assign(quote, data);
+        quote.quoteNumber = this.generateQuoteNumber();
+        quote.subtotal = Number(data.subtotal) || 0;
+        quote.taxAmount = Number(data.taxAmount) || 0;
+        quote.total = Number(data.total) || 0;
+        quote.grandTotal = Number(data.grandTotal) || Number(data.total) || 0;
+        quote.status = data.status || _billingentity.QuoteStatus.DRAFT;
+        // Resolve names
+        if (data.contactId) {
+            try {
+                const contact = await this.contactsService.findOne(Number(data.contactId));
+                if (contact) {
+                    quote.contactName = contact.name;
+                    quote.contactEmail = contact.email;
+                }
+            } catch (e) {}
+        }
+        if (data.accountId) {
+            try {
+                const account = await this.accountsService.findOne(Number(data.accountId));
+                if (account) {
+                    quote.accountName = account.name;
+                }
+            } catch (e) {}
+        }
+        if (data.dealId) {
+            try {
+                const deal = await this.dealsService.findOne(Number(data.dealId));
+                if (deal) {
+                    quote.dealName = deal.name;
+                }
+            } catch (e) {}
+        }
+        const saved = await this.quoteRepository.save(quote);
+        return this.findQuote(saved.id);
     }
     async updateQuote(id, data) {
         const quote = await this.findQuote(id);
+        // Resolve names if IDs changed
+        if (data.contactId && Number(data.contactId) !== quote.contactId) {
+            try {
+                const contact = await this.contactsService.findOne(Number(data.contactId));
+                if (contact) {
+                    quote.contactName = contact.name;
+                    quote.contactEmail = contact.email;
+                }
+            } catch (e) {}
+        }
+        if (data.accountId && Number(data.accountId) !== quote.accountId) {
+            try {
+                const account = await this.accountsService.findOne(Number(data.accountId));
+                if (account) {
+                    quote.accountName = account.name;
+                }
+            } catch (e) {}
+        }
+        if (data.dealId && Number(data.dealId) !== quote.dealId) {
+            try {
+                const deal = await this.dealsService.findOne(Number(data.dealId));
+                if (deal) {
+                    quote.dealName = deal.name;
+                }
+            } catch (e) {}
+        }
         Object.assign(quote, data);
-        return this.quoteRepository.save(quote);
+        const saved = await this.quoteRepository.save(quote);
+        return this.findQuote(saved.id);
     }
     async deleteQuote(id) {
         const quote = await this.findQuote(id);
@@ -84,7 +145,10 @@ let BillingService = class BillingService {
         return this.invoiceRepository.find({
             order: {
                 created: 'DESC'
-            }
+            },
+            relations: [
+                'items'
+            ]
         });
     }
     async findInvoice(id) {
@@ -100,20 +164,39 @@ let BillingService = class BillingService {
         return invoice;
     }
     async createInvoice(data) {
-        const invoice = this.invoiceRepository.create({
-            ...data,
-            invoiceNumber: this.generateInvoiceNumber(),
-            subtotal: data.subtotal || 0,
-            taxAmount: data.taxAmount || 0,
-            total: data.total || 0,
-            status: data.status || _billingentity.InvoiceStatus.DRAFT
-        });
-        return this.invoiceRepository.save(invoice);
+        const invoice = new _billingentity.Invoice();
+        Object.assign(invoice, data);
+        invoice.invoiceNumber = this.generateInvoiceNumber();
+        invoice.subtotal = Number(data.subtotal) || 0;
+        invoice.taxAmount = Number(data.taxAmount) || 0;
+        invoice.total = Number(data.total) || 0;
+        invoice.status = data.status || _billingentity.InvoiceStatus.DRAFT;
+        // Resolve names
+        if (data.contactId) {
+            try {
+                const contact = await this.contactsService.findOne(Number(data.contactId));
+                if (contact) {
+                    invoice.contactName = contact.name;
+                    invoice.contactEmail = contact.email;
+                }
+            } catch (e) {}
+        }
+        if (data.accountId) {
+            try {
+                const account = await this.accountsService.findOne(Number(data.accountId));
+                if (account) {
+                    invoice.accountName = account.name;
+                }
+            } catch (e) {}
+        }
+        const saved = await this.invoiceRepository.save(invoice);
+        return this.findInvoice(saved.id);
     }
     async updateInvoice(id, data) {
         const invoice = await this.findInvoice(id);
         Object.assign(invoice, data);
-        return this.invoiceRepository.save(invoice);
+        const saved = await this.invoiceRepository.save(invoice);
+        return this.findInvoice(saved.id);
     }
     async deleteInvoice(id) {
         const invoice = await this.findInvoice(id);
@@ -121,27 +204,44 @@ let BillingService = class BillingService {
     }
     async createInvoiceFromQuote(quoteId) {
         const quote = await this.findQuote(quoteId);
-        const invoice = this.invoiceRepository.create({
-            invoiceNumber: this.generateInvoiceNumber(),
-            title: quote.title,
-            contactId: quote.contactId,
-            contactName: quote.contactName,
-            contactEmail: quote.contactEmail,
-            accountId: quote.accountId,
-            accountName: quote.accountName,
-            status: _billingentity.InvoiceStatus.DRAFT,
-            subtotal: quote.subtotal,
-            taxRate: quote.taxRate,
-            taxAmount: quote.taxAmount,
-            total: quote.total,
-            notes: quote.notes,
-            quoteId: quote.id
+        const invoice = new _billingentity.Invoice();
+        invoice.invoiceNumber = this.generateInvoiceNumber();
+        invoice.title = quote.title || quote.subject || 'Sales Invoice';
+        invoice.contactId = quote.contactId;
+        invoice.contactName = quote.contactName;
+        invoice.contactEmail = quote.contactEmail;
+        invoice.accountId = quote.accountId;
+        invoice.accountName = quote.accountName;
+        invoice.status = _billingentity.InvoiceStatus.DRAFT;
+        invoice.subtotal = Number(quote.subtotal);
+        invoice.taxRate = Number(quote.taxRate);
+        invoice.taxAmount = Number(quote.taxAmount);
+        invoice.total = Number(quote.total);
+        invoice.discount = Number(quote.discount || 0);
+        invoice.notes = quote.notes;
+        invoice.quoteId = quote.id;
+        invoice.items = (quote.items || []).map((item)=>{
+            const invItem = {
+                productId: item.productId,
+                productName: item.productName,
+                quantity: Number(item.quantity),
+                unitPrice: Number(item.unitPrice),
+                discount: Number(item.discount),
+                taxRate: Number(item.taxRate),
+                amount: Number(item.amount),
+                total: Number(item.total)
+            };
+            return invItem;
         });
-        return this.invoiceRepository.save(invoice);
+        const saved = await this.invoiceRepository.save(invoice);
+        return this.findInvoice(saved.id);
     }
-    constructor(quoteRepository, invoiceRepository){
+    constructor(quoteRepository, invoiceRepository, contactsService, accountsService, dealsService){
         this.quoteRepository = quoteRepository;
         this.invoiceRepository = invoiceRepository;
+        this.contactsService = contactsService;
+        this.accountsService = accountsService;
+        this.dealsService = dealsService;
     }
 };
 BillingService = _ts_decorate([
@@ -151,7 +251,10 @@ BillingService = _ts_decorate([
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
-        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
+        typeof _contactsservice.ContactsService === "undefined" ? Object : _contactsservice.ContactsService,
+        typeof _accountsservice.AccountsService === "undefined" ? Object : _accountsservice.AccountsService,
+        typeof _dealsservice.DealsService === "undefined" ? Object : _dealsservice.DealsService
     ])
 ], BillingService);
 

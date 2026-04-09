@@ -12,11 +12,17 @@ _export(exports, {
     get Invoice () {
         return Invoice;
     },
+    get InvoiceItem () {
+        return InvoiceItem;
+    },
     get InvoiceStatus () {
         return InvoiceStatus;
     },
     get Quote () {
         return Quote;
+    },
+    get QuoteItem () {
+        return QuoteItem;
     },
     get QuoteStatus () {
         return QuoteStatus;
@@ -253,6 +259,12 @@ _ts_decorate([
     _ts_metadata("design:type", String)
 ], Quote.prototype, "shippingAddress", void 0);
 _ts_decorate([
+    (0, _typeorm.OneToMany)(()=>QuoteItem, (item)=>item.quote, {
+        cascade: true
+    }),
+    _ts_metadata("design:type", Array)
+], Quote.prototype, "items", void 0);
+_ts_decorate([
     (0, _typeorm.CreateDateColumn)(),
     _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
 ], Quote.prototype, "created", void 0);
@@ -263,6 +275,87 @@ _ts_decorate([
 Quote = _ts_decorate([
     (0, _typeorm.Entity)('quotes')
 ], Quote);
+let QuoteItem = class QuoteItem {
+};
+_ts_decorate([
+    (0, _typeorm.PrimaryGeneratedColumn)(),
+    _ts_metadata("design:type", Number)
+], QuoteItem.prototype, "id", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], QuoteItem.prototype, "productId", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], QuoteItem.prototype, "productName", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], QuoteItem.prototype, "quantity", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], QuoteItem.prototype, "unitPrice", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], QuoteItem.prototype, "discount", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 5,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], QuoteItem.prototype, "taxRate", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], QuoteItem.prototype, "amount", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], QuoteItem.prototype, "total", void 0);
+_ts_decorate([
+    (0, _typeorm.ManyToOne)(()=>Quote, (quote)=>quote.items, {
+        onDelete: 'CASCADE'
+    }),
+    _ts_metadata("design:type", typeof Quote === "undefined" ? Object : Quote)
+], QuoteItem.prototype, "quote", void 0);
+QuoteItem = _ts_decorate([
+    (0, _typeorm.Entity)('quote_items')
+], QuoteItem);
 let Invoice = class Invoice {
 };
 _ts_decorate([
@@ -329,6 +422,15 @@ _ts_decorate([
 _ts_decorate([
     (0, _typeorm.Column)({
         type: 'decimal',
+        precision: 12,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], Invoice.prototype, "discount", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
         precision: 5,
         scale: 2,
         default: 0
@@ -379,6 +481,12 @@ _ts_decorate([
     _ts_metadata("design:type", Number)
 ], Invoice.prototype, "quoteId", void 0);
 _ts_decorate([
+    (0, _typeorm.OneToMany)(()=>InvoiceItem, (item)=>item.invoice, {
+        cascade: true
+    }),
+    _ts_metadata("design:type", Array)
+], Invoice.prototype, "items", void 0);
+_ts_decorate([
     (0, _typeorm.CreateDateColumn)(),
     _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
 ], Invoice.prototype, "created", void 0);
@@ -389,5 +497,86 @@ _ts_decorate([
 Invoice = _ts_decorate([
     (0, _typeorm.Entity)('invoices')
 ], Invoice);
+let InvoiceItem = class InvoiceItem {
+};
+_ts_decorate([
+    (0, _typeorm.PrimaryGeneratedColumn)(),
+    _ts_metadata("design:type", Number)
+], InvoiceItem.prototype, "id", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], InvoiceItem.prototype, "productId", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], InvoiceItem.prototype, "productName", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], InvoiceItem.prototype, "quantity", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], InvoiceItem.prototype, "unitPrice", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], InvoiceItem.prototype, "discount", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 5,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], InvoiceItem.prototype, "taxRate", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], InvoiceItem.prototype, "amount", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], InvoiceItem.prototype, "total", void 0);
+_ts_decorate([
+    (0, _typeorm.ManyToOne)(()=>Invoice, (invoice)=>invoice.items, {
+        onDelete: 'CASCADE'
+    }),
+    _ts_metadata("design:type", typeof Invoice === "undefined" ? Object : Invoice)
+], InvoiceItem.prototype, "invoice", void 0);
+InvoiceItem = _ts_decorate([
+    (0, _typeorm.Entity)('invoice_items')
+], InvoiceItem);
 
 //# sourceMappingURL=billing.entity.js.map

@@ -56,7 +56,7 @@ import { ProductType } from "./products/entities/product-type.entity";
 import { TaxClass } from "./products/entities/tax-class.entity";
 import { ProductsModule } from "./products/products.module";
 import { BillingModule } from "./billing/billing.module";
-import { Quote, Invoice } from "./billing/entities/billing.entity";
+import { Quote, Invoice, QuoteItem, InvoiceItem } from "./billing/entities/billing.entity";
 import { Role } from "./roles/entities/role.entity";
 import { Permission } from "./permissions/entities/permission.entity";
 import { RolesModule } from "./roles/roles.module";
@@ -134,7 +134,9 @@ import { VendorsModule } from "./vendors/vendors.module";
         ProductType,
         TaxClass,
         Quote,
+        QuoteItem,
         Invoice,
+        InvoiceItem,
         Role,
         Permission,
         Task,

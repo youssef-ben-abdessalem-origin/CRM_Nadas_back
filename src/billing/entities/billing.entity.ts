@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne } from 'typeorm';
 
 export enum QuoteStatus {
   DRAFT = 'draft',
@@ -109,11 +109,47 @@ export class Quote {
   @Column({ type: 'text', nullable: true })
   shippingAddress: string;
 
+  @OneToMany(() => QuoteItem, (item) => item.quote, { cascade: true })
+  items: QuoteItem[];
+
   @CreateDateColumn()
   created: Date;
 
   @UpdateDateColumn()
   updated: Date;
+}
+
+@Entity('quote_items')
+export class QuoteItem {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ nullable: true })
+  productId: string;
+
+  @Column({ nullable: true })
+  productName: string;
+
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  quantity: number;
+
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  unitPrice: number;
+
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  discount: number;
+
+  @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })
+  taxRate: number;
+
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  amount: number;
+
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  total: number;
+
+  @ManyToOne(() => Quote, (quote) => quote.items, { onDelete: 'CASCADE' })
+  quote: Quote;
 }
 
 @Entity('invoices')
@@ -148,6 +184,9 @@ export class Invoice {
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
   subtotal: number;
 
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  discount: number;
+
   @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })
   taxRate: number;
 
@@ -169,9 +208,45 @@ export class Invoice {
   @Column({ nullable: true })
   quoteId: number;
 
+  @OneToMany(() => InvoiceItem, (item) => item.invoice, { cascade: true })
+  items: InvoiceItem[];
+
   @CreateDateColumn()
   created: Date;
 
   @UpdateDateColumn()
   updated: Date;
+}
+
+@Entity('invoice_items')
+export class InvoiceItem {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ nullable: true })
+  productId: string;
+
+  @Column({ nullable: true })
+  productName: string;
+
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  quantity: number;
+
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  unitPrice: number;
+
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  discount: number;
+
+  @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })
+  taxRate: number;
+
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  amount: number;
+
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  total: number;
+
+  @ManyToOne(() => Invoice, (invoice) => invoice.items, { onDelete: 'CASCADE' })
+  invoice: Invoice;
 }
