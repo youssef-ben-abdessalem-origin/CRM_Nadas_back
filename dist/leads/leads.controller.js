@@ -125,11 +125,11 @@ let LeadsController = class LeadsController {
     findOne(id) {
         return this.leadsService.findOne(+id);
     }
-    create(data) {
-        return this.leadsService.create(data);
+    create(data, req) {
+        return this.leadsService.create(data, req.user?.id);
     }
-    update(id, data) {
-        return this.leadsService.update(+id, data);
+    update(id, data, req) {
+        return this.leadsService.update(+id, data, req.user?.id);
     }
     delete(id) {
         return this.leadsService.delete(+id);
@@ -509,9 +509,11 @@ _ts_decorate([
         }
     }),
     _ts_param(0, (0, _common.Body)()),
+    _ts_param(1, (0, _common.Request)()),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        typeof Partial === "undefined" ? Object : Partial
+        typeof Partial === "undefined" ? Object : Partial,
+        Object
     ]),
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], LeadsController.prototype, "create", null);
@@ -524,10 +526,12 @@ _ts_decorate([
     }),
     _ts_param(0, (0, _common.Param)('id')),
     _ts_param(1, (0, _common.Body)()),
+    _ts_param(2, (0, _common.Request)()),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
         String,
-        typeof Partial === "undefined" ? Object : Partial
+        typeof Partial === "undefined" ? Object : Partial,
+        Object
     ]),
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], LeadsController.prototype, "update", null);

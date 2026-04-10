@@ -5,9 +5,10 @@ import { DealsController } from './deals.controller';
 import { Deal } from './entities/deal.entity';
 import { DealStage } from './entities/deal-stage.entity';
 import { DealReason } from './entities/deal-reason.entity';
+import { AutomationsModule } from '../automations/automations.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Deal, DealStage, DealReason])],
+  imports: [TypeOrmModule.forFeature([Deal, DealStage, DealReason]), AutomationsModule],
   providers: [DealsService],
   controllers: [DealsController],
   exports: [DealsService],

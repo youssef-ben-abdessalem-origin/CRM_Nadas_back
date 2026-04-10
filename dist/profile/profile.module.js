@@ -9,9 +9,11 @@ Object.defineProperty(exports, "ProfileModule", {
     }
 });
 const _common = require("@nestjs/common");
+const _typeorm = require("@nestjs/typeorm");
 const _profilecontroller = require("./profile.controller");
 const _profileservice = require("./profile.service");
 const _settingsmodule = require("../settings/settings.module");
+const _userentity = require("../users/entities/user.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -23,6 +25,9 @@ let ProfileModule = class ProfileModule {
 ProfileModule = _ts_decorate([
     (0, _common.Module)({
         imports: [
+            _typeorm.TypeOrmModule.forFeature([
+                _userentity.User
+            ]),
             _settingsmodule.SettingsModule
         ],
         controllers: [

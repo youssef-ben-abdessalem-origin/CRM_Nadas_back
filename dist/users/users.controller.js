@@ -71,6 +71,43 @@ _ts_decorate([
     (0, _swagger.ApiOperation)({
         summary: 'Create user'
     }),
+    (0, _swagger.ApiBody)({
+        description: 'Create a new user',
+        schema: {
+            type: 'object',
+            properties: {
+                name: {
+                    type: 'string',
+                    example: 'Jane Cooper'
+                },
+                email: {
+                    type: 'string',
+                    example: 'jane@nexus-crm.com'
+                },
+                password: {
+                    type: 'string',
+                    example: 'StrongPass123!'
+                },
+                roleId: {
+                    type: 'string',
+                    example: '7d43f5fe-0d5f-4a1e-b0ea-2a3c4f2e7d20'
+                },
+                phone: {
+                    type: 'string',
+                    example: '+1 (555) 000-0000'
+                },
+                enabled: {
+                    type: 'boolean',
+                    example: true
+                }
+            },
+            required: [
+                'name',
+                'email',
+                'password'
+            ]
+        }
+    }),
     _ts_param(0, (0, _common.Body)()),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
@@ -128,6 +165,30 @@ _ts_decorate([
     (0, _swagger.ApiBearerAuth)(),
     (0, _swagger.ApiOperation)({
         summary: 'Update user'
+    }),
+    (0, _swagger.ApiBody)({
+        description: 'Update an existing user',
+        schema: {
+            type: 'object',
+            properties: {
+                name: {
+                    type: 'string',
+                    example: 'Jane C. Cooper'
+                },
+                phone: {
+                    type: 'string',
+                    example: '+1 (555) 111-2222'
+                },
+                roleId: {
+                    type: 'string',
+                    example: '7d43f5fe-0d5f-4a1e-b0ea-2a3c4f2e7d20'
+                },
+                enabled: {
+                    type: 'boolean',
+                    example: true
+                }
+            }
+        }
     }),
     _ts_param(0, (0, _common.Param)('id')),
     _ts_param(1, (0, _common.Body)()),

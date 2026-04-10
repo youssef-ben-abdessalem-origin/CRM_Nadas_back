@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { LeadsService } from './leads.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -237,16 +237,16 @@ export class LeadsController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create lead' })
   @ApiBody({ type: Object, description: 'Lead data', examples: { example: { value: createLeadExample } } })
-  create(@Body() data: Partial<Lead>): Promise<Lead> {
-    return this.leadsService.create(data);
+  create(@Body() data: Partial<Lead>, @Request() req: any): Promise<Lead> {
+    return this.leadsService.create(data, req.user?.id);
   }
 
   @Put(':id')
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update lead' })
-  update(@Param('id') id: string, @Body() data: Partial<Lead>): Promise<Lead> {
-    return this.leadsService.update(+id, data);
+  update(@Param('id') id: string, @Body() data: Partial<Lead>, @Request() req: any): Promise<Lead> {
+    return this.leadsService.update(+id, data, req.user?.id);
   }
 
   @Delete(':id')

@@ -42,6 +42,18 @@ _ts_decorate([
 ], Currency.prototype, "symbol", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Currency.prototype, "symbolArabic", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Currency.prototype, "symbolEnglish", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
         default: true
     }),
     _ts_metadata("design:type", Boolean)

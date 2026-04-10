@@ -14,6 +14,7 @@ const _typeorm1 = require("typeorm");
 const _dealentity = require("./entities/deal.entity");
 const _dealstageentity = require("./entities/deal-stage.entity");
 const _dealreasonentity = require("./entities/deal-reason.entity");
+const _automationsservice = require("../automations/automations.service");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -205,14 +206,17 @@ let DealsService = class DealsService {
         if (!deal) throw new _common.NotFoundException('Deal not found');
         return deal;
     }
-    async create(data) {
+    async create(data, actorUserId) {
         const deal = this.dealRepository.create({
             ...data,
             daysInStage: 0
         });
-        return this.dealRepository.save(deal);
+        const saved = await this.dealRepository.save(deal);
+        const hydrated = await this.findOne(saved.id);
+        await this.automationsService.processEvent('deal', 'created', hydrated, actorUserId);
+        return hydrated;
     }
-    async update(id, data) {
+    async update(id, data, actorUserId) {
         const deal = await this.findOne(id);
         // Clear relations if their ID columns are being updated to avoid persistence conflicts
         if (data.dealStageId !== undefined && deal.stage && deal.stage.id !== data.dealStageId) {
@@ -235,7 +239,9 @@ let DealsService = class DealsService {
         }
         Object.assign(deal, data);
         await this.dealRepository.save(deal);
-        return this.findOne(id);
+        const updated = await this.findOne(id);
+        await this.automationsService.processEvent('deal', 'updated', updated, actorUserId);
+        return updated;
     }
     async delete(id) {
         const deal = await this.findOne(id);
@@ -324,10 +330,11 @@ let DealsService = class DealsService {
         if (!reason) throw new _common.NotFoundException('Reason not found');
         await this.dealReasonRepository.remove(reason);
     }
-    constructor(dealRepository, dealStageRepository, dealReasonRepository){
+    constructor(dealRepository, dealStageRepository, dealReasonRepository, automationsService){
         this.dealRepository = dealRepository;
         this.dealStageRepository = dealStageRepository;
         this.dealReasonRepository = dealReasonRepository;
+        this.automationsService = automationsService;
     }
 };
 DealsService = _ts_decorate([
@@ -339,7 +346,8 @@ DealsService = _ts_decorate([
     _ts_metadata("design:paramtypes", [
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
-        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
+        typeof _automationsservice.AutomationsService === "undefined" ? Object : _automationsservice.AutomationsService
     ])
 ], DealsService);
 

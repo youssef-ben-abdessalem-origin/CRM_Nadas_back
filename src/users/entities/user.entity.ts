@@ -31,6 +31,9 @@ export class User {
   @Column({ nullable: true })
   avatar: string;
 
+  @Column({ default: 'EN' })
+  language: string;
+
   @Column({ type: 'jsonb', nullable: true })
   gmailTokens: {
     access_token: string;

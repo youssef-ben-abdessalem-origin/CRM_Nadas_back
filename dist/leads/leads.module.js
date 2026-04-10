@@ -24,6 +24,7 @@ const _dealstageentity = require("../deals/entities/deal-stage.entity");
 const _accountsmodule = require("../accounts/accounts.module");
 const _contactsmodule = require("../contacts/contacts.module");
 const _dealsmodule = require("../deals/deals.module");
+const _automationsmodule = require("../automations/automations.module");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -48,7 +49,8 @@ LeadsModule = _ts_decorate([
             ]),
             (0, _common.forwardRef)(()=>_accountsmodule.AccountsModule),
             (0, _common.forwardRef)(()=>_contactsmodule.ContactsModule),
-            (0, _common.forwardRef)(()=>_dealsmodule.DealsModule)
+            (0, _common.forwardRef)(()=>_dealsmodule.DealsModule),
+            _automationsmodule.AutomationsModule
         ],
         controllers: [
             _leadscontroller.LeadsController

@@ -15,6 +15,7 @@ const _dealscontroller = require("./deals.controller");
 const _dealentity = require("./entities/deal.entity");
 const _dealstageentity = require("./entities/deal-stage.entity");
 const _dealreasonentity = require("./entities/deal-reason.entity");
+const _automationsmodule = require("../automations/automations.module");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -30,7 +31,8 @@ DealsModule = _ts_decorate([
                 _dealentity.Deal,
                 _dealstageentity.DealStage,
                 _dealreasonentity.DealReason
-            ])
+            ]),
+            _automationsmodule.AutomationsModule
         ],
         providers: [
             _dealsservice.DealsService

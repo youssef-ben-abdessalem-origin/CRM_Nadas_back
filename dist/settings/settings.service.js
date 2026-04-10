@@ -45,41 +45,106 @@ let SettingsService = class SettingsService {
                     name: 'US Dollar',
                     code: 'USD',
                     symbol: '$',
+                    symbolArabic: '$',
+                    symbolEnglish: '$',
                     isDefault: true
                 },
                 {
                     name: 'Euro',
                     code: 'EUR',
-                    symbol: '€'
+                    symbol: '€',
+                    symbolArabic: '€',
+                    symbolEnglish: '€'
                 },
                 {
                     name: 'British Pound',
                     code: 'GBP',
-                    symbol: '£'
+                    symbol: '£',
+                    symbolArabic: '£',
+                    symbolEnglish: '£'
                 },
                 {
                     name: 'Japanese Yen',
                     code: 'JPY',
-                    symbol: '¥'
+                    symbol: '¥',
+                    symbolArabic: '¥',
+                    symbolEnglish: '¥'
                 },
                 {
                     name: 'Tunisian Dinar',
                     code: 'TND',
-                    symbol: 'د.ت'
+                    symbol: 'د.ت',
+                    symbolArabic: 'د.ت',
+                    symbolEnglish: 'TND'
                 },
                 {
                     name: 'Canadian Dollar',
                     code: 'CAD',
-                    symbol: 'C$'
+                    symbol: 'C$',
+                    symbolArabic: 'C$',
+                    symbolEnglish: 'C$'
                 },
                 {
                     name: 'Australian Dollar',
                     code: 'AUD',
-                    symbol: 'A$'
+                    symbol: 'A$',
+                    symbolArabic: 'A$',
+                    symbolEnglish: 'A$'
                 }
             ];
             for (const currency of defaultCurrencies){
                 await this.currencyRepository.save(currency);
+            }
+        } else {
+            // Patch existing records if symbols are missing
+            const existing = await this.currencyRepository.find();
+            const defaults = [
+                {
+                    code: 'USD',
+                    ar: '$',
+                    en: '$'
+                },
+                {
+                    code: 'EUR',
+                    ar: '€',
+                    en: '€'
+                },
+                {
+                    code: 'GBP',
+                    ar: '£',
+                    en: '£'
+                },
+                {
+                    code: 'JPY',
+                    ar: '¥',
+                    en: '¥'
+                },
+                {
+                    code: 'TND',
+                    ar: 'د.ت',
+                    en: 'TND'
+                },
+                {
+                    code: 'CAD',
+                    ar: 'C$',
+                    en: 'C$'
+                },
+                {
+                    code: 'AUD',
+                    ar: 'A$',
+                    en: 'A$'
+                }
+            ];
+            for (const curr of existing){
+                if (!curr.symbolArabic || !curr.symbolEnglish) {
+                    const match = defaults.find((d)=>d.code === curr.code);
+                    if (match) {
+                        await this.currencyRepository.update(curr.id, {
+                            symbolArabic: curr.symbolArabic || match.ar,
+                            symbolEnglish: curr.symbolEnglish || match.en
+                        });
+                    }
+                }
             }
         }
         const countriesCount = await this.countryRepository.count();

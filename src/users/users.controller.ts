@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from './entities/user.entity';
@@ -21,6 +21,21 @@ export class UsersController {
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create user' })
+  @ApiBody({
+    description: 'Create a new user',
+    schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', example: 'Jane Cooper' },
+        email: { type: 'string', example: 'jane@nexus-crm.com' },
+        password: { type: 'string', example: 'StrongPass123!' },
+        roleId: { type: 'string', example: '7d43f5fe-0d5f-4a1e-b0ea-2a3c4f2e7d20' },
+        phone: { type: 'string', example: '+1 (555) 000-0000' },
+        enabled: { type: 'boolean', example: true },
+      },
+      required: ['name', 'email', 'password'],
+    },
+  })
   create(@Body() data: any): Promise<User> {
     return this.usersService.create(data);
   }
@@ -53,6 +68,18 @@ export class UsersController {
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update user' })
+  @ApiBody({
+    description: 'Update an existing user',
+    schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', example: 'Jane C. Cooper' },
+        phone: { type: 'string', example: '+1 (555) 111-2222' },
+        roleId: { type: 'string', example: '7d43f5fe-0d5f-4a1e-b0ea-2a3c4f2e7d20' },
+        enabled: { type: 'boolean', example: true },
+      },
+    },
+  })
   update(@Param('id') id: string, @Body() data: any): Promise<User> {
     return this.usersService.update(+id, data);
   }

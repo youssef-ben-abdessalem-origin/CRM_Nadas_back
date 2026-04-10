@@ -80,11 +80,11 @@ let DealsController = class DealsController {
     findOne(id) {
         return this.dealsService.findOne(+id);
     }
-    create(data) {
-        return this.dealsService.create(data);
+    create(data, req) {
+        return this.dealsService.create(data, req.user?.id);
     }
-    update(id, data) {
-        return this.dealsService.update(+id, data);
+    update(id, data, req) {
+        return this.dealsService.update(+id, data, req.user?.id);
     }
     delete(id) {
         return this.dealsService.delete(+id);
@@ -281,9 +281,11 @@ _ts_decorate([
         }
     }),
     _ts_param(0, (0, _common.Body)()),
+    _ts_param(1, (0, _common.Request)()),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        typeof Partial === "undefined" ? Object : Partial
+        typeof Partial === "undefined" ? Object : Partial,
+        Object
     ]),
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], DealsController.prototype, "create", null);
@@ -293,10 +295,12 @@ _ts_decorate([
     (0, _swagger.ApiBearerAuth)(),
     _ts_param(0, (0, _common.Param)('id')),
     _ts_param(1, (0, _common.Body)()),
+    _ts_param(2, (0, _common.Request)()),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
         String,
-        typeof Partial === "undefined" ? Object : Partial
+        typeof Partial === "undefined" ? Object : Partial,
+        Object
     ]),
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], DealsController.prototype, "update", null);

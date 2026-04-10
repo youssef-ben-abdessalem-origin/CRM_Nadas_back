@@ -14,6 +14,7 @@ import { DealStage } from '../deals/entities/deal-stage.entity';
 import { AccountsModule } from '../accounts/accounts.module';
 import { ContactsModule } from '../contacts/contacts.module';
 import { DealsModule } from '../deals/deals.module';
+import { AutomationsModule } from '../automations/automations.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { DealsModule } from '../deals/deals.module';
     forwardRef(() => AccountsModule),
     forwardRef(() => ContactsModule),
     forwardRef(() => DealsModule),
+    AutomationsModule,
   ],
   controllers: [LeadsController],
   providers: [LeadsService],

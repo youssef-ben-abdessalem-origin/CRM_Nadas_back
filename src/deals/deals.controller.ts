@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { DealsService } from './deals.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -132,15 +132,15 @@ export class DealsController {
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   @ApiBody({ type: Object, description: 'Deal data', examples: { example: { value: createDealExample } } })
-  create(@Body() data: Partial<Deal>): Promise<Deal> {
-    return this.dealsService.create(data);
+  create(@Body() data: Partial<Deal>, @Request() req: any): Promise<Deal> {
+    return this.dealsService.create(data, req.user?.id);
   }
 
   @Put(':id')
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  update(@Param('id') id: string, @Body() data: Partial<Deal>): Promise<Deal> {
-    return this.dealsService.update(+id, data);
+  update(@Param('id') id: string, @Body() data: Partial<Deal>, @Request() req: any): Promise<Deal> {
+    return this.dealsService.update(+id, data, req.user?.id);
   }
 
   @Delete(':id')

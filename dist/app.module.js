@@ -92,6 +92,10 @@ const _campaignstatusentity = require("./campaigns/entities/campaign-status.enti
 const _campaignsmodule = require("./campaigns/campaigns.module");
 const _vendorentity = require("./vendors/entities/vendor.entity");
 const _vendorsmodule = require("./vendors/vendors.module");
+const _automationruleentity = require("./automations/entities/automation-rule.entity");
+const _automationsmodule = require("./automations/automations.module");
+const _departmententity = require("./departments/entities/department.entity");
+const _departmentsmodule = require("./departments/departments.module");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -171,7 +175,9 @@ AppModule = _ts_decorate([
                     _campaignentity.Campaign,
                     _campaigntypeentity.CampaignType,
                     _campaignstatusentity.CampaignStatus,
-                    _vendorentity.Vendor
+                    _vendorentity.Vendor,
+                    _automationruleentity.AutomationRule,
+                    _departmententity.Department
                 ]
             }),
             _jwt.JwtModule.register({
@@ -204,7 +210,9 @@ AppModule = _ts_decorate([
             _workdrivemodule.WorkDriveModule,
             _dashboardmodule.DashboardModule,
             _campaignsmodule.CampaignsModule,
-            _vendorsmodule.VendorsModule
+            _vendorsmodule.VendorsModule,
+            _automationsmodule.AutomationsModule,
+            _departmentsmodule.DepartmentsModule
         ],
         providers: [
             {

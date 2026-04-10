@@ -76,6 +76,12 @@ _ts_decorate([
 ], User.prototype, "avatar", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
+        default: 'EN'
+    }),
+    _ts_metadata("design:type", String)
+], User.prototype, "language", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
         type: 'jsonb',
         nullable: true
     }),

@@ -14,6 +14,12 @@ export class Currency {
   @Column({ nullable: true })
   symbol: string;
 
+  @Column({ nullable: true })
+  symbolArabic: string;
+
+  @Column({ nullable: true })
+  symbolEnglish: string;
+
   @Column({ default: true })
   isActive: boolean;
 

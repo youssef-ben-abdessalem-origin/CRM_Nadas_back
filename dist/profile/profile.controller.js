@@ -31,6 +31,10 @@ let ProfileController = class ProfileController {
         const user = req.user;
         return this.profileService.getCurrencyInfo(user);
     }
+    async updateLanguage(req, language) {
+        const user = req.user;
+        return this.profileService.updateLanguage(user.id, language);
+    }
     constructor(profileService){
         this.profileService = profileService;
     }
@@ -45,6 +49,18 @@ _ts_decorate([
     ]),
     _ts_metadata("design:returntype", Promise)
 ], ProfileController.prototype, "getDefaultCurrency", null);
+_ts_decorate([
+    (0, _common.Patch)('language'),
+    (0, _common.UseGuards)(_jwtauthguard.JwtAuthGuard),
+    _ts_param(0, (0, _common.Req)()),
+    _ts_param(1, (0, _common.Body)('language')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        typeof _express.Request === "undefined" ? Object : _express.Request,
+        String
+    ]),
+    _ts_metadata("design:returntype", Promise)
+], ProfileController.prototype, "updateLanguage", null);
 ProfileController = _ts_decorate([
     (0, _common.Controller)('profile'),
     _ts_metadata("design:type", Function),

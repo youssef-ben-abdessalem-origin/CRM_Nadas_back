@@ -76,92 +76,189 @@ let DashboardService = class DashboardService {
         };
     }
     async getChartsData() {
-        // In a real app, we'd aggregate by month
-        // For now, let's return the structured data the frontend expects
         const revenueData = [
             {
                 month: "Jan",
-                revenue: 42000
+                revenue: 42000,
+                target: 38000
             },
             {
                 month: "Feb",
-                revenue: 53000
+                revenue: 53000,
+                target: 45000
             },
             {
                 month: "Mar",
-                revenue: 48000
+                revenue: 48000,
+                target: 50000
             },
             {
                 month: "Apr",
-                revenue: 61000
+                revenue: 61000,
+                target: 55000
             },
             {
                 month: "May",
-                revenue: 55000
+                revenue: 55000,
+                target: 60000
             },
             {
                 month: "Jun",
-                revenue: 72000
+                revenue: 72000,
+                target: 65000
             },
             {
                 month: "Jul",
-                revenue: 68000
+                revenue: 68000,
+                target: 70000
             },
             {
                 month: "Aug",
-                revenue: 81000
+                revenue: 81000,
+                target: 75000
             }
         ];
         const dealsData = [
             {
                 month: "Jan",
                 won: 12,
-                lost: 4
+                lost: 4,
+                open: 25
             },
             {
                 month: "Feb",
                 won: 18,
-                lost: 6
+                lost: 6,
+                open: 30
             },
             {
                 month: "Mar",
                 won: 15,
-                lost: 3
+                lost: 3,
+                open: 28
             },
             {
                 month: "Apr",
                 won: 22,
-                lost: 5
+                lost: 5,
+                open: 35
             },
             {
                 month: "May",
                 won: 19,
-                lost: 7
+                lost: 7,
+                open: 40
             },
             {
                 month: "Jun",
                 won: 28,
-                lost: 4
+                lost: 4,
+                open: 45
             },
             {
                 month: "Jul",
                 won: 25,
-                lost: 6
+                lost: 6,
+                open: 42
             },
             {
                 month: "Aug",
                 won: 31,
-                lost: 3
+                lost: 3,
+                open: 50
+            }
+        ];
+        const leadSourceData = [
+            {
+                name: "Direct",
+                value: 400,
+                color: "hsl(var(--primary))"
+            },
+            {
+                name: "Social",
+                value: 300,
+                color: "hsl(var(--success))"
+            },
+            {
+                name: "Referral",
+                value: 200,
+                color: "hsl(var(--warning))"
+            },
+            {
+                name: "Organic",
+                value: 278,
+                color: "hsl(var(--info))"
+            },
+            {
+                name: "Other",
+                value: 189,
+                color: "hsl(var(--muted))"
+            }
+        ];
+        const pipelineData = [
+            {
+                stage: "Discovery",
+                value: 120000,
+                count: 45
+            },
+            {
+                stage: "Qualified",
+                value: 85000,
+                count: 32
+            },
+            {
+                stage: "Proposal",
+                value: 64000,
+                count: 18
+            },
+            {
+                stage: "Negotiation",
+                value: 42000,
+                count: 9
+            },
+            {
+                stage: "Closed Won",
+                value: 31000,
+                count: 6
+            }
+        ];
+        const campaignPerformance = [
+            {
+                name: "Spring Sale",
+                roi: 4.2,
+                leads: 120,
+                cost: 1200
+            },
+            {
+                name: "LinkedIn Ads",
+                roi: 2.8,
+                leads: 85,
+                cost: 2400
+            },
+            {
+                name: "Email Blast",
+                roi: 8.5,
+                leads: 240,
+                cost: 600
+            },
+            {
+                name: "Referral Program",
+                roi: 5.1,
+                leads: 45,
+                cost: 200
             }
         ];
         return {
             revenueData,
-            dealsData
+            dealsData,
+            leadSourceData,
+            pipelineData,
+            campaignPerformance
         };
     }
     async getRecentActivities() {
         // Recent deals, contacts, leads
-        const [recentDeals, recentLeads] = await Promise.all([
+        const [recentDeals, recentLeads, recentContacts] = await Promise.all([
             this.dealRepository.find({
                 order: {
                     createdAt: 'DESC'
@@ -205,13 +302,22 @@ let DashboardService = class DashboardService {
                 timestamp: lead.createdAt.getTime()
             });
         });
+        recentContacts.forEach((contact)=>{
+            activities.push({
+                id: `contact-${contact.id}`,
+                type: 'contact',
+                text: `New contact added: ${contact.firstName} ${contact.lastName}`,
+                time: 'Today',
+                timestamp: Date.now()
+            });
+        });
         // Sort combined activities by timestamp
         return [
             ...activities
         ].sort((a, b)=>b.timestamp - a.timestamp).slice(0, 10);
     }
     formatTimeAgo(date) {
-        const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+        const seconds = Math.floor((Date.now() - (date?.getTime() || Date.now())) / 1000);
         if (seconds < 60) return 'Just now';
         const minutes = Math.floor(seconds / 60);
         if (minutes < 60) return `${minutes}m ago`;

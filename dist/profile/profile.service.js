@@ -10,6 +10,9 @@ Object.defineProperty(exports, "ProfileService", {
 });
 const _common = require("@nestjs/common");
 const _settingsservice = require("../settings/settings.service");
+const _typeorm = require("@nestjs/typeorm");
+const _userentity = require("../users/entities/user.entity");
+const _typeorm1 = require("typeorm");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -19,38 +22,57 @@ function _ts_decorate(decorators, target, key, desc) {
 function _ts_metadata(k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 }
+function _ts_param(paramIndex, decorator) {
+    return function(target, key) {
+        decorator(target, key, paramIndex);
+    };
+}
 let ProfileService = class ProfileService {
     async getCurrencyInfo(user) {
         if (user?.currency) {
-            // If user has a specific currency set, we should ideally fetch its symbol too
-            // but for now let's at least try to match it against our currencies list
             const currencies = await this.settingsService.getCurrencies();
             const match = currencies.find((c)=>c.code === user.currency);
             if (match) return {
                 currency: match.code,
-                symbol: match.symbol
+                symbol: match.symbol,
+                symbolArabic: match.symbolArabic,
+                symbolEnglish: match.symbolEnglish
             };
             return {
                 currency: user.currency,
                 symbol: '$'
             };
         }
-        // Default system currency
         const def = await this.settingsService.getDefaultCurrencyInfo();
         return {
             currency: def.code,
-            symbol: def.symbol
+            symbol: def.symbol,
+            symbolArabic: def.symbolArabic,
+            symbolEnglish: def.symbolEnglish
         };
     }
-    constructor(settingsService){
+    async updateLanguage(userId, language) {
+        const user = await this.userRepository.findOne({
+            where: {
+                id: userId
+            }
+        });
+        if (!user) throw new _common.NotFoundException('User not found');
+        user.language = language;
+        return this.userRepository.save(user);
+    }
+    constructor(settingsService, userRepository){
         this.settingsService = settingsService;
+        this.userRepository = userRepository;
     }
 };
 ProfileService = _ts_decorate([
     (0, _common.Injectable)(),
+    _ts_param(1, (0, _typeorm.InjectRepository)(_userentity.User)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        typeof _settingsservice.SettingsService === "undefined" ? Object : _settingsservice.SettingsService
+        typeof _settingsservice.SettingsService === "undefined" ? Object : _settingsservice.SettingsService,
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository
     ])
 ], ProfileService);
 

@@ -13,6 +13,7 @@ import { DealsService } from '../deals/deals.service';
 import { DealStage } from '../deals/entities/deal-stage.entity';
 import { ContactStatus } from '../contacts/entities/contact-status.entity';
 import { ContactTier } from '../contacts/entities/contact-tier.entity';
+import { AutomationsService } from '../automations/automations.service';
 
 @Injectable()
 export class LeadsService implements OnModuleInit {
@@ -41,6 +42,7 @@ export class LeadsService implements OnModuleInit {
     private readonly contactsService: ContactsService,
     @Inject(forwardRef(() => DealsService))
     private readonly dealsService: DealsService,
+    private readonly automationsService: AutomationsService,
   ) {}
 
   async onModuleInit() {
@@ -161,7 +163,7 @@ export class LeadsService implements OnModuleInit {
     return lead;
   }
 
-  async create(data: Partial<Lead>): Promise<Lead> {
+  async create(data: Partial<Lead>, actorUserId?: number): Promise<Lead> {
     const leadData: Partial<Lead> = { ...data };
     leadData.lastActivity = 'Just now';
 
@@ -191,10 +193,13 @@ export class LeadsService implements OnModuleInit {
     }
 
     const lead = this.leadRepository.create(leadData);
-    return await this.leadRepository.save(lead);
+    const savedLead = await this.leadRepository.save(lead);
+    const hydrated = await this.findOne(savedLead.id);
+    await this.automationsService.processEvent('lead', 'created', hydrated, actorUserId);
+    return hydrated;
   }
 
-  async update(id: number, data: Partial<Lead>): Promise<Lead> {
+  async update(id: number, data: Partial<Lead>, actorUserId?: number): Promise<Lead> {
     const lead = await this.findOne(id);
     const wasWon = lead.stage?.name?.toLowerCase().includes('won');
     const wasLost = lead.stage?.name?.toLowerCase().includes('unqualified') || lead.stage?.name?.toLowerCase().includes('lost');
@@ -226,7 +231,9 @@ export class LeadsService implements OnModuleInit {
       });
     }
     
-    return this.findOne(id);
+    const updated = await this.findOne(id);
+    await this.automationsService.processEvent('lead', 'updated', updated, actorUserId);
+    return updated;
   }
 
   async delete(id: number): Promise<void> {

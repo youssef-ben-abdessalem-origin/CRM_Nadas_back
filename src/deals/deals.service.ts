@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Deal } from './entities/deal.entity';
 import { DealStage } from './entities/deal-stage.entity';
 import { DealReason } from './entities/deal-reason.entity';
+import { AutomationsService } from '../automations/automations.service';
 
 @Injectable()
 export class DealsService implements OnModuleInit {
@@ -14,6 +15,7 @@ export class DealsService implements OnModuleInit {
     private dealStageRepository: Repository<DealStage>,
     @InjectRepository(DealReason)
     private dealReasonRepository: Repository<DealReason>,
+    private readonly automationsService: AutomationsService,
   ) {}
 
   async onModuleInit() {
@@ -90,15 +92,18 @@ export class DealsService implements OnModuleInit {
     return deal;
   }
 
-  async create(data: Partial<Deal>): Promise<Deal> {
+  async create(data: Partial<Deal>, actorUserId?: number): Promise<Deal> {
     const deal = this.dealRepository.create({
       ...data,
       daysInStage: 0,
     });
-    return this.dealRepository.save(deal);
+    const saved = await this.dealRepository.save(deal);
+    const hydrated = await this.findOne(saved.id);
+    await this.automationsService.processEvent('deal', 'created', hydrated, actorUserId);
+    return hydrated;
   }
 
-  async update(id: number, data: Partial<Deal>): Promise<Deal> {
+  async update(id: number, data: Partial<Deal>, actorUserId?: number): Promise<Deal> {
     const deal = await this.findOne(id);
     
     // Clear relations if their ID columns are being updated to avoid persistence conflicts
@@ -123,7 +128,9 @@ export class DealsService implements OnModuleInit {
 
     Object.assign(deal, data);
     await this.dealRepository.save(deal);
-    return this.findOne(id);
+    const updated = await this.findOne(id);
+    await this.automationsService.processEvent('deal', 'updated', updated, actorUserId);
+    return updated;
   }
 
   async delete(id: number): Promise<void> {

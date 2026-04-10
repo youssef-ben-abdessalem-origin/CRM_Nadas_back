@@ -82,6 +82,10 @@ import { CampaignStatus } from "./campaigns/entities/campaign-status.entity";
 import { CampaignsModule } from "./campaigns/campaigns.module";
 import { Vendor } from "./vendors/entities/vendor.entity";
 import { VendorsModule } from "./vendors/vendors.module";
+import { AutomationRule } from "./automations/entities/automation-rule.entity";
+import { AutomationsModule } from "./automations/automations.module";
+import { Department } from "./departments/entities/department.entity";
+import { DepartmentsModule } from "./departments/departments.module";
 
 @Module({
   imports: [
@@ -154,6 +158,8 @@ import { VendorsModule } from "./vendors/vendors.module";
         CampaignType,
         CampaignStatus,
         Vendor,
+        AutomationRule,
+        Department,
       ],
     }),
     JwtModule.register({
@@ -184,6 +190,8 @@ import { VendorsModule } from "./vendors/vendors.module";
     DashboardModule,
     CampaignsModule,
     VendorsModule,
+    AutomationsModule,
+    DepartmentsModule,
   ],
   providers: [
     {

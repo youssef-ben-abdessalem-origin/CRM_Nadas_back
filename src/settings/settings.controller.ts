@@ -26,7 +26,14 @@ export class SettingsController {
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create currency' })
-  createCurrency(@Body() body: { name: string; code: string; symbol?: string; isDefault?: boolean }) {
+  createCurrency(@Body() body: { 
+    name: string; 
+    code: string; 
+    symbol?: string; 
+    symbolArabic?: string; 
+    symbolEnglish?: string; 
+    isDefault?: boolean 
+  }) {
     return this.settingsService.createCurrency(body);
   }
 

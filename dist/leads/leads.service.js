@@ -23,6 +23,7 @@ const _dealsservice = require("../deals/deals.service");
 const _dealstageentity = require("../deals/entities/deal-stage.entity");
 const _contactstatusentity = require("../contacts/entities/contact-status.entity");
 const _contacttierentity = require("../contacts/entities/contact-tier.entity");
+const _automationsservice = require("../automations/automations.service");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -214,7 +215,7 @@ let LeadsService = class LeadsService {
         if (!lead) throw new _common.NotFoundException('Lead not found');
         return lead;
     }
-    async create(data) {
+    async create(data, actorUserId) {
         const leadData = {
             ...data
         };
@@ -249,9 +250,12 @@ let LeadsService = class LeadsService {
             }
         }
         const lead = this.leadRepository.create(leadData);
-        return await this.leadRepository.save(lead);
+        const savedLead = await this.leadRepository.save(lead);
+        const hydrated = await this.findOne(savedLead.id);
+        await this.automationsService.processEvent('lead', 'created', hydrated, actorUserId);
+        return hydrated;
     }
-    async update(id, data) {
+    async update(id, data, actorUserId) {
         const lead = await this.findOne(id);
         const wasWon = lead.stage?.name?.toLowerCase().includes('won');
         const wasLost = lead.stage?.name?.toLowerCase().includes('unqualified') || lead.stage?.name?.toLowerCase().includes('lost');
@@ -294,7 +298,9 @@ let LeadsService = class LeadsService {
                 notes: `Created from lead: ${lead.name}. ${lead.notes || ''}`
             });
         }
-        return this.findOne(id);
+        const updated = await this.findOne(id);
+        await this.automationsService.processEvent('lead', 'updated', updated, actorUserId);
+        return updated;
     }
     async delete(id) {
         const lead = await this.findOne(id);
@@ -702,7 +708,7 @@ let LeadsService = class LeadsService {
             dealId: deal.id
         };
     }
-    constructor(leadRepository, leadSourceRepository, pipelineStageRepository, scoreCategoryRepository, priorityRepository, qualificationStageRepository, contactStatusRepository, contactTierRepository, dealStageRepository, accountsService, contactsService, dealsService){
+    constructor(leadRepository, leadSourceRepository, pipelineStageRepository, scoreCategoryRepository, priorityRepository, qualificationStageRepository, contactStatusRepository, contactTierRepository, dealStageRepository, accountsService, contactsService, dealsService, automationsService){
         this.leadRepository = leadRepository;
         this.leadSourceRepository = leadSourceRepository;
         this.pipelineStageRepository = pipelineStageRepository;
@@ -715,6 +721,7 @@ let LeadsService = class LeadsService {
         this.accountsService = accountsService;
         this.contactsService = contactsService;
         this.dealsService = dealsService;
+        this.automationsService = automationsService;
     }
 };
 LeadsService = _ts_decorate([
@@ -744,7 +751,8 @@ LeadsService = _ts_decorate([
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _accountsservice.AccountsService === "undefined" ? Object : _accountsservice.AccountsService,
         typeof _contactsservice.ContactsService === "undefined" ? Object : _contactsservice.ContactsService,
-        typeof _dealsservice.DealsService === "undefined" ? Object : _dealsservice.DealsService
+        typeof _dealsservice.DealsService === "undefined" ? Object : _dealsservice.DealsService,
+        typeof _automationsservice.AutomationsService === "undefined" ? Object : _automationsservice.AutomationsService
     ])
 ], LeadsService);
 
