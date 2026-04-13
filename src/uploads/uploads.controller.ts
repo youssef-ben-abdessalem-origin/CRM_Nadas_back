@@ -40,4 +40,12 @@ export class UploadsController {
   ) {
     return this.uploadsService.uploadDocument(entityType, entityId, file);
   }
+  @Post('logo')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Upload company logo' })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadLogo(@UploadedFile() file: Express.Multer.File) {
+    return this.uploadsService.uploadLogo(file);
+  }
 }

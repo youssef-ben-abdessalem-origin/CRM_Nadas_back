@@ -34,6 +34,16 @@ export class BillingController {
     return this.billingService.deleteQuote(id);
   }
 
+  @Post('quotes/:id/revise')
+  reviseQuote(@Param('id', ParseIntPipe) id: number): Promise<Quote> {
+    return this.billingService.reviseQuote(id);
+  }
+
+  @Post('quotes/:id/duplicate')
+  duplicateQuote(@Param('id', ParseIntPipe) id: number): Promise<Quote> {
+    return this.billingService.duplicateQuote(id);
+  }
+
   @Get('invoices')
   findAllInvoices(): Promise<Invoice[]> {
     return this.billingService.findAllInvoices();

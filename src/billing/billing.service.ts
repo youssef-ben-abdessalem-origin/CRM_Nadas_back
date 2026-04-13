@@ -137,6 +137,39 @@ export class BillingService {
     await this.quoteRepository.remove(quote);
   }
 
+  async duplicateQuote(id: number): Promise<Quote> {
+    const original = await this.findQuote(id);
+    const clone = new Quote();
+    
+    // Copy all basic fields except ID and Numbers
+    const { id: oldId, quoteNumber, items, ...rest } = original;
+    Object.assign(clone, rest);
+    
+    clone.quoteNumber = this.generateQuoteNumber();
+    clone.status = QuoteStatus.DRAFT;
+    clone.created = new Date();
+    clone.updated = new Date();
+    
+    // Clone items
+    if (original.items) {
+      clone.items = original.items.map(it => {
+        const item = { ...it } as any;
+        delete item.id;
+        delete item.quoteId;
+        return item;
+      });
+    }
+
+    const saved = await this.quoteRepository.save(clone);
+    return this.findQuote(saved.id);
+  }
+
+  async reviseQuote(id: number): Promise<Quote> {
+    // Similar to duplicate but specifically for revision logic
+    // In a real system we might link them, but for now cloning as draft is the requirement
+    return this.duplicateQuote(id);
+  }
+
   async findAllInvoices(): Promise<Invoice[]> {
     return this.invoiceRepository.find({ 
       order: { created: 'DESC' },

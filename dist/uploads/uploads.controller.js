@@ -35,6 +35,9 @@ let UploadsController = class UploadsController {
     async uploadDocument(req, file, entityType, entityId) {
         return this.uploadsService.uploadDocument(entityType, entityId, file);
     }
+    async uploadLogo(file) {
+        return this.uploadsService.uploadLogo(file);
+    }
     constructor(uploadsService){
         this.uploadsService = uploadsService;
     }
@@ -77,6 +80,21 @@ _ts_decorate([
     ]),
     _ts_metadata("design:returntype", Promise)
 ], UploadsController.prototype, "uploadDocument", null);
+_ts_decorate([
+    (0, _common.Post)('logo'),
+    (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
+    (0, _swagger.ApiBearerAuth)(),
+    (0, _swagger.ApiOperation)({
+        summary: 'Upload company logo'
+    }),
+    (0, _common.UseInterceptors)((0, _platformexpress.FileInterceptor)('file')),
+    _ts_param(0, (0, _common.UploadedFile)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        typeof _express.Express === "undefined" || typeof _express.Express.Multer === "undefined" || typeof _express.Express.Multer.File === "undefined" ? Object : _express.Express.Multer.File
+    ]),
+    _ts_metadata("design:returntype", Promise)
+], UploadsController.prototype, "uploadLogo", null);
 UploadsController = _ts_decorate([
     (0, _swagger.ApiTags)('Uploads'),
     (0, _common.Controller)('uploads'),

@@ -141,6 +141,35 @@ let BillingService = class BillingService {
         const quote = await this.findQuote(id);
         await this.quoteRepository.remove(quote);
     }
+    async duplicateQuote(id) {
+        const original = await this.findQuote(id);
+        const clone = new _billingentity.Quote();
+        // Copy all basic fields except ID and Numbers
+        const { id: oldId, quoteNumber, items, ...rest } = original;
+        Object.assign(clone, rest);
+        clone.quoteNumber = this.generateQuoteNumber();
+        clone.status = _billingentity.QuoteStatus.DRAFT;
+        clone.created = new Date();
+        clone.updated = new Date();
+        // Clone items
+        if (original.items) {
+            clone.items = original.items.map((it)=>{
+                const item = {
+                    ...it
+                };
+                delete item.id;
+                delete item.quoteId;
+                return item;
+            });
+        }
+        const saved = await this.quoteRepository.save(clone);
+        return this.findQuote(saved.id);
+    }
+    async reviseQuote(id) {
+        // Similar to duplicate but specifically for revision logic
+        // In a real system we might link them, but for now cloning as draft is the requirement
+        return this.duplicateQuote(id);
+    }
     async findAllInvoices() {
         return this.invoiceRepository.find({
             order: {

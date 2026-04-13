@@ -59,4 +59,16 @@ export class UploadsService {
       type: file.mimetype,
     };
   }
+
+  async uploadLogo(file: Express.Multer.File): Promise<{ url: string }> {
+    const result = await this.cloudinary.uploader.upload(`data:${file.mimetype};base64,${file.buffer.toString('base64')}`, {
+      folder: 'nexus-crm/company',
+      public_id: 'company_logo',
+      transformation: [
+        { width: 400, height: 400, crop: 'limit' },
+      ],
+    });
+
+    return { url: result.secure_url };
+  }
 }

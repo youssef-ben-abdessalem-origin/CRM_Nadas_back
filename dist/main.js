@@ -13,7 +13,11 @@ async function bootstrap() {
         whitelist: true,
         transform: true
     }));
-    app.enableCors();
+    app.enableCors({
+        origin: true,
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+        credentials: true
+    });
     const config = new _swagger.DocumentBuilder().setTitle("Nexus CRM API").setDescription("CRM Backend API Documentation").setVersion("1.0").addBearerAuth().build();
     const document = _swagger.SwaggerModule.createDocument(app, config);
     _swagger.SwaggerModule.setup("swagger-ui", app, document);

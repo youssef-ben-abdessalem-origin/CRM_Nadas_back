@@ -40,6 +40,12 @@ let BillingController = class BillingController {
     deleteQuote(id) {
         return this.billingService.deleteQuote(id);
     }
+    reviseQuote(id) {
+        return this.billingService.reviseQuote(id);
+    }
+    duplicateQuote(id) {
+        return this.billingService.duplicateQuote(id);
+    }
     findAllInvoices() {
         return this.billingService.findAllInvoices();
     }
@@ -106,6 +112,24 @@ _ts_decorate([
     ]),
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], BillingController.prototype, "deleteQuote", null);
+_ts_decorate([
+    (0, _common.Post)('quotes/:id/revise'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseIntPipe)),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Number
+    ]),
+    _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
+], BillingController.prototype, "reviseQuote", null);
+_ts_decorate([
+    (0, _common.Post)('quotes/:id/duplicate'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseIntPipe)),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Number
+    ]),
+    _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
+], BillingController.prototype, "duplicateQuote", null);
 _ts_decorate([
     (0, _common.Get)('invoices'),
     _ts_metadata("design:type", Function),

@@ -873,6 +873,25 @@ let SettingsService = class SettingsService {
     }
     async updateCompanySettings(data) {
         const settings = await this.getCompanySettings();
+        // If the currency code is being changed, synchronize the default flag in the Currency table
+        if (data.defaultCurrency && data.defaultCurrency !== settings.defaultCurrency) {
+            const currency = await this.currencyRepository.findOne({
+                where: {
+                    code: data.defaultCurrency
+                }
+            });
+            if (currency) {
+                // Set this as the only global default
+                await this.currencyRepository.update({
+                    isDefault: true
+                }, {
+                    isDefault: false
+                });
+                await this.currencyRepository.update(currency.id, {
+                    isDefault: true
+                });
+            }
+        }
         Object.assign(settings, data);
         return this.companySettingsRepository.save(settings);
     }
