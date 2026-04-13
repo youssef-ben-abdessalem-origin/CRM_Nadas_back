@@ -18,6 +18,9 @@ _export(exports, {
     get InvoiceStatus () {
         return InvoiceStatus;
     },
+    get Payment () {
+        return Payment;
+    },
     get Quote () {
         return Quote;
     },
@@ -578,5 +581,82 @@ _ts_decorate([
 InvoiceItem = _ts_decorate([
     (0, _typeorm.Entity)('invoice_items')
 ], InvoiceItem);
+let Payment = class Payment {
+};
+_ts_decorate([
+    (0, _typeorm.PrimaryGeneratedColumn)(),
+    _ts_metadata("design:type", Number)
+], Payment.prototype, "id", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        unique: true
+    }),
+    _ts_metadata("design:type", String)
+], Payment.prototype, "paymentNumber", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Payment.prototype, "invoiceId", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Payment.prototype, "invoiceNumber", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 12,
+        scale: 2,
+        default: 0
+    }),
+    _ts_metadata("design:type", Number)
+], Payment.prototype, "amount", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'timestamp',
+        default: ()=>'CURRENT_TIMESTAMP'
+    }),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], Payment.prototype, "date", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true,
+        default: 'Bank Transfer'
+    }),
+    _ts_metadata("design:type", String)
+], Payment.prototype, "method", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'text',
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Payment.prototype, "notes", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Payment.prototype, "contactName", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Payment.prototype, "accountName", void 0);
+_ts_decorate([
+    (0, _typeorm.CreateDateColumn)(),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], Payment.prototype, "created", void 0);
+_ts_decorate([
+    (0, _typeorm.UpdateDateColumn)(),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], Payment.prototype, "updated", void 0);
+Payment = _ts_decorate([
+    (0, _typeorm.Entity)('payments')
+], Payment);
 
 //# sourceMappingURL=billing.entity.js.map

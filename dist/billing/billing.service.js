@@ -15,6 +15,7 @@ const _billingentity = require("./entities/billing.entity");
 const _contactsservice = require("../contacts/contacts.service");
 const _accountsservice = require("../accounts/accounts.service");
 const _dealsservice = require("../deals/deals.service");
+const _gmailservice = require("../gmail/gmail.service");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -30,6 +31,33 @@ function _ts_param(paramIndex, decorator) {
     };
 }
 let BillingService = class BillingService {
+    async dispatchQuote(quoteId, userId) {
+        const quote = await this.updateQuote(quoteId, {
+            status: _billingentity.QuoteStatus.SENT
+        });
+        if (quote.contactEmail) {
+            const subject = `Proposal Dossier: ${quote.subject || quote.quoteNumber}`;
+            const body = `
+Dear ${quote.contactName},
+
+Please find the details for proposal ${quote.quoteNumber} synchronized for your review.
+
+Total Amount: ${quote.currency} ${quote.total}
+
+You can access the secure portal and view the full tactical proposal here: http://localhost:8080/quotes/${quote.id}
+
+Regards,
+Strategic Operations Team
+      `;
+            try {
+                await this.gmailService.sendEmail(userId, quote.contactEmail, subject, body);
+            } catch (error) {
+                console.error('Automated Dispatch Failed: Gmail Uplink Offline', error);
+            // We still return the quote as the status was updated
+            }
+        }
+        return quote;
+    }
     generateQuoteNumber() {
         const date = new Date();
         const year = date.getFullYear();
@@ -198,7 +226,7 @@ let BillingService = class BillingService {
         invoice.invoiceNumber = this.generateInvoiceNumber();
         invoice.subtotal = Number(data.subtotal) || 0;
         invoice.taxAmount = Number(data.taxAmount) || 0;
-        invoice.total = Number(data.total) || 0;
+        invoice.total = Number(data.total) || Number(data.grandTotal) || 0;
         invoice.status = data.status || _billingentity.InvoiceStatus.DRAFT;
         // Resolve names
         if (data.contactId) {
@@ -241,15 +269,7 @@ let BillingService = class BillingService {
         invoice.contactEmail = quote.contactEmail;
         invoice.accountId = quote.accountId;
         invoice.accountName = quote.accountName;
-        invoice.status = _billingentity.InvoiceStatus.DRAFT;
-        invoice.subtotal = Number(quote.subtotal);
-        invoice.taxRate = Number(quote.taxRate);
-        invoice.taxAmount = Number(quote.taxAmount);
-        invoice.total = Number(quote.total);
-        invoice.discount = Number(quote.discount || 0);
-        invoice.notes = quote.notes;
-        invoice.quoteId = quote.id;
-        invoice.items = (quote.items || []).map((item)=>{
+        const invoiceItems = (quote.items || []).map((item)=>{
             const invItem = {
                 productId: item.productId,
                 productName: item.productName,
@@ -262,28 +282,89 @@ let BillingService = class BillingService {
             };
             return invItem;
         });
+        invoice.items = invoiceItems;
+        // Pro-active calculation to ensure data integrity
+        const calculatedSubtotal = invoiceItems.reduce((acc, it)=>acc + it.unitPrice * it.quantity, 0);
+        const calculatedTotal = invoiceItems.reduce((acc, it)=>acc + it.total, 0);
+        const calculatedTax = calculatedTotal - calculatedSubtotal;
+        invoice.subtotal = calculatedSubtotal || Number(quote.subtotal);
+        invoice.taxAmount = (calculatedTax > 0 ? calculatedTax : 0) || Number(quote.taxAmount);
+        invoice.total = calculatedTotal || Number(quote.total);
+        invoice.discount = Number(quote.discount || 0);
+        invoice.notes = quote.notes;
+        invoice.quoteId = quote.id;
         const saved = await this.invoiceRepository.save(invoice);
         return this.findInvoice(saved.id);
     }
-    constructor(quoteRepository, invoiceRepository, contactsService, accountsService, dealsService){
+    generatePaymentNumber() {
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        return `PAY-${year}${month}-${random}`;
+    }
+    async findAllPayments() {
+        return this.paymentRepository.find({
+            order: {
+                created: 'DESC'
+            }
+        });
+    }
+    async findPayment(id) {
+        const payment = await this.paymentRepository.findOne({
+            where: {
+                id
+            }
+        });
+        if (!payment) throw new _common.NotFoundException('Payment not found');
+        return payment;
+    }
+    async createPayment(data) {
+        const payment = new _billingentity.Payment();
+        Object.assign(payment, data);
+        payment.paymentNumber = this.generatePaymentNumber();
+        // Resolve names from invoice if provided
+        if (data.invoiceId) {
+            try {
+                const invoice = await this.findInvoice(Number(data.invoiceId));
+                if (invoice) {
+                    payment.invoiceNumber = invoice.invoiceNumber;
+                    payment.contactName = invoice.contactName;
+                    payment.accountName = invoice.accountName;
+                }
+            } catch (e) {}
+        }
+        const saved = await this.paymentRepository.save(payment);
+        return this.findPayment(saved.id);
+    }
+    async deletePayment(id) {
+        const payment = await this.findPayment(id);
+        await this.paymentRepository.remove(payment);
+    }
+    constructor(quoteRepository, invoiceRepository, paymentRepository, contactsService, accountsService, dealsService, gmailService){
         this.quoteRepository = quoteRepository;
         this.invoiceRepository = invoiceRepository;
+        this.paymentRepository = paymentRepository;
         this.contactsService = contactsService;
         this.accountsService = accountsService;
         this.dealsService = dealsService;
+        this.gmailService = gmailService;
     }
 };
 BillingService = _ts_decorate([
     (0, _common.Injectable)(),
     _ts_param(0, (0, _typeorm.InjectRepository)(_billingentity.Quote)),
     _ts_param(1, (0, _typeorm.InjectRepository)(_billingentity.Invoice)),
+    _ts_param(2, (0, _typeorm.InjectRepository)(_billingentity.Payment)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _contactsservice.ContactsService === "undefined" ? Object : _contactsservice.ContactsService,
         typeof _accountsservice.AccountsService === "undefined" ? Object : _accountsservice.AccountsService,
-        typeof _dealsservice.DealsService === "undefined" ? Object : _dealsservice.DealsService
+        typeof _dealsservice.DealsService === "undefined" ? Object : _dealsservice.DealsService,
+        typeof _gmailservice.GmailService === "undefined" ? Object : _gmailservice.GmailService
     ])
 ], BillingService);
 

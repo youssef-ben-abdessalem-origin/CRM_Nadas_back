@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Quote, Invoice, QuoteStatus, InvoiceStatus } from './entities/billing.entity';
+import { Quote, Invoice, Payment, QuoteStatus, InvoiceStatus } from './entities/billing.entity';
 import { ContactsService } from '../contacts/contacts.service';
 import { AccountsService } from '../accounts/accounts.service';
 import { DealsService } from '../deals/deals.service';
+import { GmailService } from '../gmail/gmail.service';
 
 @Injectable()
 export class BillingService {
@@ -13,10 +14,41 @@ export class BillingService {
     private readonly quoteRepository: Repository<Quote>,
     @InjectRepository(Invoice)
     private readonly invoiceRepository: Repository<Invoice>,
+    @InjectRepository(Payment)
+    private readonly paymentRepository: Repository<Payment>,
     private readonly contactsService: ContactsService,
     private readonly accountsService: AccountsService,
     private readonly dealsService: DealsService,
+    private readonly gmailService: GmailService,
   ) {}
+
+  async dispatchQuote(quoteId: number, userId: number): Promise<Quote> {
+    const quote = await this.updateQuote(quoteId, { status: QuoteStatus.SENT });
+    
+    if (quote.contactEmail) {
+      const subject = `Proposal Dossier: ${quote.subject || quote.quoteNumber}`;
+      const body = `
+Dear ${quote.contactName},
+
+Please find the details for proposal ${quote.quoteNumber} synchronized for your review.
+
+Total Amount: ${quote.currency} ${quote.total}
+
+You can access the secure portal and view the full tactical proposal here: http://localhost:8080/quotes/${quote.id}
+
+Regards,
+Strategic Operations Team
+      `;
+      try {
+        await this.gmailService.sendEmail(userId, quote.contactEmail, subject, body);
+      } catch (error) {
+        console.error('Automated Dispatch Failed: Gmail Uplink Offline', error);
+        // We still return the quote as the status was updated
+      }
+    }
+    
+    return quote;
+  }
 
   private generateQuoteNumber(): string {
     const date = new Date();
@@ -193,7 +225,7 @@ export class BillingService {
     invoice.invoiceNumber = this.generateInvoiceNumber();
     invoice.subtotal = Number(data.subtotal) || 0;
     invoice.taxAmount = Number(data.taxAmount) || 0;
-    invoice.total = Number(data.total) || 0;
+    invoice.total = Number(data.total) || Number(data.grandTotal) || 0;
     invoice.status = data.status || InvoiceStatus.DRAFT;
 
     // Resolve names
@@ -243,16 +275,7 @@ export class BillingService {
     invoice.contactEmail = quote.contactEmail;
     invoice.accountId = quote.accountId;
     invoice.accountName = quote.accountName;
-    invoice.status = InvoiceStatus.DRAFT;
-    invoice.subtotal = Number(quote.subtotal);
-    invoice.taxRate = Number(quote.taxRate);
-    invoice.taxAmount = Number(quote.taxAmount);
-    invoice.total = Number(quote.total);
-    invoice.discount = Number(quote.discount || 0);
-    invoice.notes = quote.notes;
-    invoice.quoteId = quote.id;
-    
-    invoice.items = (quote.items || []).map(item => {
+    const invoiceItems = (quote.items || []).map(item => {
       const invItem = {
         productId: item.productId,
         productName: item.productName,
@@ -266,7 +289,65 @@ export class BillingService {
       return invItem;
     });
 
+    invoice.items = invoiceItems;
+    
+    // Pro-active calculation to ensure data integrity
+    const calculatedSubtotal = invoiceItems.reduce((acc, it) => acc + (it.unitPrice * it.quantity), 0);
+    const calculatedTotal = invoiceItems.reduce((acc, it) => acc + it.total, 0);
+    const calculatedTax = calculatedTotal - calculatedSubtotal;
+
+    invoice.subtotal = calculatedSubtotal || Number(quote.subtotal);
+    invoice.taxAmount = (calculatedTax > 0 ? calculatedTax : 0) || Number(quote.taxAmount);
+    invoice.total = calculatedTotal || Number(quote.total);
+    invoice.discount = Number(quote.discount || 0);
+    invoice.notes = quote.notes;
+    invoice.quoteId = quote.id;
+
     const saved = await this.invoiceRepository.save(invoice);
     return this.findInvoice(saved.id);
+  }
+
+  private generatePaymentNumber(): string {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    return `PAY-${year}${month}-${random}`;
+  }
+
+  async findAllPayments(): Promise<Payment[]> {
+    return this.paymentRepository.find({ order: { created: 'DESC' } });
+  }
+
+  async findPayment(id: number): Promise<Payment> {
+    const payment = await this.paymentRepository.findOne({ where: { id } });
+    if (!payment) throw new NotFoundException('Payment not found');
+    return payment;
+  }
+
+  async createPayment(data: any): Promise<Payment> {
+    const payment = new Payment();
+    Object.assign(payment, data);
+    payment.paymentNumber = this.generatePaymentNumber();
+    
+    // Resolve names from invoice if provided
+    if (data.invoiceId) {
+      try {
+        const invoice = await this.findInvoice(Number(data.invoiceId));
+        if (invoice) {
+          payment.invoiceNumber = invoice.invoiceNumber;
+          payment.contactName = invoice.contactName;
+          payment.accountName = invoice.accountName;
+        }
+      } catch (e) {}
+    }
+
+    const saved = await this.paymentRepository.save(payment);
+    return this.findPayment(saved.id);
+  }
+
+  async deletePayment(id: number): Promise<void> {
+    const payment = await this.findPayment(id);
+    await this.paymentRepository.remove(payment);
   }
 }

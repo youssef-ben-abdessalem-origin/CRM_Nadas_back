@@ -13,6 +13,7 @@ const _typeorm = require("@nestjs/typeorm");
 const _vendorsservice = require("./vendors.service");
 const _vendorscontroller = require("./vendors.controller");
 const _vendorentity = require("./entities/vendor.entity");
+const _vendorcategoryentity = require("./entities/vendor-category.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -25,7 +26,8 @@ VendorsModule = _ts_decorate([
     (0, _common.Module)({
         imports: [
             _typeorm.TypeOrmModule.forFeature([
-                _vendorentity.Vendor
+                _vendorentity.Vendor,
+                _vendorcategoryentity.VendorCategory
             ])
         ],
         controllers: [

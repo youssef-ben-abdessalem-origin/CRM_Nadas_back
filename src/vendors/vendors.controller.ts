@@ -7,6 +7,26 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 export class VendorsController {
   constructor(private readonly vendorsService: VendorsService) {}
 
+  @Get('categories')
+  getCategories() {
+    return this.vendorsService.getCategories();
+  }
+
+  @Post('categories')
+  createCategory(@Body() data: any) {
+    return this.vendorsService.createCategory(data);
+  }
+
+  @Put('categories/:id')
+  updateCategory(@Param('id') id: string, @Body() data: any) {
+    return this.vendorsService.updateCategory(+id, data);
+  }
+
+  @Delete('categories/:id')
+  deleteCategory(@Param('id') id: string) {
+    return this.vendorsService.deleteCategory(+id);
+  }
+
   @Get()
   findAll(@Query('search') search?: string, @Query('category') category?: string) {
     return this.vendorsService.findAll(search, category);

@@ -77,12 +77,6 @@ _ts_decorate([
 ], Vendor.prototype, "email", void 0);
 _ts_decorate([
     (0, _typeorm.Column)({
-        nullable: true
-    }),
-    _ts_metadata("design:type", String)
-], Vendor.prototype, "glAccount", void 0);
-_ts_decorate([
-    (0, _typeorm.Column)({
         default: false
     }),
     _ts_metadata("design:type", Boolean)

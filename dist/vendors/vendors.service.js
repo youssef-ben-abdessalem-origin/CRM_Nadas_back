@@ -12,6 +12,7 @@ const _common = require("@nestjs/common");
 const _typeorm = require("@nestjs/typeorm");
 const _typeorm1 = require("typeorm");
 const _vendorentity = require("./entities/vendor.entity");
+const _vendorcategoryentity = require("./entities/vendor-category.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -27,6 +28,32 @@ function _ts_param(paramIndex, decorator) {
     };
 }
 let VendorsService = class VendorsService {
+    async getCategories() {
+        return this.categoryRepository.find();
+    }
+    async createCategory(data) {
+        const category = this.categoryRepository.create(data);
+        return this.categoryRepository.save(category);
+    }
+    async updateCategory(id, data) {
+        const category = await this.categoryRepository.findOne({
+            where: {
+                id
+            }
+        });
+        if (!category) throw new _common.NotFoundException('Category not found');
+        Object.assign(category, data);
+        return this.categoryRepository.save(category);
+    }
+    async deleteCategory(id) {
+        const category = await this.categoryRepository.findOne({
+            where: {
+                id
+            }
+        });
+        if (!category) throw new _common.NotFoundException('Category not found');
+        await this.categoryRepository.remove(category);
+    }
     async findAll(search, category) {
         const queryBuilder = this.vendorRepository.createQueryBuilder('vendor').leftJoinAndSelect('vendor.owner', 'owner');
         if (search) {
@@ -66,15 +93,18 @@ let VendorsService = class VendorsService {
         const vendor = await this.findOne(id);
         await this.vendorRepository.remove(vendor);
     }
-    constructor(vendorRepository){
+    constructor(vendorRepository, categoryRepository){
         this.vendorRepository = vendorRepository;
+        this.categoryRepository = categoryRepository;
     }
 };
 VendorsService = _ts_decorate([
     (0, _common.Injectable)(),
     _ts_param(0, (0, _typeorm.InjectRepository)(_vendorentity.Vendor)),
+    _ts_param(1, (0, _typeorm.InjectRepository)(_vendorcategoryentity.VendorCategory)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository
     ])
 ], VendorsService);

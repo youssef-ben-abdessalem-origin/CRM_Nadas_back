@@ -170,6 +170,12 @@ _ts_decorate([
     }),
     _ts_metadata("design:type", typeof _accountentity.Account === "undefined" ? Object : _accountentity.Account)
 ], Contact.prototype, "account", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Contact.prototype, "accountId", void 0);
 Contact = _ts_decorate([
     (0, _typeorm.Entity)('contacts')
 ], Contact);

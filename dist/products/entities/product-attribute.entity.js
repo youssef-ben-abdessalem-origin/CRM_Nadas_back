@@ -53,6 +53,18 @@ _ts_decorate([
     }),
     _ts_metadata("design:type", String)
 ], ProductAttribute.prototype, "value", void 0);
+_ts_decorate([
+    (0, _typeorm.CreateDateColumn)(),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], ProductAttribute.prototype, "createdAt", void 0);
+_ts_decorate([
+    (0, _typeorm.UpdateDateColumn)(),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], ProductAttribute.prototype, "updatedAt", void 0);
+_ts_decorate([
+    (0, _typeorm.DeleteDateColumn)(),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], ProductAttribute.prototype, "deletedAt", void 0);
 ProductAttribute = _ts_decorate([
     (0, _typeorm.Entity)('product_attributes')
 ], ProductAttribute);

@@ -5,6 +5,7 @@ import { Deal } from './entities/deal.entity';
 import { DealStage } from './entities/deal-stage.entity';
 import { DealReason } from './entities/deal-reason.entity';
 import { AutomationsService } from '../automations/automations.service';
+import { Contact } from '../contacts/entities/contact.entity';
 
 @Injectable()
 export class DealsService implements OnModuleInit {
@@ -15,11 +16,24 @@ export class DealsService implements OnModuleInit {
     private dealStageRepository: Repository<DealStage>,
     @InjectRepository(DealReason)
     private dealReasonRepository: Repository<DealReason>,
+    @InjectRepository(Contact)
+    private contactRepository: Repository<Contact>,
     private readonly automationsService: AutomationsService,
   ) {}
 
   async onModuleInit() {
     await this.seedDefaultData();
+    await this.syncAllContacts();
+  }
+
+  /**
+   * One-time synchronization to ensure all contacts have accurate deal stats.
+   */
+  private async syncAllContacts() {
+    const contacts = await this.contactRepository.find();
+    for (const contact of contacts) {
+      await this.recalculateContactStats(contact.id);
+    }
   }
 
   private async seedDefaultData() {
@@ -100,6 +114,9 @@ export class DealsService implements OnModuleInit {
     const saved = await this.dealRepository.save(deal);
     const hydrated = await this.findOne(saved.id);
     await this.automationsService.processEvent('deal', 'created', hydrated, actorUserId);
+    if (hydrated.contactId) {
+      await this.recalculateContactStats(hydrated.contactId);
+    }
     return hydrated;
   }
 
@@ -130,12 +147,23 @@ export class DealsService implements OnModuleInit {
     await this.dealRepository.save(deal);
     const updated = await this.findOne(id);
     await this.automationsService.processEvent('deal', 'updated', updated, actorUserId);
+    if (updated.contactId) {
+      await this.recalculateContactStats(updated.contactId);
+    }
+    // If the contact was changed, update the old one too
+    if (deal.contactId && deal.contactId !== updated.contactId) {
+      await this.recalculateContactStats(deal.contactId);
+    }
     return updated;
   }
 
   async delete(id: number): Promise<void> {
     const deal = await this.findOne(id);
+    const contactId = deal.contactId;
     await this.dealRepository.remove(deal);
+    if (contactId) {
+      await this.recalculateContactStats(contactId);
+    }
   }
 
   // DealStage CRUD
@@ -200,5 +228,27 @@ export class DealsService implements OnModuleInit {
     const reason = await this.dealReasonRepository.findOne({ where: { id } });
     if (!reason) throw new NotFoundException('Reason not found');
     await this.dealReasonRepository.remove(reason);
+  }
+
+  /**
+   * Recalculates statistics for a contact based on their deals.
+   */
+  private async recalculateContactStats(contactId: number): Promise<void> {
+    const deals = await this.dealRepository.find({
+      where: { contactId },
+      relations: ['stage'],
+    });
+
+    const dealsTotal = deals.length;
+    const dealsWon = deals.filter(d => d.stage?.name?.toLowerCase().includes('won')).length;
+    const revenueTotal = deals
+      .filter(d => d.stage?.name?.toLowerCase().includes('won'))
+      .reduce((sum, d) => sum + Number(d.value || 0), 0);
+
+    await this.contactRepository.update(contactId, {
+      dealsTotal,
+      dealsWon,
+      revenueTotal,
+    });
   }
 }

@@ -9,6 +9,7 @@ Object.defineProperty(exports, "BillingController", {
     }
 });
 const _common = require("@nestjs/common");
+const _passport = require("@nestjs/passport");
 const _billingservice = require("./billing.service");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -25,6 +26,9 @@ function _ts_param(paramIndex, decorator) {
     };
 }
 let BillingController = class BillingController {
+    dispatchQuote(id, req) {
+        return this.billingService.dispatchQuote(id, req.user.id);
+    }
     findAllQuotes() {
         return this.billingService.findAllQuotes();
     }
@@ -64,10 +68,33 @@ let BillingController = class BillingController {
     createInvoiceFromQuote(id) {
         return this.billingService.createInvoiceFromQuote(id);
     }
+    findAllPayments() {
+        return this.billingService.findAllPayments();
+    }
+    findPayment(id) {
+        return this.billingService.findPayment(id);
+    }
+    createPayment(data) {
+        return this.billingService.createPayment(data);
+    }
+    deletePayment(id) {
+        return this.billingService.deletePayment(id);
+    }
     constructor(billingService){
         this.billingService = billingService;
     }
 };
+_ts_decorate([
+    (0, _common.Post)('quotes/:id/dispatch'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseIntPipe)),
+    _ts_param(1, (0, _common.Request)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Number,
+        Object
+    ]),
+    _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
+], BillingController.prototype, "dispatchQuote", null);
 _ts_decorate([
     (0, _common.Get)('quotes'),
     _ts_metadata("design:type", Function),
@@ -183,7 +210,41 @@ _ts_decorate([
     ]),
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], BillingController.prototype, "createInvoiceFromQuote", null);
+_ts_decorate([
+    (0, _common.Get)('payments'),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", []),
+    _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
+], BillingController.prototype, "findAllPayments", null);
+_ts_decorate([
+    (0, _common.Get)('payments/:id'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseIntPipe)),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Number
+    ]),
+    _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
+], BillingController.prototype, "findPayment", null);
+_ts_decorate([
+    (0, _common.Post)('payments'),
+    _ts_param(0, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        typeof Partial === "undefined" ? Object : Partial
+    ]),
+    _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
+], BillingController.prototype, "createPayment", null);
+_ts_decorate([
+    (0, _common.Delete)('payments/:id'),
+    _ts_param(0, (0, _common.Param)('id', _common.ParseIntPipe)),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Number
+    ]),
+    _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
+], BillingController.prototype, "deletePayment", null);
 BillingController = _ts_decorate([
+    (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
     (0, _common.Controller)('billing'),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [

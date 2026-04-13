@@ -26,6 +26,18 @@ function _ts_param(paramIndex, decorator) {
     };
 }
 let VendorsController = class VendorsController {
+    getCategories() {
+        return this.vendorsService.getCategories();
+    }
+    createCategory(data) {
+        return this.vendorsService.createCategory(data);
+    }
+    updateCategory(id, data) {
+        return this.vendorsService.updateCategory(+id, data);
+    }
+    deleteCategory(id) {
+        return this.vendorsService.deleteCategory(+id);
+    }
     findAll(search, category) {
         return this.vendorsService.findAll(search, category);
     }
@@ -45,6 +57,41 @@ let VendorsController = class VendorsController {
         this.vendorsService = vendorsService;
     }
 };
+_ts_decorate([
+    (0, _common.Get)('categories'),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", []),
+    _ts_metadata("design:returntype", void 0)
+], VendorsController.prototype, "getCategories", null);
+_ts_decorate([
+    (0, _common.Post)('categories'),
+    _ts_param(0, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Object
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], VendorsController.prototype, "createCategory", null);
+_ts_decorate([
+    (0, _common.Put)('categories/:id'),
+    _ts_param(0, (0, _common.Param)('id')),
+    _ts_param(1, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String,
+        Object
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], VendorsController.prototype, "updateCategory", null);
+_ts_decorate([
+    (0, _common.Delete)('categories/:id'),
+    _ts_param(0, (0, _common.Param)('id')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], VendorsController.prototype, "deleteCategory", null);
 _ts_decorate([
     (0, _common.Get)(),
     _ts_param(0, (0, _common.Query)('search')),

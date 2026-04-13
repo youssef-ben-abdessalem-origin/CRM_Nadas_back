@@ -31,9 +31,6 @@ export class Vendor {
   @Column({ nullable: true })
   email: string;
 
-  @Column({ nullable: true })
-  glAccount: string;
-
   @Column({ default: false })
   emailOptOut: boolean;
 

@@ -15,6 +15,7 @@ const _dealentity = require("./entities/deal.entity");
 const _dealstageentity = require("./entities/deal-stage.entity");
 const _dealreasonentity = require("./entities/deal-reason.entity");
 const _automationsservice = require("../automations/automations.service");
+const _contactentity = require("../contacts/entities/contact.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -32,6 +33,15 @@ function _ts_param(paramIndex, decorator) {
 let DealsService = class DealsService {
     async onModuleInit() {
         await this.seedDefaultData();
+        await this.syncAllContacts();
+    }
+    /**
+   * One-time synchronization to ensure all contacts have accurate deal stats.
+   */ async syncAllContacts() {
+        const contacts = await this.contactRepository.find();
+        for (const contact of contacts){
+            await this.recalculateContactStats(contact.id);
+        }
     }
     async seedDefaultData() {
         const stageCount = await this.dealStageRepository.count();
@@ -214,6 +224,9 @@ let DealsService = class DealsService {
         const saved = await this.dealRepository.save(deal);
         const hydrated = await this.findOne(saved.id);
         await this.automationsService.processEvent('deal', 'created', hydrated, actorUserId);
+        if (hydrated.contactId) {
+            await this.recalculateContactStats(hydrated.contactId);
+        }
         return hydrated;
     }
     async update(id, data, actorUserId) {
@@ -241,11 +254,22 @@ let DealsService = class DealsService {
         await this.dealRepository.save(deal);
         const updated = await this.findOne(id);
         await this.automationsService.processEvent('deal', 'updated', updated, actorUserId);
+        if (updated.contactId) {
+            await this.recalculateContactStats(updated.contactId);
+        }
+        // If the contact was changed, update the old one too
+        if (deal.contactId && deal.contactId !== updated.contactId) {
+            await this.recalculateContactStats(deal.contactId);
+        }
         return updated;
     }
     async delete(id) {
         const deal = await this.findOne(id);
+        const contactId = deal.contactId;
         await this.dealRepository.remove(deal);
+        if (contactId) {
+            await this.recalculateContactStats(contactId);
+        }
     }
     // DealStage CRUD
     async getStages() {
@@ -330,10 +354,31 @@ let DealsService = class DealsService {
         if (!reason) throw new _common.NotFoundException('Reason not found');
         await this.dealReasonRepository.remove(reason);
     }
-    constructor(dealRepository, dealStageRepository, dealReasonRepository, automationsService){
+    /**
+   * Recalculates statistics for a contact based on their deals.
+   */ async recalculateContactStats(contactId) {
+        const deals = await this.dealRepository.find({
+            where: {
+                contactId
+            },
+            relations: [
+                'stage'
+            ]
+        });
+        const dealsTotal = deals.length;
+        const dealsWon = deals.filter((d)=>d.stage?.name?.toLowerCase().includes('won')).length;
+        const revenueTotal = deals.filter((d)=>d.stage?.name?.toLowerCase().includes('won')).reduce((sum, d)=>sum + Number(d.value || 0), 0);
+        await this.contactRepository.update(contactId, {
+            dealsTotal,
+            dealsWon,
+            revenueTotal
+        });
+    }
+    constructor(dealRepository, dealStageRepository, dealReasonRepository, contactRepository, automationsService){
         this.dealRepository = dealRepository;
         this.dealStageRepository = dealStageRepository;
         this.dealReasonRepository = dealReasonRepository;
+        this.contactRepository = contactRepository;
         this.automationsService = automationsService;
     }
 };
@@ -342,8 +387,10 @@ DealsService = _ts_decorate([
     _ts_param(0, (0, _typeorm.InjectRepository)(_dealentity.Deal)),
     _ts_param(1, (0, _typeorm.InjectRepository)(_dealstageentity.DealStage)),
     _ts_param(2, (0, _typeorm.InjectRepository)(_dealreasonentity.DealReason)),
+    _ts_param(3, (0, _typeorm.InjectRepository)(_contactentity.Contact)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,

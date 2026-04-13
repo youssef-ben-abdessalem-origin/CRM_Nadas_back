@@ -119,6 +119,10 @@ _ts_decorate([
     (0, _typeorm.UpdateDateColumn)(),
     _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
 ], ProductVariant.prototype, "updatedAt", void 0);
+_ts_decorate([
+    (0, _typeorm.DeleteDateColumn)(),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], ProductVariant.prototype, "deletedAt", void 0);
 ProductVariant = _ts_decorate([
     (0, _typeorm.Entity)('product_variants')
 ], ProductVariant);

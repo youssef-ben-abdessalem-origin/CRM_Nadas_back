@@ -2,13 +2,38 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Vendor } from './entities/vendor.entity';
+import { VendorCategory } from './entities/vendor-category.entity';
 
 @Injectable()
 export class VendorsService {
   constructor(
     @InjectRepository(Vendor)
     private readonly vendorRepository: Repository<Vendor>,
+    @InjectRepository(VendorCategory)
+    private readonly categoryRepository: Repository<VendorCategory>,
   ) {}
+
+  async getCategories(): Promise<VendorCategory[]> {
+    return this.categoryRepository.find();
+  }
+
+  async createCategory(data: Partial<VendorCategory>): Promise<VendorCategory> {
+    const category = this.categoryRepository.create(data);
+    return this.categoryRepository.save(category);
+  }
+
+  async updateCategory(id: number, data: Partial<VendorCategory>): Promise<VendorCategory> {
+    const category = await this.categoryRepository.findOne({ where: { id } });
+    if (!category) throw new NotFoundException('Category not found');
+    Object.assign(category, data);
+    return this.categoryRepository.save(category);
+  }
+
+  async deleteCategory(id: number): Promise<void> {
+    const category = await this.categoryRepository.findOne({ where: { id } });
+    if (!category) throw new NotFoundException('Category not found');
+    await this.categoryRepository.remove(category);
+  }
 
   async findAll(search?: string, category?: string): Promise<Vendor[]> {
     const queryBuilder = this.vendorRepository.createQueryBuilder('vendor')

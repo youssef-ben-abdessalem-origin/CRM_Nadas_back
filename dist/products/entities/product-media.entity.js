@@ -59,6 +59,18 @@ _ts_decorate([
     }),
     _ts_metadata("design:type", Boolean)
 ], ProductMedia.prototype, "isPrimary", void 0);
+_ts_decorate([
+    (0, _typeorm.CreateDateColumn)(),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], ProductMedia.prototype, "createdAt", void 0);
+_ts_decorate([
+    (0, _typeorm.UpdateDateColumn)(),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], ProductMedia.prototype, "updatedAt", void 0);
+_ts_decorate([
+    (0, _typeorm.DeleteDateColumn)(),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], ProductMedia.prototype, "deletedAt", void 0);
 ProductMedia = _ts_decorate([
     (0, _typeorm.Entity)('product_media')
 ], ProductMedia);

@@ -250,3 +250,41 @@ export class InvoiceItem {
   @ManyToOne(() => Invoice, (invoice) => invoice.items, { onDelete: 'CASCADE' })
   invoice: Invoice;
 }
+@Entity('payments')
+export class Payment {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ unique: true })
+  paymentNumber: string;
+
+  @Column({ nullable: true })
+  invoiceId: number;
+
+  @Column({ nullable: true })
+  invoiceNumber: string;
+
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  amount: number;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  date: Date;
+
+  @Column({ nullable: true, default: 'Bank Transfer' })
+  method: string;
+
+  @Column({ type: 'text', nullable: true })
+  notes: string;
+
+  @Column({ nullable: true })
+  contactName: string;
+
+  @Column({ nullable: true })
+  accountName: string;
+
+  @CreateDateColumn()
+  created: Date;
+
+  @UpdateDateColumn()
+  updated: Date;
+}

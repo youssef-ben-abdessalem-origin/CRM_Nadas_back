@@ -58,7 +58,7 @@ import { ProductType } from "./products/entities/product-type.entity";
 import { TaxClass } from "./products/entities/tax-class.entity";
 import { ProductsModule } from "./products/products.module";
 import { BillingModule } from "./billing/billing.module";
-import { Quote, Invoice, QuoteItem, InvoiceItem } from "./billing/entities/billing.entity";
+import { Quote, Invoice, QuoteItem, InvoiceItem, Payment } from "./billing/entities/billing.entity";
 import { Role } from "./roles/entities/role.entity";
 import { Permission } from "./permissions/entities/permission.entity";
 import { RolesModule } from "./roles/roles.module";
@@ -88,6 +88,7 @@ import { AutomationRule } from "./automations/entities/automation-rule.entity";
 import { AutomationsModule } from "./automations/automations.module";
 import { Department } from "./departments/entities/department.entity";
 import { DepartmentsModule } from "./departments/departments.module";
+import { VendorCategory } from "./vendors/entities/vendor-category.entity";
 
 @Module({
   imports: [
@@ -164,6 +165,8 @@ import { DepartmentsModule } from "./departments/departments.module";
         Department,
         Carrier,
         CompanySettings,
+        VendorCategory,
+        Payment
       ],
     }),
     JwtModule.register({

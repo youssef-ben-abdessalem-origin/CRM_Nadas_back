@@ -98,6 +98,7 @@ const _automationruleentity = require("./automations/entities/automation-rule.en
 const _automationsmodule = require("./automations/automations.module");
 const _departmententity = require("./departments/entities/department.entity");
 const _departmentsmodule = require("./departments/departments.module");
+const _vendorcategoryentity = require("./vendors/entities/vendor-category.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -181,7 +182,9 @@ AppModule = _ts_decorate([
                     _automationruleentity.AutomationRule,
                     _departmententity.Department,
                     _carrierentity.Carrier,
-                    _companysettingsentity.CompanySettings
+                    _companysettingsentity.CompanySettings,
+                    _vendorcategoryentity.VendorCategory,
+                    _billingentity.Payment
                 ]
             }),
             _jwt.JwtModule.register({

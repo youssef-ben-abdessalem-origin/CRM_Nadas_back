@@ -16,6 +16,7 @@ const _billingentity = require("./entities/billing.entity");
 const _contactsmodule = require("../contacts/contacts.module");
 const _accountsmodule = require("../accounts/accounts.module");
 const _dealsmodule = require("../deals/deals.module");
+const _gmailmodule = require("../gmail/gmail.module");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -30,12 +31,14 @@ BillingModule = _ts_decorate([
             _typeorm.TypeOrmModule.forFeature([
                 _billingentity.Quote,
                 _billingentity.Invoice,
+                _billingentity.Payment,
                 _billingentity.QuoteItem,
                 _billingentity.InvoiceItem
             ]),
             _contactsmodule.ContactsModule,
             _accountsmodule.AccountsModule,
-            _dealsmodule.DealsModule
+            _dealsmodule.DealsModule,
+            _gmailmodule.GmailModule
         ],
         providers: [
             _billingservice.BillingService

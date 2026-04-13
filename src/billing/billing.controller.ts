@@ -1,10 +1,17 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, UseGuards, Request } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { BillingService } from './billing.service';
-import { Quote, Invoice } from './entities/billing.entity';
+import { Quote, Invoice, Payment } from './entities/billing.entity';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('billing')
 export class BillingController {
   constructor(private readonly billingService: BillingService) {}
+
+  @Post('quotes/:id/dispatch')
+  dispatchQuote(@Param('id', ParseIntPipe) id: number, @Request() req: any): Promise<Quote> {
+    return this.billingService.dispatchQuote(id, req.user.id);
+  }
 
   @Get('quotes')
   findAllQuotes(): Promise<Quote[]> {
@@ -75,5 +82,25 @@ export class BillingController {
   @Post('quotes/:id/create-invoice')
   createInvoiceFromQuote(@Param('id', ParseIntPipe) id: number): Promise<Invoice> {
     return this.billingService.createInvoiceFromQuote(id);
+  }
+
+  @Get('payments')
+  findAllPayments(): Promise<Payment[]> {
+    return this.billingService.findAllPayments();
+  }
+
+  @Get('payments/:id')
+  findPayment(@Param('id', ParseIntPipe) id: number): Promise<Payment> {
+    return this.billingService.findPayment(id);
+  }
+
+  @Post('payments')
+  createPayment(@Body() data: Partial<Payment>): Promise<Payment> {
+    return this.billingService.createPayment(data);
+  }
+
+  @Delete('payments/:id')
+  deletePayment(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.billingService.deletePayment(id);
   }
 }

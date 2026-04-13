@@ -73,4 +73,7 @@ export class Contact {
   @ManyToOne(() => Account, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'accountId' })
   account: Account;
+
+  @Column({ nullable: true })
+  accountId: number;
 }
