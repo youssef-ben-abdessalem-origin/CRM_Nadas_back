@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from "@nestjs/common";
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { AuthGuard } from "@nestjs/passport";
 import { DepartmentsService } from "./departments.service";
 import { Department } from "./entities/department.entity";
@@ -17,10 +17,21 @@ export class DepartmentsController {
     return this.departmentsService.findAll();
   }
 
-  @Get("ping")
-  @ApiOperation({ summary: "Diagnostic route" })
-  ping() {
-    return { status: "alive" };
+  @Get("paginated")
+  @ApiOperation({ summary: "Get paginated departments" })
+  @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
+  @ApiQuery({ name: "limit", required: false, type: Number, example: 10 })
+  @ApiQuery({ name: "search", required: false, type: String })
+  findPaginated(
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
+    @Query("search") search?: string,
+  ) {
+    return this.departmentsService.findPaginated(
+      page ? Number.parseInt(page, 10) : 1,
+      limit ? Number.parseInt(limit, 10) : 10,
+      search,
+    );
   }
 
   @Post()

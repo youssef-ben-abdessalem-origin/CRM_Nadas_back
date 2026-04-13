@@ -20,6 +20,41 @@ export class DepartmentsService {
     });
   }
 
+  async findPaginated(
+    page = 1,
+    limit = 10,
+    search?: string,
+  ): Promise<{ data: Department[]; total: number; page: number; limit: number; totalPages: number }> {
+    const qb = this.departmentRepository
+      .createQueryBuilder("department")
+      .leftJoinAndSelect("department.representative", "representative")
+      .leftJoinAndSelect("department.members", "members")
+      .leftJoinAndSelect("members.role", "memberRole")
+      .distinct(true);
+
+    if (search) {
+      qb.andWhere(
+        "(department.name ILIKE :search OR department.description ILIKE :search OR representative.name ILIKE :search)",
+        { search: `%${search}%` },
+      );
+    }
+
+    const total = await qb.getCount();
+    const data = await qb
+      .orderBy("department.name", "ASC")
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getMany();
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
   async findOne(id: number): Promise<Department> {
     const department = await this.departmentRepository.findOne({
       where: { id },

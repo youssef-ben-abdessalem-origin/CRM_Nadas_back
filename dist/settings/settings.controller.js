@@ -120,8 +120,29 @@ let SettingsController = class SettingsController {
     getAuditLogs(entityType, entityId) {
         return this.settingsService.getAuditLogs(entityType, entityId ? +entityId : undefined);
     }
+    getAuditLogsPaginated(page, limit, search, entityType, entityId) {
+        return this.settingsService.getAuditLogsPaginated(page ? parseInt(page, 10) : 1, limit ? parseInt(limit, 10) : 10, search, entityType, entityId ? +entityId : undefined);
+    }
     createAuditLog(body) {
         return this.settingsService.createAuditLog(body);
+    }
+    getCarriers() {
+        return this.settingsService.getCarriers();
+    }
+    createCarrier(body) {
+        return this.settingsService.createCarrier(body);
+    }
+    updateCarrier(id, body) {
+        return this.settingsService.updateCarrier(+id, body);
+    }
+    deleteCarrier(id) {
+        return this.settingsService.deleteCarrier(+id);
+    }
+    getCompanySettings() {
+        return this.settingsService.getCompanySettings();
+    }
+    updateCompanySettings(body) {
+        return this.settingsService.updateCompanySettings(body);
     }
     constructor(settingsService){
         this.settingsService = settingsService;
@@ -540,6 +561,53 @@ _ts_decorate([
     _ts_metadata("design:returntype", void 0)
 ], SettingsController.prototype, "getAuditLogs", null);
 _ts_decorate([
+    (0, _common.Get)('audit-logs/paginated'),
+    (0, _swagger.ApiOperation)({
+        summary: 'Get paginated audit logs'
+    }),
+    (0, _swagger.ApiQuery)({
+        name: 'page',
+        required: false,
+        type: Number,
+        example: 1
+    }),
+    (0, _swagger.ApiQuery)({
+        name: 'limit',
+        required: false,
+        type: Number,
+        example: 10
+    }),
+    (0, _swagger.ApiQuery)({
+        name: 'search',
+        required: false,
+        type: String
+    }),
+    (0, _swagger.ApiQuery)({
+        name: 'entityType',
+        required: false,
+        type: String
+    }),
+    (0, _swagger.ApiQuery)({
+        name: 'entityId',
+        required: false,
+        type: Number
+    }),
+    _ts_param(0, (0, _common.Query)('page')),
+    _ts_param(1, (0, _common.Query)('limit')),
+    _ts_param(2, (0, _common.Query)('search')),
+    _ts_param(3, (0, _common.Query)('entityType')),
+    _ts_param(4, (0, _common.Query)('entityId')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String,
+        String,
+        String,
+        String,
+        String
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], SettingsController.prototype, "getAuditLogsPaginated", null);
+_ts_decorate([
     (0, _common.Post)('audit-logs'),
     (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
     (0, _swagger.ApiBearerAuth)(),
@@ -553,6 +621,82 @@ _ts_decorate([
     ]),
     _ts_metadata("design:returntype", void 0)
 ], SettingsController.prototype, "createAuditLog", null);
+_ts_decorate([
+    (0, _common.Get)('carriers'),
+    (0, _swagger.ApiOperation)({
+        summary: 'Get all carriers'
+    }),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", []),
+    _ts_metadata("design:returntype", void 0)
+], SettingsController.prototype, "getCarriers", null);
+_ts_decorate([
+    (0, _common.Post)('carriers'),
+    (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
+    (0, _swagger.ApiBearerAuth)(),
+    (0, _swagger.ApiOperation)({
+        summary: 'Create carrier'
+    }),
+    _ts_param(0, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Object
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], SettingsController.prototype, "createCarrier", null);
+_ts_decorate([
+    (0, _common.Put)('carriers/:id'),
+    (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
+    (0, _swagger.ApiBearerAuth)(),
+    (0, _swagger.ApiOperation)({
+        summary: 'Update carrier'
+    }),
+    _ts_param(0, (0, _common.Param)('id')),
+    _ts_param(1, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String,
+        Object
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], SettingsController.prototype, "updateCarrier", null);
+_ts_decorate([
+    (0, _common.Delete)('carriers/:id'),
+    (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
+    (0, _swagger.ApiBearerAuth)(),
+    (0, _swagger.ApiOperation)({
+        summary: 'Delete carrier'
+    }),
+    _ts_param(0, (0, _common.Param)('id')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], SettingsController.prototype, "deleteCarrier", null);
+_ts_decorate([
+    (0, _common.Get)('company'),
+    (0, _swagger.ApiOperation)({
+        summary: 'Get company settings'
+    }),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", []),
+    _ts_metadata("design:returntype", void 0)
+], SettingsController.prototype, "getCompanySettings", null);
+_ts_decorate([
+    (0, _common.Put)('company'),
+    (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
+    (0, _swagger.ApiBearerAuth)(),
+    (0, _swagger.ApiOperation)({
+        summary: 'Update company settings'
+    }),
+    _ts_param(0, (0, _common.Body)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        Object
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], SettingsController.prototype, "updateCompanySettings", null);
 SettingsController = _ts_decorate([
     (0, _swagger.ApiTags)('Settings'),
     (0, _common.Controller)('settings'),

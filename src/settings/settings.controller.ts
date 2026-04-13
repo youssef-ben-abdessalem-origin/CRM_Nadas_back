@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { SettingsService } from './settings.service';
 import { AuthGuard } from '@nestjs/passport';
 import { Currency } from './entities/currency.entity';
@@ -259,11 +259,78 @@ export class SettingsController {
     );
   }
 
+  @Get('audit-logs/paginated')
+  @ApiOperation({ summary: 'Get paginated audit logs' })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ name: 'entityType', required: false, type: String })
+  @ApiQuery({ name: 'entityId', required: false, type: Number })
+  getAuditLogsPaginated(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('search') search?: string,
+    @Query('entityType') entityType?: string,
+    @Query('entityId') entityId?: string,
+  ) {
+    return this.settingsService.getAuditLogsPaginated(
+      page ? parseInt(page, 10) : 1,
+      limit ? parseInt(limit, 10) : 10,
+      search,
+      entityType,
+      entityId ? +entityId : undefined,
+    );
+  }
+
   @Post('audit-logs')
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create audit log' })
   createAuditLog(@Body() body: { action: string; entityType?: string; entityId?: number; userId?: number; ipAddress?: string; changes?: string }) {
     return this.settingsService.createAuditLog(body);
+  }
+
+  @Get('carriers')
+  @ApiOperation({ summary: 'Get all carriers' })
+  getCarriers() {
+    return this.settingsService.getCarriers();
+  }
+
+  @Post('carriers')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create carrier' })
+  createCarrier(@Body() body: { name: string; code?: string; trackingUrlTemplate?: string; isActive?: boolean }) {
+    return this.settingsService.createCarrier(body);
+  }
+
+  @Put('carriers/:id')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update carrier' })
+  updateCarrier(@Param('id') id: string, @Body() body: any) {
+    return this.settingsService.updateCarrier(+id, body);
+  }
+
+  @Delete('carriers/:id')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete carrier' })
+  deleteCarrier(@Param('id') id: string) {
+    return this.settingsService.deleteCarrier(+id);
+  }
+
+  @Get('company')
+  @ApiOperation({ summary: 'Get company settings' })
+  getCompanySettings() {
+    return this.settingsService.getCompanySettings();
+  }
+
+  @Put('company')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update company settings' })
+  updateCompanySettings(@Body() body: any) {
+    return this.settingsService.updateCompanySettings(body);
   }
 }

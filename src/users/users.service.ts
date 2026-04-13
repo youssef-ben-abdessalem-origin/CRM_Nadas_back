@@ -18,6 +18,38 @@ export class UsersService {
     return this.userRepository.find({ relations: ['role'] });
   }
 
+  async findPaginated(
+    page = 1,
+    limit = 10,
+    search?: string,
+  ): Promise<{ data: User[]; total: number; page: number; limit: number; totalPages: number }> {
+    const qb = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.role', 'role');
+
+    if (search) {
+      qb.andWhere(
+        '(user.name ILIKE :search OR user.email ILIKE :search OR user.phone ILIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    const total = await qb.getCount();
+    const data = await qb
+      .orderBy('user.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getMany();
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
   async create(data: { name: string; email: string; password?: string; roleId?: string; phone?: string; enabled?: boolean }): Promise<User> {
     const existing = await this.userRepository.findOne({ where: { email: data.email } });
     if (existing) {

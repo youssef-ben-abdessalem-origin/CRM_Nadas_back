@@ -36,6 +36,7 @@ import { ActivityType } from "./settings/entities/activity-type.entity";
 import { EmailTemplate } from "./settings/entities/email-template.entity";
 import { Notification } from "./settings/entities/notification.entity";
 import { AuditLog } from "./settings/entities/audit-log.entity";
+import { Carrier } from "./settings/entities/carrier.entity";
 import { UploadsModule } from "./uploads/uploads.module";
 import { ProfileModule } from "./profile/profile.module";
 import { GmailModule } from "./gmail/gmail.module";
@@ -160,6 +161,7 @@ import { DepartmentsModule } from "./departments/departments.module";
         Vendor,
         AutomationRule,
         Department,
+        Carrier,
       ],
     }),
     JwtModule.register({

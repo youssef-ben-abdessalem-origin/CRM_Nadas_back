@@ -10,9 +10,11 @@ import { ActivityType } from './entities/activity-type.entity';
 import { EmailTemplate } from './entities/email-template.entity';
 import { Notification } from './entities/notification.entity';
 import { AuditLog } from './entities/audit-log.entity';
+import { Carrier } from './entities/carrier.entity';
+import { CompanySettings } from './entities/company-settings.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Currency, Country, Industry, Tag, ActivityType, EmailTemplate, Notification, AuditLog])],
+  imports: [TypeOrmModule.forFeature([Currency, Country, Industry, Tag, ActivityType, EmailTemplate, Notification, AuditLog, Carrier, CompanySettings])],
   controllers: [SettingsController],
   providers: [SettingsService],
   exports: [SettingsService],

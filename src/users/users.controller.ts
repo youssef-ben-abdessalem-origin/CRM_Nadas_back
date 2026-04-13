@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Request, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from './entities/user.entity';
@@ -15,6 +15,25 @@ export class UsersController {
   @ApiOperation({ summary: 'Get all users' })
   findAll(): Promise<User[]> {
     return this.usersService.findAll();
+  }
+
+  @Get('paginated')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get paginated users' })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  findPaginated(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('search') search?: string,
+  ) {
+    return this.usersService.findPaginated(
+      page ? parseInt(page, 10) : 1,
+      limit ? parseInt(limit, 10) : 10,
+      search,
+    );
   }
   
   @Post()
@@ -56,7 +75,7 @@ export class UsersController {
     return this.usersService.updateProfile(req.user.id, data);
   }
 
-  @Get(':id')
+  @Get(':id(\\d+)')
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user by ID' })
@@ -64,7 +83,7 @@ export class UsersController {
     return this.usersService.findOne(+id);
   }
 
-  @Put(':id')
+  @Put(':id(\\d+)')
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update user' })
@@ -84,7 +103,7 @@ export class UsersController {
     return this.usersService.update(+id, data);
   }
 
-  @Delete(':id')
+  @Delete(':id(\\d+)')
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete user' })

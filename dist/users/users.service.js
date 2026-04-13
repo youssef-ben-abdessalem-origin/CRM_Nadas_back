@@ -77,6 +77,23 @@ let UsersService = class UsersService {
             ]
         });
     }
+    async findPaginated(page = 1, limit = 10, search) {
+        const qb = this.userRepository.createQueryBuilder('user').leftJoinAndSelect('user.role', 'role');
+        if (search) {
+            qb.andWhere('(user.name ILIKE :search OR user.email ILIKE :search OR user.phone ILIKE :search)', {
+                search: `%${search}%`
+            });
+        }
+        const total = await qb.getCount();
+        const data = await qb.orderBy('user.createdAt', 'DESC').skip((page - 1) * limit).take(limit).getMany();
+        return {
+            data,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit)
+        };
+    }
     async create(data) {
         const existing = await this.userRepository.findOne({
             where: {

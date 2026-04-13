@@ -30,10 +30,8 @@ let DepartmentsController = class DepartmentsController {
     findAll() {
         return this.departmentsService.findAll();
     }
-    ping() {
-        return {
-            status: "alive"
-        };
+    findPaginated(page, limit, search) {
+        return this.departmentsService.findPaginated(page ? Number.parseInt(page, 10) : 1, limit ? Number.parseInt(limit, 10) : 10, search);
     }
     create(data) {
         return this.departmentsService.create(data);
@@ -58,14 +56,38 @@ _ts_decorate([
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], DepartmentsController.prototype, "findAll", null);
 _ts_decorate([
-    (0, _common.Get)("ping"),
+    (0, _common.Get)("paginated"),
     (0, _swagger.ApiOperation)({
-        summary: "Diagnostic route"
+        summary: "Get paginated departments"
     }),
+    (0, _swagger.ApiQuery)({
+        name: "page",
+        required: false,
+        type: Number,
+        example: 1
+    }),
+    (0, _swagger.ApiQuery)({
+        name: "limit",
+        required: false,
+        type: Number,
+        example: 10
+    }),
+    (0, _swagger.ApiQuery)({
+        name: "search",
+        required: false,
+        type: String
+    }),
+    _ts_param(0, (0, _common.Query)("page")),
+    _ts_param(1, (0, _common.Query)("limit")),
+    _ts_param(2, (0, _common.Query)("search")),
     _ts_metadata("design:type", Function),
-    _ts_metadata("design:paramtypes", []),
+    _ts_metadata("design:paramtypes", [
+        String,
+        String,
+        String
+    ]),
     _ts_metadata("design:returntype", void 0)
-], DepartmentsController.prototype, "ping", null);
+], DepartmentsController.prototype, "findPaginated", null);
 _ts_decorate([
     (0, _common.Post)(),
     (0, _swagger.ApiOperation)({

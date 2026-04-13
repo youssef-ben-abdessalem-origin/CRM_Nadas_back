@@ -9,6 +9,8 @@ import { ActivityType } from './entities/activity-type.entity';
 import { EmailTemplate } from './entities/email-template.entity';
 import { Notification } from './entities/notification.entity';
 import { AuditLog } from './entities/audit-log.entity';
+import { Carrier } from './entities/carrier.entity';
+import { CompanySettings } from './entities/company-settings.entity';
 
 @Injectable()
 export class SettingsService implements OnModuleInit {
@@ -29,6 +31,10 @@ export class SettingsService implements OnModuleInit {
     private notificationRepository: Repository<Notification>,
     @InjectRepository(AuditLog)
     private auditLogRepository: Repository<AuditLog>,
+    @InjectRepository(Carrier)
+    private carrierRepository: Repository<Carrier>,
+    @InjectRepository(CompanySettings)
+    private companySettingsRepository: Repository<CompanySettings>,
   ) {}
 
   async onModuleInit() {
@@ -183,6 +189,40 @@ export class SettingsService implements OnModuleInit {
       for (const template of defaultEmailTemplates) {
         await this.emailTemplateRepository.save(template);
       }
+    }
+
+    const carriersCount = await this.carrierRepository.count();
+    if (carriersCount === 0) {
+      const defaultCarriers = [
+        { name: 'FedEX', code: 'FEDEX', trackingUrlTemplate: 'https://www.fedex.com/fedextrack/?trknbr={{trackingNumber}}' },
+        { name: 'DHL Express', code: 'DHL', trackingUrlTemplate: 'https://www.dhl.com/en/express/tracking.html?AWB={{trackingNumber}}' },
+        { name: 'UPS Worldwide', code: 'UPS', trackingUrlTemplate: 'https://www.ups.com/track?loc=en_US&tracknum={{trackingNumber}}' },
+        { name: 'Aramex', code: 'ARAMEX', trackingUrlTemplate: 'https://www.aramex.com/track/results?shipmentNumber={{trackingNumber}}' },
+      ];
+      for (const carrier of defaultCarriers) {
+        await this.carrierRepository.save(carrier);
+      }
+    }
+
+    const companySettingsCount = await this.companySettingsRepository.count();
+    if (companySettingsCount === 0) {
+      await this.companySettingsRepository.save({
+        name: 'Nadas Group',
+        legalName: 'Nadas Group SARL',
+        taxId: '1234567/A/M/000',
+        commercialRegistration: 'B0123456789',
+        industry: 'Logistics & Supply Chain',
+        logoUrl: 'https://www.nadas-group.com/wp-content/uploads/2023/07/logo-nadas-avec-contour.webp',
+        primaryColor: '#003366',
+        officeAddress: 'Avenue Habib Bourguiba, Tunis 1001, Tunisia',
+        phone: '+216 71 000 000',
+        email: 'contact@nadas-group.com',
+        website: 'https://www.nadas-group.com',
+        defaultCurrency: 'TND',
+        defaultTaxRate: 19.00,
+        quoteNumberPrefix: 'QT-{{YYYY}}-{{0000}}',
+        termsAndConditions: 'All deployments and vector asset engagements are subject to Nadas Group executive validation. Payment terms are net 14 days unless otherwise specified in the project dossier.',
+      });
     }
   }
 
@@ -442,7 +482,101 @@ export class SettingsService implements OnModuleInit {
     });
   }
 
+  async getAuditLogsPaginated(
+    page = 1,
+    limit = 10,
+    search?: string,
+    entityType?: string,
+    entityId?: number,
+  ): Promise<{ data: AuditLog[]; total: number; page: number; limit: number; totalPages: number }> {
+    const safePage = Math.max(1, page || 1);
+    const safeLimit = Math.max(1, Math.min(100, limit || 10));
+
+    const qb = this.auditLogRepository
+      .createQueryBuilder('audit')
+      .leftJoinAndSelect('audit.user', 'user');
+
+    if (entityType) {
+      qb.andWhere('audit.entityType = :entityType', { entityType });
+    }
+
+    if (entityId) {
+      qb.andWhere('audit.entityId = :entityId', { entityId });
+    }
+
+    if (search) {
+      qb.andWhere(
+        `(audit.action ILIKE :search
+          OR audit.entityType ILIKE :search
+          OR audit.changes ILIKE :search
+          OR user.name ILIKE :search
+          OR user.email ILIKE :search)`,
+        { search: `%${search}%` },
+      );
+    }
+
+    const total = await qb.getCount();
+    const data = await qb
+      .orderBy('audit.createdAt', 'DESC')
+      .skip((safePage - 1) * safeLimit)
+      .take(safeLimit)
+      .getMany();
+
+    return {
+      data,
+      total,
+      page: safePage,
+      limit: safeLimit,
+      totalPages: Math.ceil(total / safeLimit),
+    };
+  }
+
   async createAuditLog(data: Partial<AuditLog>): Promise<AuditLog> {
     return this.auditLogRepository.save(data);
+  }
+
+  async getCarriers(includeInactive = false): Promise<Carrier[]> {
+    return this.carrierRepository.find({
+      where: includeInactive ? {} : { isActive: true },
+      order: { name: 'ASC' },
+    });
+  }
+
+  async getCarrierById(id: number): Promise<Carrier> {
+    const carrier = await this.carrierRepository.findOne({ where: { id } });
+    if (!carrier) throw new NotFoundException('Carrier not found');
+    return carrier;
+  }
+
+  async createCarrier(data: Partial<Carrier>): Promise<Carrier> {
+    return this.carrierRepository.save(data);
+  }
+
+  async updateCarrier(id: number, data: Partial<Carrier>): Promise<Carrier> {
+    const carrier = await this.getCarrierById(id);
+    Object.assign(carrier, data);
+    return this.carrierRepository.save(carrier);
+  }
+
+  async deleteCarrier(id: number): Promise<void> {
+    const carrier = await this.getCarrierById(id);
+    await this.carrierRepository.remove(carrier);
+  }
+
+  async getCompanySettings(): Promise<CompanySettings> {
+    const settings = await this.companySettingsRepository.find();
+    if (settings.length > 0) return settings[0];
+    
+    // Create default if somehow missing
+    return this.companySettingsRepository.save({
+        name: 'Nadas Group',
+        primaryColor: '#003366'
+    });
+  }
+
+  async updateCompanySettings(data: Partial<CompanySettings>): Promise<CompanySettings> {
+    const settings = await this.getCompanySettings();
+    Object.assign(settings, data);
+    return this.companySettingsRepository.save(settings);
   }
 }

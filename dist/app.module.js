@@ -46,6 +46,7 @@ const _activitytypeentity = require("./settings/entities/activity-type.entity");
 const _emailtemplateentity = require("./settings/entities/email-template.entity");
 const _notificationentity = require("./settings/entities/notification.entity");
 const _auditlogentity = require("./settings/entities/audit-log.entity");
+const _carrierentity = require("./settings/entities/carrier.entity");
 const _uploadsmodule = require("./uploads/uploads.module");
 const _profilemodule = require("./profile/profile.module");
 const _gmailmodule = require("./gmail/gmail.module");
@@ -177,7 +178,8 @@ AppModule = _ts_decorate([
                     _campaignstatusentity.CampaignStatus,
                     _vendorentity.Vendor,
                     _automationruleentity.AutomationRule,
-                    _departmententity.Department
+                    _departmententity.Department,
+                    _carrierentity.Carrier
                 ]
             }),
             _jwt.JwtModule.register({

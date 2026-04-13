@@ -19,6 +19,8 @@ const _activitytypeentity = require("./entities/activity-type.entity");
 const _emailtemplateentity = require("./entities/email-template.entity");
 const _notificationentity = require("./entities/notification.entity");
 const _auditlogentity = require("./entities/audit-log.entity");
+const _carrierentity = require("./entities/carrier.entity");
+const _companysettingsentity = require("./entities/company-settings.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -420,6 +422,54 @@ let SettingsService = class SettingsService {
                 await this.emailTemplateRepository.save(template);
             }
         }
+        const carriersCount = await this.carrierRepository.count();
+        if (carriersCount === 0) {
+            const defaultCarriers = [
+                {
+                    name: 'FedEX',
+                    code: 'FEDEX',
+                    trackingUrlTemplate: 'https://www.fedex.com/fedextrack/?trknbr={{trackingNumber}}'
+                },
+                {
+                    name: 'DHL Express',
+                    code: 'DHL',
+                    trackingUrlTemplate: 'https://www.dhl.com/en/express/tracking.html?AWB={{trackingNumber}}'
+                },
+                {
+                    name: 'UPS Worldwide',
+                    code: 'UPS',
+                    trackingUrlTemplate: 'https://www.ups.com/track?loc=en_US&tracknum={{trackingNumber}}'
+                },
+                {
+                    name: 'Aramex',
+                    code: 'ARAMEX',
+                    trackingUrlTemplate: 'https://www.aramex.com/track/results?shipmentNumber={{trackingNumber}}'
+                }
+            ];
+            for (const carrier of defaultCarriers){
+                await this.carrierRepository.save(carrier);
+            }
+        }
+        const companySettingsCount = await this.companySettingsRepository.count();
+        if (companySettingsCount === 0) {
+            await this.companySettingsRepository.save({
+                name: 'Nadas Group',
+                legalName: 'Nadas Group SARL',
+                taxId: '1234567/A/M/000',
+                commercialRegistration: 'B0123456789',
+                industry: 'Logistics & Supply Chain',
+                logoUrl: 'https://www.nadas-group.com/wp-content/uploads/2023/07/logo-nadas-avec-contour.webp',
+                primaryColor: '#003366',
+                officeAddress: 'Avenue Habib Bourguiba, Tunis 1001, Tunisia',
+                phone: '+216 71 000 000',
+                email: 'contact@nadas-group.com',
+                website: 'https://www.nadas-group.com',
+                defaultCurrency: 'TND',
+                defaultTaxRate: 19.00,
+                quoteNumberPrefix: 'QT-{{YYYY}}-{{0000}}',
+                termsAndConditions: 'All deployments and vector asset engagements are subject to Nadas Group executive validation. Payment terms are net 14 days unless otherwise specified in the project dossier.'
+            });
+        }
     }
     async getCurrencies(includeInactive = false) {
         return this.currencyRepository.find({
@@ -745,10 +795,88 @@ let SettingsService = class SettingsService {
             ]
         });
     }
+    async getAuditLogsPaginated(page = 1, limit = 10, search, entityType, entityId) {
+        const safePage = Math.max(1, page || 1);
+        const safeLimit = Math.max(1, Math.min(100, limit || 10));
+        const qb = this.auditLogRepository.createQueryBuilder('audit').leftJoinAndSelect('audit.user', 'user');
+        if (entityType) {
+            qb.andWhere('audit.entityType = :entityType', {
+                entityType
+            });
+        }
+        if (entityId) {
+            qb.andWhere('audit.entityId = :entityId', {
+                entityId
+            });
+        }
+        if (search) {
+            qb.andWhere(`(audit.action ILIKE :search
+          OR audit.entityType ILIKE :search
+          OR audit.changes ILIKE :search
+          OR user.name ILIKE :search
+          OR user.email ILIKE :search)`, {
+                search: `%${search}%`
+            });
+        }
+        const total = await qb.getCount();
+        const data = await qb.orderBy('audit.createdAt', 'DESC').skip((safePage - 1) * safeLimit).take(safeLimit).getMany();
+        return {
+            data,
+            total,
+            page: safePage,
+            limit: safeLimit,
+            totalPages: Math.ceil(total / safeLimit)
+        };
+    }
     async createAuditLog(data) {
         return this.auditLogRepository.save(data);
     }
-    constructor(currencyRepository, countryRepository, industryRepository, tagRepository, activityTypeRepository, emailTemplateRepository, notificationRepository, auditLogRepository){
+    async getCarriers(includeInactive = false) {
+        return this.carrierRepository.find({
+            where: includeInactive ? {} : {
+                isActive: true
+            },
+            order: {
+                name: 'ASC'
+            }
+        });
+    }
+    async getCarrierById(id) {
+        const carrier = await this.carrierRepository.findOne({
+            where: {
+                id
+            }
+        });
+        if (!carrier) throw new _common.NotFoundException('Carrier not found');
+        return carrier;
+    }
+    async createCarrier(data) {
+        return this.carrierRepository.save(data);
+    }
+    async updateCarrier(id, data) {
+        const carrier = await this.getCarrierById(id);
+        Object.assign(carrier, data);
+        return this.carrierRepository.save(carrier);
+    }
+    async deleteCarrier(id) {
+        const carrier = await this.getCarrierById(id);
+        await this.carrierRepository.remove(carrier);
+    }
+    async getCompanySettings() {
+        const settings = await this.companySettingsRepository.find();
+        if (settings.length > 0) return settings[0];
+        // Create default if somehow missing
+        return this.companySettingsRepository.save({
+            name: 'Nadas Group',
+            primaryColor: '#003366'
+        });
+    }
+    async updateCompanySettings(data) {
+        const settings = await this.getCompanySettings();
+        Object.assign(settings, data);
+        return this.companySettingsRepository.save(settings);
+    }
+    constructor(currencyRepository, countryRepository, industryRepository, tagRepository, activityTypeRepository, emailTemplateRepository, notificationRepository, auditLogRepository, carrierRepository, companySettingsRepository){
         this.currencyRepository = currencyRepository;
         this.countryRepository = countryRepository;
         this.industryRepository = industryRepository;
@@ -757,6 +885,8 @@ let SettingsService = class SettingsService {
         this.emailTemplateRepository = emailTemplateRepository;
         this.notificationRepository = notificationRepository;
         this.auditLogRepository = auditLogRepository;
+        this.carrierRepository = carrierRepository;
+        this.companySettingsRepository = companySettingsRepository;
     }
 };
 SettingsService = _ts_decorate([
@@ -769,8 +899,12 @@ SettingsService = _ts_decorate([
     _ts_param(5, (0, _typeorm.InjectRepository)(_emailtemplateentity.EmailTemplate)),
     _ts_param(6, (0, _typeorm.InjectRepository)(_notificationentity.Notification)),
     _ts_param(7, (0, _typeorm.InjectRepository)(_auditlogentity.AuditLog)),
+    _ts_param(8, (0, _typeorm.InjectRepository)(_carrierentity.Carrier)),
+    _ts_param(9, (0, _typeorm.InjectRepository)(_companysettingsentity.CompanySettings)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,

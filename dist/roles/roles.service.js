@@ -124,11 +124,164 @@ let RolesService = class RolesService {
                 ]
             },
             {
+                name: 'campaigns',
+                perms: [
+                    'view',
+                    'create',
+                    'update',
+                    'delete'
+                ]
+            },
+            {
+                name: 'vendors',
+                perms: [
+                    'view',
+                    'create',
+                    'update',
+                    'delete'
+                ]
+            },
+            {
+                name: 'quotes',
+                perms: [
+                    'view',
+                    'create',
+                    'update',
+                    'delete'
+                ]
+            },
+            {
+                name: 'invoices',
+                perms: [
+                    'view',
+                    'create',
+                    'update',
+                    'delete'
+                ]
+            },
+            {
+                name: 'orders',
+                perms: [
+                    'view',
+                    'create',
+                    'update',
+                    'delete'
+                ]
+            },
+            {
+                name: 'payments',
+                perms: [
+                    'view',
+                    'create',
+                    'update',
+                    'delete'
+                ]
+            },
+            {
+                name: 'tasks',
+                perms: [
+                    'view',
+                    'create',
+                    'update',
+                    'delete'
+                ]
+            },
+            {
+                name: 'activities',
+                perms: [
+                    'view',
+                    'create',
+                    'update',
+                    'delete'
+                ]
+            },
+            {
+                name: 'calendar',
+                perms: [
+                    'view',
+                    'manage'
+                ]
+            },
+            {
+                name: 'documents',
+                perms: [
+                    'view',
+                    'upload',
+                    'delete',
+                    'share'
+                ]
+            },
+            {
+                name: 'departments',
+                perms: [
+                    'view',
+                    'create',
+                    'update',
+                    'delete',
+                    'assign_representative',
+                    'manage_members'
+                ]
+            },
+            {
+                name: 'automations',
+                perms: [
+                    'view',
+                    'create',
+                    'update',
+                    'delete',
+                    'toggle'
+                ]
+            },
+            {
+                name: 'forecast',
+                perms: [
+                    'view',
+                    'manage'
+                ]
+            },
+            {
+                name: 'dashboard',
+                perms: [
+                    'view'
+                ]
+            },
+            {
+                name: 'reports',
+                perms: [
+                    'view',
+                    'export'
+                ]
+            },
+            {
+                name: 'emails',
+                perms: [
+                    'view',
+                    'send'
+                ]
+            },
+            {
+                name: 'gmail',
+                perms: [
+                    'connect',
+                    'disconnect'
+                ]
+            },
+            {
+                name: 'settings',
+                perms: [
+                    'view',
+                    'manage'
+                ]
+            },
+            {
                 name: 'team',
                 perms: [
                     'view',
+                    'manage_users',
                     'manage_roles',
-                    'manage_perms'
+                    'manage_perms',
+                    'manage_privileges',
+                    'manage_departments'
                 ]
             }
         ];
@@ -159,9 +312,9 @@ let RolesService = class RolesService {
             },
             {
                 name: 'MANAGER',
-                desc: 'Can manage most data but no settings',
+                desc: 'Can manage most business data',
                 color: '#3b82f6',
-                perms: allPerms.filter((p)=>!p.code.includes('team.manage'))
+                perms: allPerms.filter((p)=>!p.code.includes('settings.manage') && !p.code.includes('team.manage_roles') && !p.code.includes('team.manage_perms') && !p.code.includes('team.manage_privileges'))
             },
             {
                 name: 'USER',
@@ -184,8 +337,12 @@ let RolesService = class RolesService {
                     isSystem: true,
                     permissions: dr.perms
                 });
-                await this.roleRepository.save(role);
+            } else if (role.isSystem) {
+                role.description = dr.desc;
+                role.color = dr.color;
+                role.permissions = dr.perms;
             }
+            await this.roleRepository.save(role);
         }
         // Seed default admin user
         const adminEmail = 'admin@nexus.crm';
@@ -212,6 +369,24 @@ let RolesService = class RolesService {
     }
     async findAll() {
         return this.roleRepository.find();
+    }
+    async findPaginated(page = 1, limit = 10, search) {
+        const qb = this.roleRepository.createQueryBuilder('role').leftJoinAndSelect('role.permissions', 'permission');
+        if (search) {
+            qb.andWhere('(role.name ILIKE :search OR role.description ILIKE :search)', {
+                search: `%${search}%`
+            });
+        }
+        qb.distinct(true);
+        const total = await qb.getCount();
+        const data = await qb.orderBy('role.createdAt', 'DESC').skip((page - 1) * limit).take(limit).getMany();
+        return {
+            data,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit)
+        };
     }
     async findOne(id) {
         const role = await this.roleRepository.findOne({

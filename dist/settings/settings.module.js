@@ -20,6 +20,8 @@ const _activitytypeentity = require("./entities/activity-type.entity");
 const _emailtemplateentity = require("./entities/email-template.entity");
 const _notificationentity = require("./entities/notification.entity");
 const _auditlogentity = require("./entities/audit-log.entity");
+const _carrierentity = require("./entities/carrier.entity");
+const _companysettingsentity = require("./entities/company-settings.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -39,7 +41,9 @@ SettingsModule = _ts_decorate([
                 _activitytypeentity.ActivityType,
                 _emailtemplateentity.EmailTemplate,
                 _notificationentity.Notification,
-                _auditlogentity.AuditLog
+                _auditlogentity.AuditLog,
+                _carrierentity.Carrier,
+                _companysettingsentity.CompanySettings
             ])
         ],
         controllers: [

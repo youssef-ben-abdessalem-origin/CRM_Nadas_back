@@ -31,6 +31,9 @@ let UsersController = class UsersController {
     findAll() {
         return this.usersService.findAll();
     }
+    findPaginated(page, limit, search) {
+        return this.usersService.findPaginated(page ? parseInt(page, 10) : 1, limit ? parseInt(limit, 10) : 10, search);
+    }
     create(data) {
         return this.usersService.create(data);
     }
@@ -64,6 +67,41 @@ _ts_decorate([
     _ts_metadata("design:paramtypes", []),
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], UsersController.prototype, "findAll", null);
+_ts_decorate([
+    (0, _common.Get)('paginated'),
+    (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
+    (0, _swagger.ApiBearerAuth)(),
+    (0, _swagger.ApiOperation)({
+        summary: 'Get paginated users'
+    }),
+    (0, _swagger.ApiQuery)({
+        name: 'page',
+        required: false,
+        type: Number,
+        example: 1
+    }),
+    (0, _swagger.ApiQuery)({
+        name: 'limit',
+        required: false,
+        type: Number,
+        example: 10
+    }),
+    (0, _swagger.ApiQuery)({
+        name: 'search',
+        required: false,
+        type: String
+    }),
+    _ts_param(0, (0, _common.Query)('page')),
+    _ts_param(1, (0, _common.Query)('limit')),
+    _ts_param(2, (0, _common.Query)('search')),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String,
+        String,
+        String
+    ]),
+    _ts_metadata("design:returntype", void 0)
+], UsersController.prototype, "findPaginated", null);
 _ts_decorate([
     (0, _common.Post)(),
     (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
@@ -146,7 +184,7 @@ _ts_decorate([
     _ts_metadata("design:returntype", Promise)
 ], UsersController.prototype, "updateProfile", null);
 _ts_decorate([
-    (0, _common.Get)(':id'),
+    (0, _common.Get)(':id(\\d+)'),
     (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
     (0, _swagger.ApiBearerAuth)(),
     (0, _swagger.ApiOperation)({
@@ -160,7 +198,7 @@ _ts_decorate([
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], UsersController.prototype, "findOne", null);
 _ts_decorate([
-    (0, _common.Put)(':id'),
+    (0, _common.Put)(':id(\\d+)'),
     (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
     (0, _swagger.ApiBearerAuth)(),
     (0, _swagger.ApiOperation)({
@@ -200,7 +238,7 @@ _ts_decorate([
     _ts_metadata("design:returntype", typeof Promise === "undefined" ? Object : Promise)
 ], UsersController.prototype, "update", null);
 _ts_decorate([
-    (0, _common.Delete)(':id'),
+    (0, _common.Delete)(':id(\\d+)'),
     (0, _common.UseGuards)((0, _passport.AuthGuard)('jwt')),
     (0, _swagger.ApiBearerAuth)(),
     (0, _swagger.ApiOperation)({
