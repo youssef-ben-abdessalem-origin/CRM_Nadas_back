@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { Lead } from '../leads/entities/lead.entity';
+import { Campaign } from '../campaigns/entities/campaign.entity';
 
 @Injectable()
 export class UploadsService {
@@ -12,6 +13,8 @@ export class UploadsService {
     private userRepository: Repository<User>,
     @InjectRepository(Lead)
     private leadRepository: Repository<Lead>,
+    @InjectRepository(Campaign)
+    private campaignRepository: Repository<Campaign>,
   ) {}
 
   async uploadAvatar(userId: number, file: Express.Multer.File): Promise<{ url: string }> {
@@ -29,7 +32,7 @@ export class UploadsService {
   }
 
   async uploadDocument(
-    entityType: 'lead' | 'contact' | 'account',
+    entityType: 'lead' | 'contact' | 'account' | 'campaign',
     entityId: number,
     file: Express.Multer.File,
   ): Promise<{ url: string; name: string; type: string }> {
@@ -50,6 +53,13 @@ export class UploadsService {
         const attachments = lead.attachments || [];
         attachments.push(attachment);
         await this.leadRepository.update(entityId, { attachments });
+      }
+    } else if (entityType === 'campaign') {
+      const campaign = await this.campaignRepository.findOne({ where: { id: entityId } });
+      if (campaign) {
+        const attachments = campaign.attachments || [];
+        attachments.push(attachment);
+        await this.campaignRepository.update(entityId, { attachments });
       }
     }
 

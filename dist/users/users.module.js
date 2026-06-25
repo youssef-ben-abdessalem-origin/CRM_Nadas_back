@@ -15,6 +15,7 @@ const _usersservice = require("./users.service");
 const _userscontroller = require("./users.controller");
 const _rolesmodule = require("../roles/roles.module");
 const _permissionsmodule = require("../permissions/permissions.module");
+const _appservice = require("../app.service");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -33,7 +34,8 @@ UsersModule = _ts_decorate([
             _permissionsmodule.PermissionsModule
         ],
         providers: [
-            _usersservice.UsersService
+            _usersservice.UsersService,
+            _appservice.DataInitializer
         ],
         controllers: [
             _userscontroller.UsersController

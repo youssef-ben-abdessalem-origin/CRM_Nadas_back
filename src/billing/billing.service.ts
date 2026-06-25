@@ -32,7 +32,7 @@ Dear ${quote.contactName},
 
 Please find the details for proposal ${quote.quoteNumber} synchronized for your review.
 
-Total Amount: ${quote.currency} ${quote.total}
+Total Amount: $${quote.total}
 
 You can access the secure portal and view the full tactical proposal here: http://localhost:8080/quotes/${quote.id}
 

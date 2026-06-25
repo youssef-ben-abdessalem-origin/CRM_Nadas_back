@@ -6,6 +6,7 @@ import { LeadScoreCategory } from './lead-score-category.entity';
 import { LeadPriority } from './lead-priority.entity';
 import { QualificationStage } from './qualification-stage.entity';
 import { Account } from '../../accounts/entities/account.entity';
+import { Campaign } from '../../campaigns/entities/campaign.entity';
 
 @Entity('leads')
 export class Lead {
@@ -199,4 +200,17 @@ export class Lead {
 
   @Column({ nullable: true })
   longitude: number;
+
+  @ManyToOne(() => Campaign, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'campaignId' })
+  campaign: Campaign;
+
+  @Column({ nullable: true })
+  campaignId: number;
+
+  @Column({ type: 'text', nullable: true })
+  description: string;
+
+  @Column({ type: 'date', nullable: true })
+  lastContactDate: Date;
 }

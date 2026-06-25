@@ -6,11 +6,12 @@ import { UploadsController } from './uploads.controller';
 import { UploadsService } from './uploads.service';
 import { User } from '../users/entities/user.entity';
 import { Lead } from '../leads/entities/lead.entity';
+import { Campaign } from '../campaigns/entities/campaign.entity';
 
 @Module({
   imports: [
     CloudinaryModule,
-    TypeOrmModule.forFeature([User, Lead]),
+    TypeOrmModule.forFeature([User, Lead, Campaign]),
     MulterModule.register({
       limits: {
         fileSize: 5 * 1024 * 1024,

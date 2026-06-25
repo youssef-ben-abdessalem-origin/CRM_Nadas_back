@@ -141,6 +141,83 @@ _ts_decorate([
     _ts_metadata("design:type", Number)
 ], Campaign.prototype, "ownerId", void 0);
 _ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'varchar',
+        nullable: true,
+        unique: true
+    }),
+    _ts_metadata("design:type", String)
+], Campaign.prototype, "campaignCode", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'varchar',
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Campaign.prototype, "targetAudience", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'varchar',
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Campaign.prototype, "communicationChannel", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'varchar',
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Campaign.prototype, "objective", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 15,
+        scale: 2,
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Campaign.prototype, "actualRevenue", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 5,
+        scale: 2,
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Campaign.prototype, "actualResponse", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'int',
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Campaign.prototype, "leadsGenerated", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'decimal',
+        precision: 5,
+        scale: 2,
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Campaign.prototype, "conversionRate", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'jsonb',
+        nullable: true
+    }),
+    _ts_metadata("design:type", Array)
+], Campaign.prototype, "attachments", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        type: 'text',
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Campaign.prototype, "notes", void 0);
+_ts_decorate([
     (0, _typeorm.CreateDateColumn)(),
     _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
 ], Campaign.prototype, "createdAt", void 0);

@@ -43,49 +43,73 @@ let LeadsService = class LeadsService {
         await this.seedDefaultData();
     }
     async seedDefaultData() {
-        const sourcesCount = await this.leadSourceRepository.count();
-        if (sourcesCount === 0) {
-            const defaultSources = [
-                'Website',
-                'LinkedIn',
-                'Referral',
-                'Cold Call',
-                'Trade Show',
-                'Google Ads',
-                'Email Campaign'
-            ];
-            for (const name of defaultSources){
+        // Sources — insert only if not already present (safe on every restart)
+        const defaultSources = [
+            'Website',
+            'Facebook',
+            'LinkedIn',
+            'Google Ads',
+            'Email Campaign',
+            'SMS Campaign',
+            'WhatsApp Campaign',
+            'Referral',
+            'Trade Show',
+            'Cold Call',
+            'Vendor Referral',
+            'Manual Entry'
+        ];
+        for (const name of defaultSources){
+            const exists = await this.leadSourceRepository.findOne({
+                where: {
+                    name
+                }
+            });
+            if (!exists) {
                 await this.leadSourceRepository.save({
                     name,
                     isActive: true
                 });
             }
         }
-        const stagesCount = await this.pipelineStageRepository.count();
-        if (stagesCount === 0) {
-            const defaultStages = [
-                {
-                    name: 'New',
-                    order: 1,
-                    isDefault: true
-                },
-                {
-                    name: 'Contacted',
-                    order: 2
-                },
-                {
-                    name: 'Qualified',
-                    order: 3
-                },
-                {
-                    name: 'Unqualified',
-                    order: 4
+        // Pipeline stages — insert only if not already present
+        const defaultStages = [
+            {
+                name: 'New',
+                order: 1,
+                isDefault: true
+            },
+            {
+                name: 'Contacted',
+                order: 2
+            },
+            {
+                name: 'Qualified',
+                order: 3
+            },
+            {
+                name: 'Proposal Sent',
+                order: 4
+            },
+            {
+                name: 'Converted',
+                order: 5
+            },
+            {
+                name: 'Lost',
+                order: 6
+            }
+        ];
+        for (const stage of defaultStages){
+            const exists = await this.pipelineStageRepository.findOne({
+                where: {
+                    name: stage.name
                 }
-            ];
-            for (const stage of defaultStages){
+            });
+            if (!exists) {
                 await this.pipelineStageRepository.save(stage);
             }
         }
+        // Score categories — insert only if none exist
         const scoresCount = await this.scoreCategoryRepository.count();
         if (scoresCount === 0) {
             const defaultScores = [
@@ -109,6 +133,7 @@ let LeadsService = class LeadsService {
                 await this.scoreCategoryRepository.save(score);
             }
         }
+        // Priorities — insert only if none exist
         const prioritiesCount = await this.priorityRepository.count();
         if (prioritiesCount === 0) {
             const defaultPriorities = [
@@ -137,6 +162,7 @@ let LeadsService = class LeadsService {
                 await this.priorityRepository.save(priority);
             }
         }
+        // Qualification stages — insert only if none exist
         const qualificationsCount = await this.qualificationStageRepository.count();
         if (qualificationsCount === 0) {
             const defaultQualifications = [
@@ -167,12 +193,13 @@ let LeadsService = class LeadsService {
                 'priority',
                 'qualificationStage',
                 'owner',
-                'account'
+                'account',
+                'campaign'
             ]
         });
     }
     async findAllPaginated(page = 1, limit = 10, search, stageId) {
-        const queryBuilder = this.leadRepository.createQueryBuilder('lead').leftJoinAndSelect('lead.owner', 'owner').leftJoinAndSelect('lead.source', 'source').leftJoinAndSelect('lead.stage', 'stage').leftJoinAndSelect('lead.scoreCategory', 'scoreCategory').leftJoinAndSelect('lead.priority', 'priority').leftJoinAndSelect('lead.qualificationStage', 'qualificationStage');
+        const queryBuilder = this.leadRepository.createQueryBuilder('lead').leftJoinAndSelect('lead.owner', 'owner').leftJoinAndSelect('lead.source', 'source').leftJoinAndSelect('lead.stage', 'stage').leftJoinAndSelect('lead.scoreCategory', 'scoreCategory').leftJoinAndSelect('lead.priority', 'priority').leftJoinAndSelect('lead.qualificationStage', 'qualificationStage').leftJoinAndSelect('lead.campaign', 'campaign');
         if (search) {
             queryBuilder.andWhere('(lead.name ILIKE :search OR lead.emails::text ILIKE :search OR lead.company ILIKE :search)', {
                 search: `%${search}%`
@@ -209,7 +236,8 @@ let LeadsService = class LeadsService {
                 'priority',
                 'qualificationStage',
                 'owner',
-                'account'
+                'account',
+                'campaign'
             ]
         });
         if (!lead) throw new _common.NotFoundException('Lead not found');
@@ -257,22 +285,18 @@ let LeadsService = class LeadsService {
     }
     async update(id, data, actorUserId) {
         const lead = await this.findOne(id);
-        const wasWon = lead.stage?.name?.toLowerCase().includes('won');
-        const wasLost = lead.stage?.name?.toLowerCase().includes('unqualified') || lead.stage?.name?.toLowerCase().includes('lost');
+        const wasWon = lead.stage?.name?.toLowerCase() === 'converted';
+        const wasLost = lead.stage?.name?.toLowerCase() === 'lost';
         const isNowWon = data.stageId && (await this.pipelineStageRepository.findOne({
             where: {
                 id: data.stageId
             }
-        }))?.name?.toLowerCase().includes('won');
+        }))?.name?.toLowerCase() === 'converted';
         const isNowLost = data.stageId && (await this.pipelineStageRepository.findOne({
             where: {
                 id: data.stageId
             }
-        }))?.name?.toLowerCase().includes('unqualified') || data.stageId && (await this.pipelineStageRepository.findOne({
-            where: {
-                id: data.stageId
-            }
-        }))?.name?.toLowerCase().includes('lost');
+        }))?.name?.toLowerCase() === 'lost';
         const updateData = {
             ...data,
             lastActivity: 'Just now'
@@ -283,7 +307,7 @@ let LeadsService = class LeadsService {
         }
         await this.leadRepository.update(id, updateData);
         if (!wasWon && isNowWon) {
-            const wonStage = await this.pipelineStageRepository.findOne({
+            const wonStage = await this.dealStageRepository.findOne({
                 where: {
                     name: 'Closed Won'
                 }
@@ -568,7 +592,7 @@ let LeadsService = class LeadsService {
                     website: lead.website,
                     industry: lead.industry,
                     location: lead.location,
-                    ownerId: ownerId
+                    owner: lead.owner ? `${lead.owner.name} <${lead.owner.email}>` : undefined
                 });
                 accountId = Array.isArray(account) ? account[0].id : account.id;
             }
@@ -578,7 +602,7 @@ let LeadsService = class LeadsService {
                 name: lead.name + "'s Company",
                 industry: lead.industry,
                 location: lead.location,
-                ownerId: ownerId
+                owner: lead.owner ? `${lead.owner.name} <${lead.owner.email}>` : undefined
             });
             accountId = Array.isArray(account) ? account[0].id : account.id;
         }

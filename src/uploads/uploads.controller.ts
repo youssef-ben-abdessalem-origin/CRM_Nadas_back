@@ -35,7 +35,7 @@ export class UploadsController {
   async uploadDocument(
     @Request() req: any,
     @UploadedFile() file: Express.Multer.File,
-    @Body('entityType') entityType: 'lead' | 'contact' | 'account',
+    @Body('entityType') entityType: 'lead' | 'contact' | 'account' | 'campaign',
     @Body('entityId') entityId: number,
   ) {
     return this.uploadsService.uploadDocument(entityType, entityId, file);

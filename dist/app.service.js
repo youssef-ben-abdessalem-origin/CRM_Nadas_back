@@ -12,6 +12,7 @@ const _common = require("@nestjs/common");
 const _typeorm = require("@nestjs/typeorm");
 const _typeorm1 = require("typeorm");
 const _userentity = require("./users/entities/user.entity");
+const _roleentity = require("./roles/entities/role.entity");
 const _bcrypt = /*#__PURE__*/ _interop_require_wildcard(require("bcrypt"));
 function _getRequireWildcardCache(nodeInterop) {
     if (typeof WeakMap !== "function") return null;
@@ -76,27 +77,35 @@ let DataInitializer = class DataInitializer {
             }
         });
         if (!adminExists) {
+            const adminRole = await this.roleRepository.findOne({
+                where: {
+                    name: 'ADMIN'
+                }
+            });
             const hashedPassword = await _bcrypt.hash('admin123', 10);
             const admin = this.userRepository.create({
                 name: 'Admin User',
                 email: 'admin@nexus.com',
                 password: hashedPassword,
-                role: _userentity.Role.ADMIN,
+                role: adminRole || undefined,
                 enabled: true
             });
             await this.userRepository.save(admin);
             console.log('Default admin user created: admin@nexus.com / admin123');
         }
     }
-    constructor(userRepository){
+    constructor(userRepository, roleRepository){
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
 };
 DataInitializer = _ts_decorate([
     (0, _common.Injectable)(),
     _ts_param(0, (0, _typeorm.InjectRepository)(_userentity.User)),
+    _ts_param(1, (0, _typeorm.InjectRepository)(_roleentity.Role)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository
     ])
 ], DataInitializer);

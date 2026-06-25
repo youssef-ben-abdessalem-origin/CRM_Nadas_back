@@ -98,7 +98,42 @@ const _automationruleentity = require("./automations/entities/automation-rule.en
 const _automationsmodule = require("./automations/automations.module");
 const _departmententity = require("./departments/entities/department.entity");
 const _departmentsmodule = require("./departments/departments.module");
+const _costcenterentity = require("./cost-centers/entities/cost-center.entity");
+const _costcentersmodule = require("./cost-centers/cost-centers.module");
 const _vendorcategoryentity = require("./vendors/entities/vendor-category.entity");
+const _employeeentity = require("./hr/entities/employee.entity");
+const _positionentity = require("./hr/entities/position.entity");
+const _contractentity = require("./hr/entities/contract.entity");
+const _attendanceentity = require("./hr/entities/attendance.entity");
+const _leavetypeentity = require("./hr/entities/leave-type.entity");
+const _leaverequestentity = require("./hr/entities/leave-request.entity");
+const _employeedocumententity = require("./hr/entities/employee-document.entity");
+const _cnssprofileentity = require("./hr/entities/cnss-profile.entity");
+const _irpptaxprofileentity = require("./hr/entities/irpp-tax-profile.entity");
+const _shiftentity = require("./hr/entities/shift.entity");
+const _shiftassignmententity = require("./hr/entities/shift-assignment.entity");
+const _overtimerequestentity = require("./hr/entities/overtime-request.entity");
+const _leavebalanceentity = require("./hr/entities/leave-balance.entity");
+const _kpientity = require("./hr/entities/kpi.entity");
+const _kpiassignmententity = require("./hr/entities/kpi-assignment.entity");
+const _goalentity = require("./hr/entities/goal.entity");
+const _performancereviewentity = require("./hr/entities/performance-review.entity");
+const _vacationaccrualruleentity = require("./hr/entities/vacation-accrual-rule.entity");
+const _hrsettingsentity = require("./hr/entities/hr-settings.entity");
+const _salarycomponententity = require("./payroll/entities/salary-component.entity");
+const _employeesalarycomponententity = require("./payroll/entities/employee-salary-component.entity");
+const _payrollprofileentity = require("./payroll/entities/payroll-profile.entity");
+const _payrollperiodentity = require("./payroll/entities/payroll-period.entity");
+const _payslipentity = require("./payroll/entities/payslip.entity");
+const _payslipdetailentity = require("./payroll/entities/payslip-detail.entity");
+const _loanentity = require("./payroll/entities/loan.entity");
+const _advanceentity = require("./payroll/entities/advance.entity");
+const _payrollsettingsentity = require("./payroll/entities/payroll-settings.entity");
+const _cnssdeclarationentity = require("./payroll/entities/cnss-declaration.entity");
+const _irppdeclarationentity = require("./payroll/entities/irpp-declaration.entity");
+const _banktransferfileentity = require("./payroll/entities/bank-transfer-file.entity");
+const _hrmodule = require("./hr/hr.module");
+const _payrollmodule = require("./payroll/payroll.module");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -181,10 +216,42 @@ AppModule = _ts_decorate([
                     _vendorentity.Vendor,
                     _automationruleentity.AutomationRule,
                     _departmententity.Department,
+                    _costcenterentity.CostCenter,
                     _carrierentity.Carrier,
                     _companysettingsentity.CompanySettings,
                     _vendorcategoryentity.VendorCategory,
-                    _billingentity.Payment
+                    _billingentity.Payment,
+                    _employeeentity.Employee,
+                    _positionentity.Position,
+                    _contractentity.Contract,
+                    _attendanceentity.Attendance,
+                    _leavetypeentity.LeaveType,
+                    _leaverequestentity.LeaveRequest,
+                    _employeedocumententity.EmployeeDocument,
+                    _cnssprofileentity.CnssProfile,
+                    _irpptaxprofileentity.IrppTaxProfile,
+                    _shiftentity.Shift,
+                    _shiftassignmententity.ShiftAssignment,
+                    _overtimerequestentity.OvertimeRequest,
+                    _leavebalanceentity.LeaveBalance,
+                    _kpientity.Kpi,
+                    _kpiassignmententity.KpiAssignment,
+                    _goalentity.Goal,
+                    _performancereviewentity.PerformanceReview,
+                    _vacationaccrualruleentity.VacationAccrualRule,
+                    _hrsettingsentity.HrSettings,
+                    _salarycomponententity.SalaryComponent,
+                    _employeesalarycomponententity.EmployeeSalaryComponent,
+                    _payrollprofileentity.PayrollProfile,
+                    _payrollperiodentity.PayrollPeriod,
+                    _payslipentity.Payslip,
+                    _payslipdetailentity.PayslipDetail,
+                    _loanentity.Loan,
+                    _advanceentity.Advance,
+                    _payrollsettingsentity.PayrollSettings,
+                    _cnssdeclarationentity.CnssDeclaration,
+                    _irppdeclarationentity.IrppDeclaration,
+                    _banktransferfileentity.BankTransferFile
                 ]
             }),
             _jwt.JwtModule.register({
@@ -219,7 +286,10 @@ AppModule = _ts_decorate([
             _campaignsmodule.CampaignsModule,
             _vendorsmodule.VendorsModule,
             _automationsmodule.AutomationsModule,
-            _departmentsmodule.DepartmentsModule
+            _departmentsmodule.DepartmentsModule,
+            _costcentersmodule.CostCentersModule,
+            _hrmodule.HrModule,
+            _payrollmodule.PayrollModule
         ],
         providers: [
             {

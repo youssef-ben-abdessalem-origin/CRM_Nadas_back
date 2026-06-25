@@ -306,7 +306,7 @@ let DashboardService = class DashboardService {
             activities.push({
                 id: `contact-${contact.id}`,
                 type: 'contact',
-                text: `New contact added: ${contact.firstName} ${contact.lastName}`,
+                text: `New contact added: ${contact.name}`,
                 time: 'Today',
                 timestamp: Date.now()
             });

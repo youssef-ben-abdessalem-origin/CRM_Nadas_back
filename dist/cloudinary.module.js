@@ -17,9 +17,9 @@ function _ts_decorate(decorators, target, key, desc) {
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 }
 _cloudinary.v2.config({
-    cloud_name: 'dp1lir8kc',
-    api_key: '565189924782621',
-    api_secret: 'I771l-EUZqsnrXOf38dgXNs1Dps'
+    cloud_name: 'dppdwnjo8',
+    api_key: '274699343335685',
+    api_secret: '_GabaovQ4jU2NnPT7pTM6h_bhCs'
 });
 let CloudinaryModule = class CloudinaryModule {
 };

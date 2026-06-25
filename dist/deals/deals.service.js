@@ -157,7 +157,8 @@ let DealsService = class DealsService {
         return this.dealRepository.find({
             relations: [
                 'stage',
-                'reason'
+                'reason',
+                'campaign'
             ]
         });
     }
@@ -168,7 +169,8 @@ let DealsService = class DealsService {
             },
             relations: [
                 'stage',
-                'reason'
+                'reason',
+                'campaign'
             ],
             order: {
                 createdAt: 'DESC'
@@ -182,7 +184,8 @@ let DealsService = class DealsService {
             },
             relations: [
                 'stage',
-                'reason'
+                'reason',
+                'campaign'
             ],
             order: {
                 createdAt: 'DESC'
@@ -196,7 +199,8 @@ let DealsService = class DealsService {
             },
             relations: [
                 'stage',
-                'reason'
+                'reason',
+                'campaign'
             ],
             order: {
                 createdAt: 'DESC'
@@ -210,7 +214,8 @@ let DealsService = class DealsService {
             },
             relations: [
                 'stage',
-                'reason'
+                'reason',
+                'campaign'
             ]
         });
         if (!deal) throw new _common.NotFoundException('Deal not found');

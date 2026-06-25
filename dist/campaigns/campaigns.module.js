@@ -15,6 +15,11 @@ const _campaignsservice = require("./campaigns.service");
 const _campaignentity = require("./entities/campaign.entity");
 const _campaigntypeentity = require("./entities/campaign-type.entity");
 const _campaignstatusentity = require("./entities/campaign-status.entity");
+const _leadentity = require("../leads/entities/lead.entity");
+const _dealentity = require("../deals/entities/deal.entity");
+const _activityentity = require("../activities/entities/activity.entity");
+const _gmailmodule = require("../gmail/gmail.module");
+const _leadsmodule = require("../leads/leads.module");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -29,8 +34,13 @@ CampaignsModule = _ts_decorate([
             _typeorm.TypeOrmModule.forFeature([
                 _campaignentity.Campaign,
                 _campaigntypeentity.CampaignType,
-                _campaignstatusentity.CampaignStatus
-            ])
+                _campaignstatusentity.CampaignStatus,
+                _leadentity.Lead,
+                _dealentity.Deal,
+                _activityentity.Activity
+            ]),
+            _gmailmodule.GmailModule,
+            _leadsmodule.LeadsModule
         ],
         controllers: [
             _campaignscontroller.CampaignsController

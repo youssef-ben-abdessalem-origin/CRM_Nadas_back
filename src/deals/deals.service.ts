@@ -73,13 +73,13 @@ export class DealsService implements OnModuleInit {
   }
 
   async findAll(): Promise<Deal[]> {
-    return this.dealRepository.find({ relations: ['stage', 'reason'] });
+    return this.dealRepository.find({ relations: ['stage', 'reason', 'campaign'] });
   }
 
   async findByContact(contactId: number): Promise<Deal[]> {
     return this.dealRepository.find({
       where: { contactId },
-      relations: ['stage', 'reason'],
+      relations: ['stage', 'reason', 'campaign'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -87,7 +87,7 @@ export class DealsService implements OnModuleInit {
   async findByAccount(accountId: number): Promise<Deal[]> {
     return this.dealRepository.find({
       where: { accountId },
-      relations: ['stage', 'reason'],
+      relations: ['stage', 'reason', 'campaign'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -95,13 +95,13 @@ export class DealsService implements OnModuleInit {
   async findByLead(leadId: number): Promise<Deal[]> {
     return this.dealRepository.find({
       where: { leadId },
-      relations: ['stage', 'reason'],
+      relations: ['stage', 'reason', 'campaign'],
       order: { createdAt: 'DESC' },
     });
   }
 
   async findOne(id: number): Promise<Deal> {
-    const deal = await this.dealRepository.findOne({ where: { id }, relations: ['stage', 'reason'] });
+    const deal = await this.dealRepository.findOne({ where: { id }, relations: ['stage', 'reason', 'campaign'] });
     if (!deal) throw new NotFoundException('Deal not found');
     return deal;
   }

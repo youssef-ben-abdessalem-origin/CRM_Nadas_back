@@ -50,27 +50,45 @@ export class LeadsService implements OnModuleInit {
   }
 
   private async seedDefaultData() {
-    const sourcesCount = await this.leadSourceRepository.count();
-    if (sourcesCount === 0) {
-      const defaultSources = ['Website', 'LinkedIn', 'Referral', 'Cold Call', 'Trade Show', 'Google Ads', 'Email Campaign'];
-      for (const name of defaultSources) {
+    // Sources — insert only if not already present (safe on every restart)
+    const defaultSources = [
+      'Website',
+      'Facebook',
+      'LinkedIn',
+      'Google Ads',
+      'Email Campaign',
+      'SMS Campaign',
+      'WhatsApp Campaign',
+      'Referral',
+      'Trade Show',
+      'Cold Call',
+      'Vendor Referral',
+      'Manual Entry',
+    ];
+    for (const name of defaultSources) {
+      const exists = await this.leadSourceRepository.findOne({ where: { name } });
+      if (!exists) {
         await this.leadSourceRepository.save({ name, isActive: true });
       }
     }
 
-    const stagesCount = await this.pipelineStageRepository.count();
-    if (stagesCount === 0) {
-      const defaultStages = [
-        { name: 'New', order: 1, isDefault: true },
-        { name: 'Contacted', order: 2 },
-        { name: 'Qualified', order: 3 },
-        { name: 'Unqualified', order: 4 },
-      ];
-      for (const stage of defaultStages) {
+    // Pipeline stages — insert only if not already present
+    const defaultStages = [
+      { name: 'New', order: 1, isDefault: true },
+      { name: 'Contacted', order: 2 },
+      { name: 'Qualified', order: 3 },
+      { name: 'Proposal Sent', order: 4 },
+      { name: 'Converted', order: 5 },
+      { name: 'Lost', order: 6 },
+    ];
+    for (const stage of defaultStages) {
+      const exists = await this.pipelineStageRepository.findOne({ where: { name: stage.name } });
+      if (!exists) {
         await this.pipelineStageRepository.save(stage);
       }
     }
 
+    // Score categories — insert only if none exist
     const scoresCount = await this.scoreCategoryRepository.count();
     if (scoresCount === 0) {
       const defaultScores = [
@@ -83,6 +101,7 @@ export class LeadsService implements OnModuleInit {
       }
     }
 
+    // Priorities — insert only if none exist
     const prioritiesCount = await this.priorityRepository.count();
     if (prioritiesCount === 0) {
       const defaultPriorities = [
@@ -96,6 +115,7 @@ export class LeadsService implements OnModuleInit {
       }
     }
 
+    // Qualification stages — insert only if none exist
     const qualificationsCount = await this.qualificationStageRepository.count();
     if (qualificationsCount === 0) {
       const defaultQualifications = [
@@ -111,7 +131,7 @@ export class LeadsService implements OnModuleInit {
 
   async findAll(): Promise<Lead[]> {
     return this.leadRepository.find({ 
-      relations: ['source', 'stage', 'scoreCategory', 'priority', 'qualificationStage', 'owner', 'account'] 
+      relations: ['source', 'stage', 'scoreCategory', 'priority', 'qualificationStage', 'owner', 'account', 'campaign'] 
     });
   }
 
@@ -122,7 +142,8 @@ export class LeadsService implements OnModuleInit {
       .leftJoinAndSelect('lead.stage', 'stage')
       .leftJoinAndSelect('lead.scoreCategory', 'scoreCategory')
       .leftJoinAndSelect('lead.priority', 'priority')
-      .leftJoinAndSelect('lead.qualificationStage', 'qualificationStage');
+      .leftJoinAndSelect('lead.qualificationStage', 'qualificationStage')
+      .leftJoinAndSelect('lead.campaign', 'campaign');
 
     if (search) {
       queryBuilder.andWhere(
@@ -157,7 +178,7 @@ export class LeadsService implements OnModuleInit {
   async findOne(id: number): Promise<Lead> {
     const lead = await this.leadRepository.findOne({ 
       where: { id }, 
-      relations: ['source', 'stage', 'scoreCategory', 'priority', 'qualificationStage', 'owner', 'account'] 
+      relations: ['source', 'stage', 'scoreCategory', 'priority', 'qualificationStage', 'owner', 'account', 'campaign'] 
     });
     if (!lead) throw new NotFoundException('Lead not found');
     return lead;
@@ -201,10 +222,10 @@ export class LeadsService implements OnModuleInit {
 
   async update(id: number, data: Partial<Lead>, actorUserId?: number): Promise<Lead> {
     const lead = await this.findOne(id);
-    const wasWon = lead.stage?.name?.toLowerCase().includes('won');
-    const wasLost = lead.stage?.name?.toLowerCase().includes('unqualified') || lead.stage?.name?.toLowerCase().includes('lost');
-    const isNowWon = data.stageId && (await this.pipelineStageRepository.findOne({ where: { id: data.stageId } }))?.name?.toLowerCase().includes('won');
-    const isNowLost = data.stageId && (await this.pipelineStageRepository.findOne({ where: { id: data.stageId } }))?.name?.toLowerCase().includes('unqualified') || (data.stageId && (await this.pipelineStageRepository.findOne({ where: { id: data.stageId } }))?.name?.toLowerCase().includes('lost'));
+    const wasWon = lead.stage?.name?.toLowerCase() === 'converted';
+    const wasLost = lead.stage?.name?.toLowerCase() === 'lost';
+    const isNowWon = data.stageId && (await this.pipelineStageRepository.findOne({ where: { id: data.stageId } }))?.name?.toLowerCase() === 'converted';
+    const isNowLost = data.stageId && (await this.pipelineStageRepository.findOne({ where: { id: data.stageId } }))?.name?.toLowerCase() === 'lost';
     
     const updateData: any = {
       ...data,
@@ -219,7 +240,7 @@ export class LeadsService implements OnModuleInit {
     await this.leadRepository.update(id, updateData);
 
     if (!wasWon && isNowWon) {
-      const wonStage = await this.pipelineStageRepository.findOne({ where: { name: 'Closed Won' } });
+      const wonStage = await this.dealStageRepository.findOne({ where: { name: 'Closed Won' } });
       await this.dealsService.create({
         name: `${lead.name} - Deal`,
         company: lead.company,
@@ -420,7 +441,7 @@ export class LeadsService implements OnModuleInit {
           website: lead.website,
           industry: lead.industry,
           location: lead.location,
-          ownerId: ownerId,
+          owner: lead.owner ? `${lead.owner.name} <${lead.owner.email}>` : undefined,
         });
         accountId = Array.isArray(account) ? account[0].id : account.id;
       }
@@ -430,7 +451,7 @@ export class LeadsService implements OnModuleInit {
         name: lead.name + "'s Company",
         industry: lead.industry,
         location: lead.location,
-        ownerId: ownerId,
+        owner: lead.owner ? `${lead.owner.name} <${lead.owner.email}>` : undefined,
       });
       accountId = Array.isArray(account) ? account[0].id : account.id;
     }

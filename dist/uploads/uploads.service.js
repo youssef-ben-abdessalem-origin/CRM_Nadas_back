@@ -13,6 +13,7 @@ const _typeorm = require("@nestjs/typeorm");
 const _typeorm1 = require("typeorm");
 const _userentity = require("../users/entities/user.entity");
 const _leadentity = require("../leads/entities/lead.entity");
+const _campaignentity = require("../campaigns/entities/campaign.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -71,6 +72,19 @@ let UploadsService = class UploadsService {
                     attachments
                 });
             }
+        } else if (entityType === 'campaign') {
+            const campaign = await this.campaignRepository.findOne({
+                where: {
+                    id: entityId
+                }
+            });
+            if (campaign) {
+                const attachments = campaign.attachments || [];
+                attachments.push(attachment);
+                await this.campaignRepository.update(entityId, {
+                    attachments
+                });
+            }
         }
         return {
             url: result.secure_url,
@@ -94,10 +108,11 @@ let UploadsService = class UploadsService {
             url: result.secure_url
         };
     }
-    constructor(cloudinary, userRepository, leadRepository){
+    constructor(cloudinary, userRepository, leadRepository, campaignRepository){
         this.cloudinary = cloudinary;
         this.userRepository = userRepository;
         this.leadRepository = leadRepository;
+        this.campaignRepository = campaignRepository;
     }
 };
 UploadsService = _ts_decorate([
@@ -105,9 +120,11 @@ UploadsService = _ts_decorate([
     _ts_param(0, (0, _common.Inject)('CLOUDINARY')),
     _ts_param(1, (0, _typeorm.InjectRepository)(_userentity.User)),
     _ts_param(2, (0, _typeorm.InjectRepository)(_leadentity.Lead)),
+    _ts_param(3, (0, _typeorm.InjectRepository)(_campaignentity.Campaign)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
         Object,
+        typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository,
         typeof _typeorm1.Repository === "undefined" ? Object : _typeorm1.Repository
     ])

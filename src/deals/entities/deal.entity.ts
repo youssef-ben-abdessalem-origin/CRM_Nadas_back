@@ -5,6 +5,7 @@ import { Account } from '../../accounts/entities/account.entity';
 import { Contact } from '../../contacts/entities/contact.entity';
 import { DealStage } from './deal-stage.entity';
 import { DealReason } from './deal-reason.entity';
+import { Campaign } from '../../campaigns/entities/campaign.entity';
 
 @Entity('deals')
 export class Deal {
@@ -79,4 +80,11 @@ export class Deal {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @ManyToOne(() => Campaign, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'campaignId' })
+  campaign: Campaign;
+
+  @Column({ nullable: true })
+  campaignId: number;
 }

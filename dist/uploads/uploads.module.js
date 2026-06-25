@@ -16,6 +16,7 @@ const _uploadscontroller = require("./uploads.controller");
 const _uploadsservice = require("./uploads.service");
 const _userentity = require("../users/entities/user.entity");
 const _leadentity = require("../leads/entities/lead.entity");
+const _campaignentity = require("../campaigns/entities/campaign.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -30,7 +31,8 @@ UploadsModule = _ts_decorate([
             _cloudinarymodule.CloudinaryModule,
             _typeorm.TypeOrmModule.forFeature([
                 _userentity.User,
-                _leadentity.Lead
+                _leadentity.Lead,
+                _campaignentity.Campaign
             ]),
             _platformexpress.MulterModule.register({
                 limits: {

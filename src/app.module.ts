@@ -88,7 +88,44 @@ import { AutomationRule } from "./automations/entities/automation-rule.entity";
 import { AutomationsModule } from "./automations/automations.module";
 import { Department } from "./departments/entities/department.entity";
 import { DepartmentsModule } from "./departments/departments.module";
+import { CostCenter } from "./cost-centers/entities/cost-center.entity";
+import { CostCentersModule } from "./cost-centers/cost-centers.module";
 import { VendorCategory } from "./vendors/entities/vendor-category.entity";
+
+import { Employee } from "./hr/entities/employee.entity";
+import { Position } from "./hr/entities/position.entity";
+import { Contract } from "./hr/entities/contract.entity";
+import { Attendance } from "./hr/entities/attendance.entity";
+import { LeaveType } from "./hr/entities/leave-type.entity";
+import { LeaveRequest } from "./hr/entities/leave-request.entity";
+import { EmployeeDocument } from "./hr/entities/employee-document.entity";
+import { CnssProfile } from "./hr/entities/cnss-profile.entity";
+import { IrppTaxProfile } from "./hr/entities/irpp-tax-profile.entity";
+import { Shift } from "./hr/entities/shift.entity";
+import { ShiftAssignment } from "./hr/entities/shift-assignment.entity";
+import { OvertimeRequest } from "./hr/entities/overtime-request.entity";
+import { LeaveBalance } from "./hr/entities/leave-balance.entity";
+import { Kpi } from "./hr/entities/kpi.entity";
+import { KpiAssignment } from "./hr/entities/kpi-assignment.entity";
+import { Goal } from "./hr/entities/goal.entity";
+import { PerformanceReview } from "./hr/entities/performance-review.entity";
+import { VacationAccrualRule } from "./hr/entities/vacation-accrual-rule.entity";
+import { HrSettings } from "./hr/entities/hr-settings.entity";
+import { SalaryComponent } from "./payroll/entities/salary-component.entity";
+import { EmployeeSalaryComponent } from "./payroll/entities/employee-salary-component.entity";
+import { PayrollProfile } from "./payroll/entities/payroll-profile.entity";
+import { PayrollPeriod } from "./payroll/entities/payroll-period.entity";
+import { Payslip } from "./payroll/entities/payslip.entity";
+import { PayslipDetail } from "./payroll/entities/payslip-detail.entity";
+import { Loan } from "./payroll/entities/loan.entity";
+import { Advance } from "./payroll/entities/advance.entity";
+import { PayrollSettings } from "./payroll/entities/payroll-settings.entity";
+import { CnssDeclaration } from "./payroll/entities/cnss-declaration.entity";
+import { IrppDeclaration } from "./payroll/entities/irpp-declaration.entity";
+import { BankTransferFile } from "./payroll/entities/bank-transfer-file.entity";
+
+import { HrModule } from "./hr/hr.module";
+import { PayrollModule } from "./payroll/payroll.module";
 
 @Module({
   imports: [
@@ -163,10 +200,42 @@ import { VendorCategory } from "./vendors/entities/vendor-category.entity";
         Vendor,
         AutomationRule,
         Department,
+        CostCenter,
         Carrier,
         CompanySettings,
         VendorCategory,
-        Payment
+        Payment,
+        Employee,
+        Position,
+        Contract,
+        Attendance,
+        LeaveType,
+        LeaveRequest,
+        EmployeeDocument,
+        CnssProfile,
+        IrppTaxProfile,
+        Shift,
+        ShiftAssignment,
+        OvertimeRequest,
+        LeaveBalance,
+        Kpi,
+        KpiAssignment,
+        Goal,
+        PerformanceReview,
+        VacationAccrualRule,
+        HrSettings,
+        SalaryComponent,
+        EmployeeSalaryComponent,
+        PayrollProfile,
+        PayrollPeriod,
+        Payslip,
+        PayslipDetail,
+        Loan,
+        Advance,
+        PayrollSettings,
+        CnssDeclaration,
+        IrppDeclaration,
+        BankTransferFile
       ],
     }),
     JwtModule.register({
@@ -199,6 +268,9 @@ import { VendorCategory } from "./vendors/entities/vendor-category.entity";
     VendorsModule,
     AutomationsModule,
     DepartmentsModule,
+    CostCentersModule,
+    HrModule,
+    PayrollModule,
   ],
   providers: [
     {

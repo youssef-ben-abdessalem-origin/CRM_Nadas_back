@@ -62,7 +62,7 @@ export class VendorsService {
     return vendor;
   }
 
-  async create(data: any): Promise<Vendor> {
+  async create(data: Partial<Vendor>): Promise<Vendor> {
     const vendor = this.vendorRepository.create(data);
     return this.vendorRepository.save(vendor);
   }

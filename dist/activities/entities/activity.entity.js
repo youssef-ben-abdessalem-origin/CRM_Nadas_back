@@ -32,6 +32,7 @@ var ActivityEntityType = /*#__PURE__*/ function(ActivityEntityType) {
     ActivityEntityType["CONTACT"] = "contact";
     ActivityEntityType["ACCOUNT"] = "account";
     ActivityEntityType["DEAL"] = "deal";
+    ActivityEntityType["CAMPAIGN"] = "campaign";
     return ActivityEntityType;
 }({});
 let Activity = class Activity {

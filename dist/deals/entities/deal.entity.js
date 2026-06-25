@@ -15,6 +15,7 @@ const _accountentity = require("../../accounts/entities/account.entity");
 const _contactentity = require("../../contacts/entities/contact.entity");
 const _dealstageentity = require("./deal-stage.entity");
 const _dealreasonentity = require("./deal-reason.entity");
+const _campaignentity = require("../../campaigns/entities/campaign.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -179,6 +180,22 @@ _ts_decorate([
     (0, _typeorm.CreateDateColumn)(),
     _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
 ], Deal.prototype, "createdAt", void 0);
+_ts_decorate([
+    (0, _typeorm.ManyToOne)(()=>_campaignentity.Campaign, {
+        nullable: true,
+        onDelete: 'SET NULL'
+    }),
+    (0, _typeorm.JoinColumn)({
+        name: 'campaignId'
+    }),
+    _ts_metadata("design:type", typeof _campaignentity.Campaign === "undefined" ? Object : _campaignentity.Campaign)
+], Deal.prototype, "campaign", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Deal.prototype, "campaignId", void 0);
 Deal = _ts_decorate([
     (0, _typeorm.Entity)('deals')
 ], Deal);

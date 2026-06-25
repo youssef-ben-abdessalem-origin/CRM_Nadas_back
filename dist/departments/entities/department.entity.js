@@ -39,6 +39,35 @@ _ts_decorate([
     _ts_metadata("design:type", String)
 ], Department.prototype, "description", void 0);
 _ts_decorate([
+    (0, _typeorm.Column)({
+        unique: true,
+        nullable: true
+    }),
+    _ts_metadata("design:type", String)
+], Department.prototype, "code", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        default: "Active"
+    }),
+    _ts_metadata("design:type", String)
+], Department.prototype, "status", void 0);
+_ts_decorate([
+    (0, _typeorm.ManyToOne)("Employee", {
+        nullable: true,
+        onDelete: "SET NULL"
+    }),
+    (0, _typeorm.JoinColumn)({
+        name: "managerId"
+    }),
+    _ts_metadata("design:type", typeof Employee === "undefined" ? Object : Employee)
+], Department.prototype, "manager", void 0);
+_ts_decorate([
+    (0, _typeorm.Column)({
+        nullable: true
+    }),
+    _ts_metadata("design:type", Number)
+], Department.prototype, "managerId", void 0);
+_ts_decorate([
     (0, _typeorm.ManyToOne)(()=>_userentity.User, {
         nullable: true,
         eager: true

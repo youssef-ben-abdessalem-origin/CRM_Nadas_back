@@ -6,6 +6,7 @@ export enum ActivityEntityType {
   CONTACT = 'contact',
   ACCOUNT = 'account',
   DEAL = 'deal',
+  CAMPAIGN = 'campaign',
 }
 
 @Entity('activities')

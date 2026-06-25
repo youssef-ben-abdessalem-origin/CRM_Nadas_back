@@ -5,6 +5,7 @@ import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { RolesModule } from '../roles/roles.module';
 import { PermissionsModule } from '../permissions/permissions.module';
+import { DataInitializer } from '../app.service';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { PermissionsModule } from '../permissions/permissions.module';
     RolesModule,
     PermissionsModule,
   ],
-  providers: [UsersService],
+  providers: [UsersService, DataInitializer],
   controllers: [UsersController],
   exports: [UsersService, TypeOrmModule],
 })

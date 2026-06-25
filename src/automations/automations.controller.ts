@@ -12,7 +12,7 @@ import {
 import { AuthGuard } from "@nestjs/passport";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { AutomationsService } from "./automations.service";
-import { AutomationRule } from "./entities/automation-rule.entity";
+import { AutomationRule, AutomationEntityType, AutomationEventType } from "./entities/automation-rule.entity";
 
 @ApiTags("Automations")
 @Controller("automations")

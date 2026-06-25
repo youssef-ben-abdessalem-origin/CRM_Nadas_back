@@ -56,6 +56,36 @@ export class Campaign {
   @Column({ nullable: true })
   ownerId: number;
 
+  @Column({ type: 'varchar', nullable: true, unique: true })
+  campaignCode: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  targetAudience: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  communicationChannel: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  objective: string;
+
+  @Column({ type: 'decimal', precision: 15, scale: 2, nullable: true })
+  actualRevenue: number;
+
+  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
+  actualResponse: number;
+
+  @Column({ type: 'int', nullable: true })
+  leadsGenerated: number;
+
+  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
+  conversionRate: number;
+
+  @Column({ type: 'jsonb', nullable: true })
+  attachments: { url: string; name: string; type: string; uploadedAt: string }[];
+
+  @Column({ type: 'text', nullable: true })
+  notes: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

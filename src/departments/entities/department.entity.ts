@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { User } from "../../users/entities/user.entity";
+import type { Employee } from "../../hr/entities/employee.entity";
 
 @Entity("departments")
 export class Department {
@@ -21,6 +22,19 @@ export class Department {
 
   @Column({ type: "text", nullable: true })
   description: string;
+
+  @Column({ unique: true, nullable: true })
+  code: string;
+
+  @Column({ default: "Active" })
+  status: string;
+
+  @ManyToOne("Employee", { nullable: true, onDelete: "SET NULL" })
+  @JoinColumn({ name: "managerId" })
+  manager: Employee;
+
+  @Column({ nullable: true })
+  managerId: number;
 
   @ManyToOne(() => User, { nullable: true, eager: true })
   @JoinColumn({ name: "representativeId" })
@@ -43,3 +57,4 @@ export class Department {
   @UpdateDateColumn()
   updatedAt: Date;
 }
+
